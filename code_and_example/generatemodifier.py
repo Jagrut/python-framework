@@ -40,7 +40,7 @@ def yaml_reader(filepath):
     pprint(needylist)
     target_list=data["TARGETS"].split(",")
     for each_target_list in target_list:
-          open(os.path.join("/home","jk","juniper",each_target_list+"_config"),'w')
+          open(os.path.join("./",each_target_list+"_config"),'w')
     x=len(data['PAS_STATIC_CMDS'])
     if("PAS_STATIC_CMDS" in list1):
     	while(x!=0):
@@ -301,7 +301,7 @@ def config_vlan(data) :
 		
 
 if  __name__ == "__main__" :
-	filepath = "example2cp.yaml"
+	filepath = "./example/example2cp.yaml"
 	
 	data = yaml_reader(filepath)
 	#x = data['VLAN_POOL1']['VLAN_POOL_IPV4']['RANGE']
