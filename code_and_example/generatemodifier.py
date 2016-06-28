@@ -31,7 +31,7 @@ def yaml_reader(filepath):
     #    if not isinstance(data[each_list1],list):
     #            print "real list without junk==="+data[each_list1]+"\n"
     #yaml_chunk=data['groups vlans_irb vlans'][0]['MODIFIER']
-    print "checking yaml chunk\n\n\n"
+    print "checking  yaml chunk\n\n\n"
     #pprint(yaml_chunk);
     print "checking yaml chunk end \n\n\n"
     pprint(data.keys())
