@@ -1,0 +1,40 @@
+set groups vlans_irb vlans 1 vlan-id 1set groups vlans_irb vlans 2 vlan-id 2set groups vlans_irb vlans 3 vlan-id 3set groups vlans_irb vlans 4 vlan-id 4set groups vlans_irb vlans 5 vlan-id 5set groups vlans_irb vlans 1 l3-interface irb.1set groups vlans_irb vlans 2 l3-interface irb.2set groups vlans_irb vlans 3 l3-interface irb.3set groups vlans_irb vlans 4 l3-interface irb.4set groups vlans_irb vlans 5 l3-interface irb.5set groups vlans_irb vlans 1 vlan-id 1set groups vlans_irb vlans 2 vlan-id 2set groups vlans_irb vlans 3 vlan-id 3set groups vlans_irb vlans 4 vlan-id 4set groups vlans_irb vlans 5 vlan-id 5set groups vlans_irb vlans 1 vlan-id 1
+set groups vlans_irb vlans 2 vlan-id 2
+set groups vlans_irb vlans 3 vlan-id 3
+set groups vlans_irb vlans 4 vlan-id 4
+set groups vlans_irb vlans 5 vlan-id 5
+set groups vlans_irb vlans 1 l3-interface irb.1
+set groups vlans_irb vlans 2 l3-interface irb.2
+set groups vlans_irb vlans 3 l3-interface irb.3
+set groups vlans_irb vlans 4 l3-interface irb.4
+set groups vlans_irb vlans 5 l3-interface irb.5
+set groups vlans_irb vlans 1 vlan-id 1
+set groups vlans_irb vlans 2 vlan-id 2
+set groups vlans_irb vlans 3 vlan-id 3
+set groups vlans_irb vlans 4 vlan-id 4
+set groups vlans_irb vlans 5 vlan-id 5
+set groups vlans_irb vlans 1 vlan-id 1
+set groups vlans_irb vlans 2 vlan-id 2
+set groups vlans_irb vlans 3 vlan-id 3
+set groups vlans_irb vlans 4 vlan-id 4
+set groups vlans_irb vlans 5 vlan-id 5
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.1
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.1
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.2
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.2
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.3
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.3
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.4
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.4
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.5
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.5
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.1
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.1
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.2
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.2
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.3
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.3
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.4
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.4
+set groups temp2 protocols  ibgp interfaces irb.1 static group 225.0.0.5
+set groups temp2 protocols  ibgp interfaces irb.2 static group 225.0.0.5

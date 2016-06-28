@@ -1,0 +1,24 @@
+{
+    VLAN_IRB_POOL: &id100 "1-5",
+    'TARGETS': 'R0,R2', 
+    'groups temp2 protocols': [
+        {
+            'TARGETS': 'R0,R2',
+            'VALUE': 'ibgp interfaces irb.$1 static group $2',
+            '$1':{'START':'1', 'COUNT':'2', 'MAPPING':'one2one'},
+            #'$2':{'START':'225.0.0.1/24', 'COUNT':'5', 'TYPE':'IPV4', 'MAPPING':'one2many'}
+            '$2':{'START':'225.0.0.1-5', 'COUNT':'5', 'TYPE':'IPV4', 'MAPPING':'one2many'}
+            #'$2':{'START':'10', 'COUNT':'5', 'MAPPING':'one2many'}
+         }        
+    ],
+    'PAS_STATIC_CMDS': [
+        {
+             'cmd': "set groups igmp_snooping protocols igmp-snooping vlan all \n set groups nsr_nsb system commit synchronize\n set groups nsr_nsb chassis redundancy graceful-switchover\n set groups nsr_nsb routing-options graceful-restart\n deactivate groups nsr_nsb routing-options graceful-restart\n set groups dhcp_relay forwarding-options dhcp-relay server-group server_pdt_1 12.2.0.0\n set groups dhcp_relay forwarding-options dhcp-relay group relay_pdt_1 active-server-group server_pdt_1\n set groups dhcp_relay forwarding-options dhcp-relay group relay_pdt_1 interface irb.1\n set groups base_config_ecmp chassis maximum-ecmp 64\n set groups base_config_ecmp routing-options forwarding-table export lb\n set groups base_config_ecmp policy-options policy-statement lb then load-balance per-packet",
+             'targets': 'R0,R1'
+       },
+       {
+             'cmd': "set groups igmp_snooping protocols igmp-snooping vlan all \n set groups nsr_nsb system commit synchronize\n set groups nsr_nsb chassis redundancy graceful-switchover\n set groups nsr_nsb routing-options graceful-restart\n deactivate groups nsr_nsb routing-options graceful-restart\n set groups dhcp_relay forwarding-options dhcp-relay server-group server_pdt_1 12.2.0.0\n set groups dhcp_relay forwarding-options dhcp-relay group relay_pdt_1 active-server-group server_pdt_1\n set groups dhcp_relay forwarding-options dhcp-relay group relay_pdt_1 interface irb.1\n set groups base_config_ecmp chassis maximum-ecmp 64\n set groups base_config_ecmp routing-options forwarding-table export lb\n set groups base_config_ecmp policy-options policy-statement lb then load-balance per-packet",
+    'targets': 'R3'
+       }
+    ]
+}

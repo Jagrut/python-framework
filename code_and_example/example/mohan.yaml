@@ -1,0 +1,51 @@
+{
+    VLAN_IRB_POOL: &id100 "1-100", 
+    'groups vlans_irb vlans': [
+        {
+            'TARGETS': 'R0, R2',
+            'VALUE': *id100,
+            'VALUE_PREFIX': 'vlan_irb_'
+            'MODIFIER': 
+            {
+                #'COUNT': 100,
+                #'START': 1,
+                'vlan-id': 
+                {
+                    'VALUE':  *id100
+                },
+                'l3-interface': 
+                {
+                    'VALUE': *id100,
+		    'VALUE_PREFIX': 'irb.'
+                   # 'MODIFIER': 
+                   # {
+                   #     'COUNT': 100,
+                   #     'MAPPING': 'ONE2ONE',
+                   #     'START': 1
+                   # }
+                }
+            }
+        },
+        {
+            'TARGETS': 'R0, R2',
+	    'VALUE'  : *id100,
+            'VALUE_PREFIX': 'vlan_irb_',
+            'MODIFIER': 
+            {
+                #'COUNT': 100,
+                #'START': 1,
+                'vlan-id': 
+                {
+                    'VALUE': '1-100',
+                    #'MODIFIER': 
+                    #{
+                    #    'COUNT': 100,
+                    #    'MAPPING': 'ONE2ONE',
+                    #    'START': 1
+                    #}
+                    
+                }
+            }
+        }
+    ]
+}

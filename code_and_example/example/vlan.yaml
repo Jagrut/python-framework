@@ -1,0 +1,15 @@
+{
+    VLAN_POOL1: 
+    {
+        'VLAN_POOL_IPV4': 
+        {   
+            'RANGE': '1,400',
+            'RANGE2': '1020'
+            
+        }
+    },
+    my-value : 10,
+    my-text  : "trythisone"
+}
+
+#{'VLAN_POOL': {'VLAN_POOL_IPV4': {'RANGE': '10-20'}}}

@@ -1,0 +1,10 @@
+set groups temp2 protocols  ibgp  interfaces  irb.1 static  group  225.0.0.1
+set groups temp2 protocols  ibgp  interfaces  irb.2 static  group  225.0.0.1
+set groups temp2 protocols  ibgp  interfaces  irb.1 static  group  225.0.0.2
+set groups temp2 protocols  ibgp  interfaces  irb.2 static  group  225.0.0.2
+set groups temp2 protocols  ibgp  interfaces  irb.1 static  group  225.0.0.3
+set groups temp2 protocols  ibgp  interfaces  irb.2 static  group  225.0.0.3
+set groups temp2 protocols  ibgp  interfaces  irb.1 static  group  225.0.0.4
+set groups temp2 protocols  ibgp  interfaces  irb.2 static  group  225.0.0.4
+set groups temp2 protocols  ibgp  interfaces  irb.1 static  group  225.0.0.5
+set groups temp2 protocols  ibgp  interfaces  irb.2 static  group  225.0.0.5

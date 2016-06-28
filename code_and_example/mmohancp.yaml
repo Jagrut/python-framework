@@ -1,0 +1,61 @@
+{
+    VLAN_IRB_POOL: &id100 "1-5",
+    'TARGETS': 'R0,R2', 
+    'groups vlans_irb vlans': [
+        {
+            'TARGETS': 'R0,R2',
+            'VALUE': *id100,
+            'VALUE_PREFIX': 'vlan_irb_',
+            'NOT_START_EXPAND':'1',
+            'MODIFIER': 
+            {
+                'vlan-id': 
+                {
+                    'VALUE':  *id100
+                },
+                'l3-interface': 
+                {
+                    'VALUE_PREFIX': 'irb.',
+                    'VALUE': *id100
+                }
+            }
+        },
+        {
+            'TARGETS': 'R0',
+            'VALUE_PREFIX': 'vlan_irb_',
+            'VALUE': *id100,
+            'NOT_START_EXPAND':'1',
+            'MODIFIER': 
+            {
+                'vlan-id': 
+                {
+                    'VALUE': "1-5" 
+                }
+            }
+        }
+    ],
+    'groups temp2 protocols': [
+        {
+            'TARGETS': 'R0,R2',
+            'VALUE_PREFIX': 'ibgp',
+            'NOT_START_EXPAND': '0',
+            'MODIFIER':
+            {
+                'interfaces':
+                {
+                    'VALUE':  '1-2',
+                    'VALUE_PREFIX': 'irb.',
+                    'MODIFIER':
+                    {
+                        'static group':
+                        {
+                            'VALUE': '1-5',
+                            'VALUE_PREFIX':'225.0.0.'
+                        }
+                    }
+                }
+            }
+        }
+    ]
+
+}

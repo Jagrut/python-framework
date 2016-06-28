@@ -1,0 +1,26 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"r0" : {
+		"interfaces" : {
+			"r1" : {
+				"xe-0/0/38:0" : "xe-0/0/25",
+				"et-0/0/48" : "et-0/0/50",
+				"xe-0/0/34" : { "$ref" : "#/name/id" }
+			}
+		},
+		"vlan_range" : "1-10"
+		},
+	"r1" : {
+		"interfaces" : {
+			"r0" : {
+				 "xe-0/0/25" : "xe-0/0/38:0",
+				 "et-0/0/50" : "et-0/0/48"
+			}
+		},
+		"vlan_range" : "10-21"
+		},
+	"name":{
+		"id": "2",
+		"address": "xyz"
+		}
+}
