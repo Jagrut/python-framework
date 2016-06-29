@@ -7,12 +7,46 @@ import re
 import itertools
 
 def ip_range(input_string):
-    octets = input_string.split('.')
-    chunks = [map(int, octet.split('-')) for octet in octets]
-    ranges = [range(c[0], c[1] + 1) if len(c) == 2 else c for c in chunks]
-    ip_list = []
-    for address in itertools.product(*ranges):
-        yield '.'.join(map(str, address))
+     network_host=input_string.split('/')
+     #octets = network_host[0]
+     octets = network_host[0].split('.')
+     r=[]
+     ranges=[]
+      
+     for octet in octets: 
+         if ',' in octet: 
+                 for i in octet.split(','):
+                         if '-' not in i:
+                                 r.append(int(i))
+                                 #ranges.append(r)
+                                 #r=[]
+                         else:   
+                                 l,h=map(int,i.split('-'))
+                                 #r+=[range(l,h+1)]
+                                 for kpl in range(l,h+1):
+                                        r.append(kpl)
+                                 
+                                 #ranges.append(r)
+                                 #r=[]
+                 ranges.append(r)
+         else:   
+                 if '-' not in octet:
+                         r.append(int(octet))
+                         ranges.append(r)
+                         r=[]
+                 else:   
+                         l,h=map(int,octet.split('-'))
+                         for kpl in range(l,h+1):
+                                 r.append(kpl)
+                         ranges.append(r)
+                         r=[]
+ 
+     print "new ranges__==\n\n"
+     pprint(ranges)
+     #chunks = [map(int, octet.split('-')) for octet in octets]
+     for address in itertools.product(*ranges):
+         yield '.'.join(map(str, address)) +'/'+network_host[1]
+
 
 def yaml_reader(filepath):
     file = open(filepath,"r")
