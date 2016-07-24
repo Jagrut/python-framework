@@ -6,6 +6,7 @@ import sys
 import re
 import itertools
 
+total_targets=[]
 def ip_range(input_string):
      network_host=input_string.split('/')
      #octets = network_host[0]
@@ -72,19 +73,71 @@ def yaml_reader(filepath):
     print "end\n\n"
     #sys.exit(2)
     pprint(needylist)
-    target_list=data["TARGETS"].split(",")
-    for each_target_list in target_list:
-          open(os.path.join("./",each_target_list+"_config"),'w')
-    x=len(data['PAS_STATIC_CMDS'])
-    if("PAS_STATIC_CMDS" in list1):
-    	while(x!=0):
-		str=data['PAS_STATIC_CMDS'][x-1]['cmd']
-		print type(str)
-		target=data['PAS_STATIC_CMDS'][x-1]['targets']
-		print target
-		PAS_STATIC_CMDS(str,POOL_TO_LIST(target))
-		x-=1
-	needylist.remove("PAS_STATIC_CMDS")
+    static_cmd_dict={}
+    if ("PAS_CONFIGS" in list1):
+	pas_config_tags=data["PAS_CONFIGS"].keys()
+	for each_pas_config_tag in pas_config_tags:
+		command_set=data["PAS_CONFIGS"][each_pas_config_tag]
+		if("GRPID" in command_set.keys()):
+			static_cmd_dict[each_pas_config_tag]="set groups "+command_set["GRPID"]
+		else:
+			static_cmd_dict[each_pas_config_tag]="set groups "+each_pas_config_tag
+		temp_cmd=static_cmd_dict[each_pas_config_tag]
+		if isinstance(command_set,list):
+			tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
+                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[0]+" \n"
+                        for command_set_itr in range(1,len(command_set)):
+                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[command_set_itr]+" \n"
+			print "hi hello how r u?\n"
+		else:
+			tag_keys=command_set.keys()
+			for each_tag_key in tag_keys:
+				if isinstance(command_set[each_tag_key],list):
+					static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
+					tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
+					static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][0]+" \n"
+					for command_set_itr in range(1,len(command_set[each_tag_key])):
+						static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[each_tag_key][command_set_itr]+" \n"
+    	print "before static cmd dict\n\n"
+    	pprint(static_cmd_dict)
+    	print "after static cmd dict\n\n"
+	if("PAS_CONFIG_MAPS" in list1):
+		maps_device=data["PAS_CONFIG_MAPS"]
+		map_list=maps_device.keys()
+		for each_map_device in map_list:
+			regex = re.compile(r"\s*r\s*", flags=re.I)
+			map_device_ind_list=regex.split(each_map_device)
+			if '' in map_device_ind_list:
+				map_device_ind_list.remove('')
+			tmp_list=[]
+			for each_generate_list in map_device_ind_list :
+				tmp_list=tmp_list+mixrange(each_generate_list)
+
+			if(isinstance(maps_device[each_map_device],list)):
+				for write_data in range(len(maps_device[each_map_device])) :
+					PAS_STATIC_CMDS(static_cmd_dict[maps_device[each_map_device][write_data]],tmp_list)					
+			else:
+				map_devices_list=str(maps_device[each_map_device]).split(",")
+				for write_data in range(len(map_devices_list)) :
+                                	PAS_STATIC_CMDS(static_cmd_dict[map_devices_list[write_data]],tmp_list)
+			
+	else:
+		print "you have defined PAS_CONFIG KEY but forgot to create PAS_CONFIG_MAPS keys aborting script\n\n"			
+    	sys.exit(29)
+    #target_list=data["TARGETS"].split(",")
+    #for each_target_list in target_list:
+    #      open(os.path.join("./",each_target_list+"_config"),'w')
+    #x=len(data['PAS_STATIC_CMDS'])
+    #if("PAS_STATIC_CMDS" in list1):
+    #	while(x!=0):
+    #    	str=data['PAS_STATIC_CMDS'][x-1]['cmd']
+    #    	print type(str)
+    #    	target=data['PAS_STATIC_CMDS'][x-1]['targets']
+    #    	print target
+    #    	PAS_STATIC_CMDS(str,POOL_TO_LIST(target))
+    #    	x-=1
+    #    needylist.remove("PAS_STATIC_CMDS")
+    
     for each_need in needylist:
 	target_length=len(data[each_need])
 	str_tmp="set "+each_need+" "
@@ -122,8 +175,12 @@ def POOL_TO_LIST(pool):
 def PAS_STATIC_CMDS(Data,Targets) :
         NoOfTargets=len(Targets)
         while(NoOfTargets!=0) :
-                file=Targets[(NoOfTargets-1)]+"_config"
-                text_file = open(file, "a")
+                file="R"+str(Targets[(NoOfTargets-1)])+"_config"
+                if(Targets[(NoOfTargets-1)] in total_targets):
+			text_file = open(file, "a")
+		else:
+			total_targets.append(Targets[(NoOfTargets-1)])
+			text_file = open(file, "w")
                 text_file.write(Data)
                 text_file.close()
                 NoOfTargets-=1
@@ -335,7 +392,7 @@ def config_vlan(data) :
 		
 
 if  __name__ == "__main__" :
-	filepath = "./example/example2cp.yaml"
+	filepath = "./example/ipclose.yaml"
 	
 	data = yaml_reader(filepath)
 	#x = data['VLAN_POOL1']['VLAN_POOL_IPV4']['RANGE']
