@@ -6,9 +6,7 @@ import sys
 import re
 import itertools
 from netaddr import *
-from collections import defaultdict
 
-router_group_dict=defaultdict(list)
 total_targets=[]
 def generate_ip(ip_addr,ip_step,ip_count):
 	ip_addr_list=[]
@@ -169,40 +167,11 @@ def yaml_reader(filepath):
 				tmp_list=tmp_list+mixrange(each_generate_list)
 
 			if(isinstance(maps_device[each_map_device],list)):
-				
 				for write_data in range(len(maps_device[each_map_device])) :
-					static_cmd_dict_splitted=static_cmd_dict[maps_device[each_map_device][write_data]].split(" ")
-					for every_device in tmp_list:
-						append_or_not=0
-						if("R"+str(every_device) in router_group_dict.keys()):
-							list_of_tags=router_group_dict["R"+str(every_device)]
-							for each_list_of_tags in list_of_tags:
-								if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-									append_or_not=1
-							if(append_or_not==1):
-								router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
-								static_cmd_dict[maps_device[each_map_device][write_data]]=static_cmd_dict[maps_device[each_map_device][write_data]]+"\nset apply-groups "+ static_cmd_dict_splitted[2]
-						else:
-							router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
-							static_cmd_dict[maps_device[each_map_device][write_data]]=static_cmd_dict[maps_device[each_map_device][write_data]]+"\nset apply-groups "+ static_cmd_dict_splitted[2]
 					PAS_STATIC_CMDS(static_cmd_dict[maps_device[each_map_device][write_data]],tmp_list)					
 			else:
 				map_devices_list=str(maps_device[each_map_device]).split(",")
 				for write_data in range(len(map_devices_list)) :
-					static_cmd_dict_splitted=static_cmd_dict[map_devices_list[write_data]].split(" ")
-					for every_device in tmp_list:
-						append_or_not=0
-						if("R"+str(every_device) in router_group_dict.keys()):
-							list_of_tags=router_group_dict["R"+str(every_device)]
-							for each_list_of_tags in list_of_tags:
-								if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-									append_or_not=1								
-						if(append_or_not==1):
-							router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
-							#static_cmd_dict[map_devices_list[write_data]]=static_cmd_dict[map_devices_list[write_data]]+"\nset apply-groups "+static_cmd_dict_splitted[2]
-						else:
-							router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
-							#static_cmd_dict[map_devices_list[write_data]]=static_cmd_dict[map_devices_list[write_data]]+"\nset apply-groups "+static_cmd_dict_splitted[2]
                                 	PAS_STATIC_CMDS(static_cmd_dict[map_devices_list[write_data]],tmp_list)
 			
 	else:
@@ -221,10 +190,7 @@ def yaml_reader(filepath):
     #    	PAS_STATIC_CMDS(str,POOL_TO_LIST(target))
     #    	x-=1
     #    needylist.remove("PAS_STATIC_CMDS")
-    print "\nrouter_group_dict start\n"
-    pprint(router_group_dict)
-    print "\nrouter gorup_dict end\n"
-    #sys.exit(120)
+    
     for each_need in needylist:
 	print "\n inside main for loop start\n"
 	command_list1=[]
@@ -258,7 +224,8 @@ def yaml_reader(filepath):
 				needylist_keys.remove(each_outer_needylist_keys)	
 		needylist_keys.remove("TARGETS")
 		#target_list=mixrangedata[each_need]["TARGETS"]
-	where_is_list(data[each_need],needylist_keys,each_need,command_list1)
+	tmp_device_list=[]
+	where_is_list(data[each_need],needylist_keys,each_need,command_list1,tmp_device_list)
 	#for iter_needylist_keys in needylist_keys:
 	#	if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
 	#		if(isinstance(data[each_need][iter_needylist_keys],list)):
@@ -269,38 +236,47 @@ def yaml_reader(filepath):
 	#		needylist_target_cnt=needylist_target_cnt+1
 		
 	#recursive_modifier(data[each_need][i],command_list1,data[each_need][i]['TARGETS'])
-    print "\nrouter_group_dict start\n"
-    pprint(router_group_dict)
-    print "\nrouter gorup_dict end\n"
-    group_list_to_append=router_group_dict.keys()
-    for each_group_list_to_append in group_list_to_append:
-	s=set(router_group_dict[each_group_list_to_append])
-	with open(each_group_list_to_append+"_config", 'a') as outfile:
-		while s:
-			outfile.write("\nset apply-groups "+ s.pop()+" \n")
     return data
-def where_is_list(data,needylist_keys,each_need,command_list1):
+def where_is_list(data,needylist_keys,each_need,command_list1,tmp_list):
 	print "\ninside where_is_list \n"
 	for iter_needylist_keys in needylist_keys:
 		recursive_list=[]
                 if(isinstance(data[iter_needylist_keys],dict)):
 			recursive_list=data[iter_needylist_keys].keys()
-			if ("list" in recursive_list):
-				recursive_modifier(data[iter_needylist_keys],each_need,"list",tmp_list)
-				recursive_list.remove("list")
-
-		if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
-                        last_underscore=iter_needylist_keys.rfind('_')
-                        actual_range=iter_needylist_keys[last_underscore+2:]
-                        tmp_list=mixrange(actual_range)
-
-			if(isinstance(data[iter_needylist_keys],list)):
-				print "\ncalling recursive_modifier from inside where_is_list"
-				recursive_modifier(data,each_need,iter_needylist_keys,command_list1,tmp_list)
+			if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
+				tmp_list=[]
+				last_underscore=iter_needylist_keys.rfind('_')
+	                        actual_range=iter_needylist_keys[last_underscore+2:]
+        	                tmp_list=mixrange(actual_range)
+				for each_recursive_list in recursive_list:
+					if(isinstance(data[iter_needylist_keys][each_recursive_list],list)):
+						recursive_modifier(data[iter_needylist_keys],each_need,each_recursive_list,command_list1,tmp_list)
+					else:
+						where_is_list(data[iter_needylist_keys],recursive_list,each_need,command_list1,tmp_list)
 			else:
-				if(len(recursive_list)>=1):
-					print "\nrecursive call to where_is_list\n"
-					where_is_list(data[iter_needylist_keys],recursive_list,each_need,command_list1)
+				#if ("list" in recursive_list):
+				print "\ncalling recursive_modifier form inside whereislist \n"
+				print "\ntmp_list start \n"
+				pprint(tmp_list)
+				print "\ntmp_list end \n"
+				#recursive_modifier(data[iter_needylist_keys],each_need,"list",command_list1,tmp_list)
+				#recursive_list.remove("list")
+
+		#if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
+                #        last_underscore=iter_needylist_keys.rfind('_')
+                #        actual_range=iter_needylist_keys[last_underscore+2:]
+                #        tmp_list=mixrange(actual_range)
+		#	print "\nin where is list target match\n"
+		#	print "\n iter needylist key=="+iter_needylist_keys+"\n"
+		#	pprint(tmp_list)
+		#	print "\nin where is list target match end\n"
+		#	if(isinstance(data[iter_needylist_keys],list)):
+		#		print "\ncalling recursive_modifier from inside where_is_list"
+		#		recursive_modifier(data,each_need,iter_needylist_keys,command_list1,tmp_list)
+		#	else:
+		#		if(len(recursive_list)>=1):
+		#			print "\nrecursive call to where_is_list\n"
+		#			where_is_list(data[iter_needylist_keys],recursive_list,each_need,command_list1,tmp_list)
 def POOL_TO_LIST(pool):
         poollist=[]
         if ',' in pool :
@@ -384,16 +360,16 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 						pprint(raw_command_list)
 						print "\n raw_command_list end\n"
 						for i in range(len(raw_command_list)):
-							if(re.search(r'.*{{(\w)}}',raw_command_list[i])):
+							if(re.search(r'.*\$(\w)',raw_command_list[i])):
 								print "matched a number \n\n=="+str(i)+"\n\n"
 								print "\n raw_command_list of i =="+raw_command_list[i]+"\n"
-								p=re.compile(r'{{\w}}')
+								p=re.compile(r'\$\w')
 								mod_num_list=p.findall(raw_command_list[i])
 								print "\nmod_num_list start\n"
 								pprint(mod_num_list)
 								print "\nmod_num_list end\n"
 								for each_mod_num_list in mod_num_list:
-									matchobj=re.search(r'.*{{(\w)}}',each_mod_num_list)
+									matchobj=re.search(r'.*\$(\w)',each_mod_num_list)
 									
 								#matchobj=re.search(r'.*\$(\w)',raw_command_list[i])
 									num=matchobj.group(1)
@@ -464,9 +440,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 													if(command_track==len(command_list1)):
 														break
 													print "generated address is=="+address+"\n\n"
-													command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}.*$', address, raw_command_list[i])
+													command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{\$'+num+'}}.*$', address, raw_command_list[i])
 													command_track=command_track+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\ncommand list start\n"
 												pprint(command_list1)
 												print "\ncommand list end\n"
@@ -502,10 +478,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		        	                break
                 					        		        	        print "generated address is=="+address+"\n\n"
 													for ukl in range(list_tracker,list_tracker+initial_len):
-														command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}.*$', address, raw_command_list[i])
+														command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{\$'+num+'}}.*$', address, raw_command_list[i])
 													list_tracker=list_tracker+initial_len
 													command_tracker=command_tracker+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\ncommand list start\n"
 												pprint(command_list1)
 												print "\ncommand list end\n"
@@ -517,24 +493,18 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 									elif("VALUE" in modifier_keys):
 										if not ("MODE" in modifier_keys):
 											ranges=modifier_data["VALUE"]
-											token_range_list=ranges.split(",")
-											ranges_list=[]
-											for each_token_range_list in token_range_list:
-                                                                                        	if(each_token_range_list[0]=="R"):
-													last_underscore=each_token_range_list.rfind('_')
-													actual_range=each_token_range_list[last_underscore+1:]
-                                                                                        	        initial_range_len=len(ranges_list)
-													ranges_list=ranges_list+mixrange(actual_range)
-                                                                                        	        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                        	                ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-												else:
-													m = re.search("\d", each_token_range_list)
-													actual_range=each_token_range_list[m.start():]
-													initial_range_len=len(ranges_list)
-													ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
+                                                                                        last_underscore=ranges.rfind('_')
+                                                                                        actual_range=''
+                                                                                        if not(last_underscore==-1):
+                                                                                                actual_range=ranges[last_underscore+1:]
+                                                                                                ranges_list=mixrange(actual_range)
+                                                                                                for each_range_item in range(len(ranges_list)):
+                                                                                                        ranges_list[each_range_item]=ranges[:last_underscore]+str(ranges_list[each_range_item])      
                                                                                         
+                                                                                        else:
+                                                                                                actual_range=ranges
+                                                                                                ranges_list=mixrange(actual_range)
+
 											print "\nranges list start\n"
 											pprint(ranges_list)	
 											print "\nranges list end\n"	
@@ -546,8 +516,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		                        command_list1=command_list1*len(ranges_list)
                 					        		                for each_command in range(len(command_list1)):
                 					        		                        #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-													command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+													command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\n command list start\n"
 												pprint(command_list1)
 												print "\n command list end\n"	
@@ -560,14 +530,14 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		                command_list1=command_list1*len(ranges_list)
                 					        		                for each_command in range(len(command_list1)):
                 					        		                        #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
-                					        		                        command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+                					        		                        command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
                 					        		                        command_tracker=command_tracker+1
                 					        		                        if(command_tracker==initial_len):
                 					        		                                real_index=real_index+1
                 					        		                                initial_len=initial_len+add_num
                 					        		                                #start_index=start_index+1
                 					        		                                #command_tracker=command_tracker+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\n command list start\n" 
                                                                                                 pprint(command_list1)
                                                                                                 print "\n command list end\n"
@@ -575,23 +545,17 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 										
 										else:
 											ranges=modifier_data["VALUE"]
-                                                                                        token_range_list=ranges.split(",")
-                                                                                        ranges_list=[]
-                                                                                        for each_token_range_list in token_range_list:
-                                                                                                if(each_token_range_list[0]=="R"):
-                                                                                                        last_underscore=each_token_range_list.rfind('_')
-                                                                                                        actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                        initial_range_len=len(ranges_list)
-                                                                                                        ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                else:
-                                                                                                        m = re.search("\d", each_token_range_list)
-                                                                                                        actual_range=each_token_range_list[m.start():]
-                                                                                                        initial_range_len=len(ranges_list)
-                                                                                                        ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
+                                                                                        last_underscore=ranges.rfind('_')
+                                                                                        actual_range=''
+                                                                                        if not(last_underscore==-1):
+                                                                                                actual_range=ranges[last_underscore+1:]
+                                                                                                ranges_list=mixrange(actual_range)
+                                                                                                for each_range_item in range(len(ranges_list)):
+                                                                                                        ranges_list[each_range_item]=ranges[:last_underscore]+str(ranges_list[each_range_item]) 
+                                                                                        
+                                                                                        else:
+                                                                                                actual_range=ranges
+                                                                                                ranges_list=mixrange(actual_range)
 											print "\nranges start\n"
 											pprint(ranges_list)
 											print "\nranges end\n"
@@ -603,8 +567,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 													command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
 													#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-													command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+													command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\n command list start\n" 
                                                                                                 pprint(command_list1)
                                                                                                 print "\n command list end\n"
@@ -618,14 +582,14 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
                 					        		                	#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
-                					        		                	command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+                					        		                	command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
                 					        		                	command_tracker=command_tracker+1
                 					        		                	if(command_tracker==initial_len):
                 					        		                        	real_index=real_index+1
 														initial_len=initial_len+add_num
 														#start_index=start_index+1
                 					        		                        	#command_tracker=command_tracker+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\n command list start\n" 
                                                                                                 pprint(command_list1)
                                                                                                 print "\n command list end\n"
@@ -638,21 +602,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 								pprint(command_list1)
 						#target_array=targets.split(",")
 						for each_file in targets:
-							 static_cmd_dict_splitted=command_list1[0].split(" ")
-                                                         append_or_not=0 
-							 #for every_device in tmp_list:
-                                                         if("R"+str(each_file) in router_group_dict.keys()):
-                                                                list_of_tags=router_group_dict["R"+str(each_file)]
-                                                                for each_list_of_tags in list_of_tags:
-                                                                        if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-        									append_or_not=1                                                                  
-							 if(append_or_not==1):
-								router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                                #command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
-                                                         else:
-                                                                router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-								#command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
-							 print "\nnow writing into a file\n"
 						      	 if(each_file in total_targets):
         					        	 with open("R"+str(each_file)+"_config", 'a') as outfile: 
         					        	 	for each_comm in command_list1:
@@ -672,15 +621,15 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 						print "\nraw_command=="+raw_command+"\n"
 						raw_command_list=raw_command.split(' ')
 						for i in xrange(len(raw_command_list)):
-							if(re.search(r'.*{{(\w)}}',raw_command_list[i])):
+							if(re.search(r'.*\$(\w)',raw_command_list[i])):
 								print "matched a number \n\n=="+str(i)+"\n\n"
-								p=re.compile(r'{{\w}}')
+								p=re.compile(r'\$\w')
 								mod_num_list=p.findall(raw_command_list[i])
 								print "\n mod_num_list start \n"
 								pprint(mod_num_list)
 								print "\n mod_num_list end \n"
 								for each_mod_num_list in mod_num_list:
-									matchobj=re.search(r'.*{{(\w)}}',each_mod_num_list)
+									matchobj=re.search(r'.*\$(\w)',each_mod_num_list)
 									
 								#matchobj=re.search(r'.*\$(\w)',raw_command_list[i])
 									num=matchobj.group(1)
@@ -734,9 +683,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 													if(command_track==int(modifier_keys["COUNT"])):
 														break
 													print "generated address is=="+address+"\n\n"
-													command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}.*$', address, raw_command_list[i])
+													command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{\$'+num+'}}.*$', address, raw_command_list[i])
 													command_track=command_track+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\n command_list start\n"
 												pprint(command_list1)
 												print "\n command_list end\n"
@@ -772,10 +721,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		        	                break
                 					        		        	        print "generated address is=="+address+"\n\n"
 													for ukl in range(list_tracker,list_tracker+initial_len):
-														command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}.*$', address, raw_command_list[i])
+														command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{\$'+num+'}}.*$', address, raw_command_list[i])
 													list_tracker=list_tracker+initial_len
 													command_tracker=command_tracker+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 														
                 					        		                	
                 					        		                print "after one2many operation \n\n"
@@ -802,24 +751,18 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 										
 										if not ("MODE" in modifier_keys):
 											ranges=modifier_data["VALUE"]
-                                                                                        token_range_list=ranges.split(",")
-                                                                                        ranges_list=[]
-                                                                                        for each_token_range_list in token_range_list:
-                                                                                                if(each_token_range_list[0]=="R"):
-                                                                                                        last_underscore=each_token_range_list.rfind('_')
-                                                                                                        actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                        initial_range_len=len(ranges_list)
-                                                                                                        ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                else:
-                                                                                                        m = re.search("\d", each_token_range_list)
-                                                                                                        actual_range=each_token_range_list[m.start():]
-                                                                                                        initial_range_len=len(ranges_list)
-                                                                                                        ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
-									                print "\n ranges_list start \n"	
+											last_underscore=ranges.rfind('_')
+											actual_range=''
+											if not(last_underscore==-1):
+												actual_range=ranges[last_underscore+1:]
+												ranges_list=mixrange(actual_range)
+												for each_range_item in range(len(ranges_list)):
+													ranges_list[each_range_item]=ranges[:last_underscore]+str(ranges_list[each_range_item])
+
+											else:
+												actual_range=ranges
+												ranges_list=mixrange(actual_range)
+										
 											pprint(ranges_list)
 											print "\n ranges_list end \n"
 											if not("LINK" in modifier_keys):
@@ -830,8 +773,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		                        command_list1=command_list1*len(ranges_list)
                 					        		                for each_command in range(len(command_list1)):
                 					        		                        #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-													command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+													command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\ncommand_list1 start \n"
 												pprint(command_list1)
 												print "\ncommand_list1 end \n"
@@ -845,37 +788,31 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		                command_list1=command_list1*len(ranges_list)
                 					        		                for each_command in range(len(command_list1)):
                 					        		                        #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
-                					        		                        command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{'+num+'}}.*$', str(ranges_list[each_command]), raw_command_list[i])
+                					        		                        command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{\$'+num+'}}.*$', str(ranges_list[each_command]), raw_command_list[i])
                 					        		                        command_tracker=command_tracker+1
                 					        		                        if(command_tracker==initial_len):
                 					        		                                real_index=real_index+1
                 					        		                                initial_len=initial_len+add_num
                 					        		                                #start_index=start_index+1
                 					        		                                #command_tracker=command_tracker+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\ncommand_list1 start \n"
                                                                                                 pprint(command_list1)
                                                                                                 print "\ncommand_list1 end \n"
 										
 										else:
 											ranges=modifier_data["VALUE"]
-                                                                                        token_range_list=ranges.split(",")
-                                                                                        ranges_list=[]
-                                                                                        for each_token_range_list in token_range_list:
-                                                                                                if(each_token_range_list[0]=="R"):
-                                                                                                        last_underscore=each_token_range_list.rfind('_')
-                                                                                                        actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                        initial_range_len=len(ranges_list)
-                                                                                                        ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                else:
-                                                                                                        m = re.search("\d", each_token_range_list)
-                                                                                                        actual_range=each_token_range_list[m.start():]
-                                                                                                        initial_range_len=len(ranges_list)
-                                                                                                        ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])	
+                                                                                        last_underscore=ranges.rfind('_')
+                                                                                        actual_range=''
+                                                                                        if not(last_underscore==-1):
+                                                                                                actual_range=ranges[last_underscore+1:]
+                                                                                                ranges_list=mixrange(actual_range)
+                                                                                                for each_range_item in range(len(ranges_list)):
+                                                                                                        ranges_list[each_range_item]=ranges[:last_underscore]+str(ranges_list[each_range_item])
+                                                                                        
+                                                                                        else:
+                                                                                                actual_range=ranges
+                                                                                                ranges_list=mixrange(actual_range)
 
 											print "\nranges_list start\n"
 											pprint(ranges_list)
@@ -889,8 +826,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 													command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
 													#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-													command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+													command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 
 												print "\ncommand_list1 start \n"
                                                                                                 pprint(command_list1)
@@ -904,45 +841,32 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
                 					        		                	#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
-                					        		                	command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
+                					        		                	command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{\$'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
                 					        		                	command_tracker=command_tracker+1
                 					        		                	if(command_tracker==initial_len):
                 					        		                        	real_index=real_index+1
 														initial_len=initial_len+add_num
 														#start_index=start_index+1
                 					        		                        	#command_tracker=command_tracker+1
-												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{\$'+num+'}}', "", raw_command_list[i])
 												print "\ncommand_list1 start \n"
                                                                                                 pprint(command_list1)
                                                                                                 print "\ncommand_list1 end \n"
 							else:
 								#command_list1=[raw_command_list[i]+"  ".format(i) for pk in command_list1]
-								
 								for pq in range(len(command_list1)):
 									command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "	
-	
+								print "\nin not match word else\n"
+								pprint(command_list1)
+								print "\nin not match work else end\n"	
 						#target_array=targets.split(",")
 						for each_file in targets:
-							static_cmd_dict_splitted=command_list1[0].split(" ")
-                                         		append_or_not=0
-							#for every_device in tmp_list:
-                                         		if("R"+str(each_file) in router_group_dict.keys()):
-                                         		        list_of_tags=router_group_dict["R"+str(each_file)]
-                                         		        for each_list_of_tags in list_of_tags:
-                                         		                if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-										append_or_not=1
-							if(append_or_not==1):
-                                         			router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-								#command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
-                                         		else:
-                                         		        router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-								#command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
-							print "now writing to the file"
-							if(each_file in total_targets):
+						      	 if(each_file in total_targets):
         					        	 with open("R"+str(each_file)+"_config", 'a') as outfile: 
         					        	 	for each_comm in command_list1:
 										outfile.write(each_comm+"\n")
-							else:
+
+							 else:
         					                 total_targets.append(each_file)
         					        	 with open("R"+str(each_file)+"_config", 'w') as outfile: 
 								 	for each_comm in command_list1:
