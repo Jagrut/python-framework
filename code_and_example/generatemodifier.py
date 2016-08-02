@@ -99,27 +99,13 @@ def yaml_reader(filepath):
     print "data keys\n\n"
     pprint(data)
     print "data keys now real\n\n"
-    list1=data.keys()
-    #if(data['ipclos_fbf1']['list'][0]['set groups ipclos_fbf routing-options interface-routes rib-group inet fbf-group'] is None):
-    #    print "None\n"
-    #else:
-    #    print "Not None\n"
-    #sys.exit(28)
+    list1=data.keys() 
     needylist=[]
     for each_list1 in list1:
 	if isinstance(data[each_list1],dict) or isinstance(data[each_list1],list) :
 		needylist.append(each_list1)
 			
-    print "\n\n\n\n\n"
-    #for each_list1 in list1:
-    #    if not isinstance(data[each_list1],list):
-    #            print "real list without junk==="+data[each_list1]+"\n"
-    #yaml_chunk=data['groups vlans_irb vlans'][0]['MODIFIER']
-    print "checking  yaml chunk\n\n\n"
-    #pprint(yaml_chunk);
-    print "checking yaml chunk end \n\n\n"
     pprint(data.keys())
-    print "end\n\n"
     #sys.exit(2)
     if 'PAS_CONFIGS' in needylist:
 	needylist.remove('PAS_CONFIGS')
@@ -199,36 +185,19 @@ def yaml_reader(filepath):
 									append_or_not=1								
 						if(append_or_not==1):
 							router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
-							#static_cmd_dict[map_devices_list[write_data]]=static_cmd_dict[map_devices_list[write_data]]+"\nset apply-groups "+static_cmd_dict_splitted[2]
 						else:
 							router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
-							#static_cmd_dict[map_devices_list[write_data]]=static_cmd_dict[map_devices_list[write_data]]+"\nset apply-groups "+static_cmd_dict_splitted[2]
                                 	PAS_STATIC_CMDS(static_cmd_dict[map_devices_list[write_data]],tmp_list)
 			
 	else:
 		print "you have defined PAS_CONFIG KEY but forgot to create PAS_CONFIG_MAPS keys aborting script\n\n"			
-    #	sys.exit(29)
-    #target_list=data["TARGETS"].split(",")
-    #for each_target_list in target_list:
-    #      open(os.path.join("./",each_target_list+"_config"),'w')
-    #x=len(data['PAS_STATIC_CMDS'])
-    #if("PAS_STATIC_CMDS" in list1):
-    #	while(x!=0):
-    #    	str=data['PAS_STATIC_CMDS'][x-1]['cmd']
-    #    	print type(str)
-    #    	target=data['PAS_STATIC_CMDS'][x-1]['targets']
-    #    	print target
-    #    	PAS_STATIC_CMDS(str,POOL_TO_LIST(target))
-    #    	x-=1
-    #    needylist.remove("PAS_STATIC_CMDS")
+    
     print "\nrouter_group_dict start\n"
     pprint(router_group_dict)
     print "\nrouter gorup_dict end\n"
-    #sys.exit(120)
     for each_need in needylist:
 	print "\n inside main for loop start\n"
 	command_list1=[]
-	#str_tmp=str_tmp_cp
 	
 	needylist_dict=data[each_need]
 	needylist_keys=needylist_dict.keys()
@@ -241,9 +210,7 @@ def yaml_reader(filepath):
 		str_tmp="set groups "+each_need+" "
 	command_list1.append(str_tmp)
 	
-	#command_list1.append(str_tmp)
-	#print "target_length == "+str(target_length)+"\n\n"
-	#inside_went_or_not=0
+	
 	if ("TARGETS" in needylist_keys):
 		regex = re.compile(r"\s*r\s*", flags=re.I)
                 needy_device_ind_list=regex.split(data[each_need]["TARGETS"])
@@ -257,18 +224,8 @@ def yaml_reader(filepath):
 				recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list)
 				needylist_keys.remove(each_outer_needylist_keys)	
 		needylist_keys.remove("TARGETS")
-		#target_list=mixrangedata[each_need]["TARGETS"]
 	where_is_list(data[each_need],needylist_keys,each_need,command_list1)
-	#for iter_needylist_keys in needylist_keys:
-	#	if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
-	#		if(isinstance(data[each_need][iter_needylist_keys],list)):
-					
-	#needylist_target_cnt=0
-	#for each_needylist_keys in needylist_keys:
-	#	if(re.search(r"\s*target\s*",raw_command_list[i])):
-	#		needylist_target_cnt=needylist_target_cnt+1
-		
-	#recursive_modifier(data[each_need][i],command_list1,data[each_need][i]['TARGETS'])
+	
     print "\nrouter_group_dict start\n"
     pprint(router_group_dict)
     print "\nrouter gorup_dict end\n"
@@ -395,7 +352,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 								for each_mod_num_list in mod_num_list:
 									matchobj=re.search(r'.*{{(\w)}}',each_mod_num_list)
 									
-								#matchobj=re.search(r'.*\$(\w)',raw_command_list[i])
 									num=matchobj.group(1)
 									print "\ninside mod_num_list for loop matchobj.group"+num+"\n"
 									modifier_data={}
@@ -432,7 +388,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 										if not  ("LINK" in modifier_keys):
 											if not ("TYPE" in modifier_keys):
 												print "call ipv4 or ipv6 next ip function mapping is one2one== \n\n"
-												#raw_command_list[i]=re.sub(r'{{\$'+num+'}}.*$', "", raw_command_list[i])
 												if (len(command_list1)==1):
                 					        	        	                print "inside if not equal to count 1 \n\n"
                 					        	        	                if("COUNT" in modifier_keys):
@@ -472,20 +427,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												print "\ncommand list end\n"
 												
 												### another pattern 							
-											#else:
-											#	print "mapping is  one2one== \n\n"
-											#	start_index=int(modifier_data["START"])
-											#	raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-											#	if (len(command_list1)!=int(modifier_data["COUNT"])):
-											#		print "inside if not equal to count 1 \n\n"
-											#		command_list1=command_list1*(int(modifier_data["COUNT"]))
-											#		print "commmand_list1 len==="+str(len(command_list1))+"\n\n"
-											#	for each_command in range(len(command_list1)):
-											#		command_list1[each_command]=command_list1[each_command]+" "+raw_command_list[i]+str(start_index)
-											#		start_index=start_index+1
-											#	print "after one2one operation \n\n"
-											#	pprint(command_list1)
-											###one2one is ended here##
+											
 										else:
 											if not ("TYPE" in modifier_keys):
 												print "call one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n"
@@ -539,8 +481,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 											pprint(ranges_list)	
 											print "\nranges list end\n"	
 											if not("LINK" in modifier_keys):
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-												#if(modifier_data['MAPPING']=='one2one'):
 												print "\n inside one2one link relation\n"
                 					        		                if(len(ranges_list)!=len(command_list1)):
                 					        		                        command_list1=command_list1*len(ranges_list)
@@ -597,12 +537,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 											print "\nranges end\n"
 											if not ("LINK" in modifier_keys):
 												print "\ninside one2one link relation\n"
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-												#if(modifier_data['MAPPING']=='one2one'):
 												if(len(ranges_list)!=len(command_list1)):
 													command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
-													#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
 													command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
 												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 												print "\n command list start\n" 
@@ -617,21 +554,17 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												add_num=initial_len
 												command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
-                					        		                	#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
                 					        		                	command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
                 					        		                	command_tracker=command_tracker+1
                 					        		                	if(command_tracker==initial_len):
                 					        		                        	real_index=real_index+1
 														initial_len=initial_len+add_num
-														#start_index=start_index+1
-                					        		                        	#command_tracker=command_tracker+1
 												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 												print "\n command list start\n" 
                                                                                                 pprint(command_list1)
                                                                                                 print "\n command list end\n"
 
 							else:
-								#command_list1=[raw_command_list[i]+"  ".format(i) for pk in command_list1]
 								for pq in range(len(command_list1)):
 									command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "	
 								print "in fffffff not match else\n"
@@ -640,7 +573,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 						for each_file in targets:
 							 static_cmd_dict_splitted=command_list1[0].split(" ")
                                                          append_or_not=0 
-							 #for every_device in tmp_list:
                                                          if("R"+str(each_file) in router_group_dict.keys()):
                                                                 list_of_tags=router_group_dict["R"+str(each_file)]
                                                                 for each_list_of_tags in list_of_tags:
@@ -648,10 +580,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
         									append_or_not=1                                                                  
 							 if(append_or_not==1):
 								router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                                #command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
                                                          else:
                                                                 router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-								#command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
 							 print "\nnow writing into a file\n"
 						      	 if(each_file in total_targets):
         					        	 with open("R"+str(each_file)+"_config", 'a') as outfile: 
@@ -682,7 +612,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 								for each_mod_num_list in mod_num_list:
 									matchobj=re.search(r'.*{{(\w)}}',each_mod_num_list)
 									
-								#matchobj=re.search(r'.*\$(\w)',raw_command_list[i])
 									num=matchobj.group(1)
 									print "\ninside each_mod_num_list for loop match object"+matchobj.group(1)+"\n"
 									modifier_data={}
@@ -704,7 +633,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 										if not  ("LINK" in modifier_keys):
 											if not ("TYPE" in modifier_keys):
 												print "\n call start in else one2one ipv4 or ipv6 next ip function mapping is one2one== \n\n"
-												#raw_command_list[i]=re.sub(r'{{\$'+num+'}}.*$', "", raw_command_list[i])
 												if (len(command_list1)==1):
                 					        	        	                print "inside if not equal to count 1 \n\n"
                 					        	        	                if("COUNT" in modifier_keys):
@@ -741,24 +669,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												pprint(command_list1)
 												print "\n command_list end\n"
 												### another pattern 							
-											#else:
-											#	print "mapping is  one2one== \n\n"
-											#	start_index=int(modifier_data["START"])
-											#	raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-											#	if (len(command_list1)!=int(modifier_data["COUNT"])):
-											#		print "inside if not equal to count 1 \n\n"
-											#		command_list1=command_list1*(int(modifier_data["COUNT"]))
-											#		print "commmand_list1 len==="+str(len(command_list1))+"\n\n"
-											#	for each_command in range(len(command_list1)):
-											#		command_list1[each_command]=command_list1[each_command]+" "+raw_command_list[i]+str(start_index)
-											#		start_index=start_index+1
-											#	print "after one2one operation \n\n"
-											#	pprint(command_list1)
-											###one2one is ended here##
+											
 										else:
 											if not ("TYPE" in modifier_keys):
 												print "call start in else one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n"
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
 												if not ("COUNT" in modifier_keys):
 													print "in one2many link relation count must defined aborting script \n\n"
 													sys.exit(150)
@@ -780,22 +694,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        		                	
                 					        		                print "after one2many operation \n\n"
                 					        		                pprint(command_list1)
-											#else:
-											#	
-											#	start_index=int(modifier_data["START"])
-											#	print "start index=="+str(start_index)+"\n\n"
-											#	raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-											#	initial_len=len(command_list1)
-											#	command_tracker=0
-											#	command_list1=command_list1*int(modifier_data["COUNT"])
-											#	for each_command in range(len(command_list1)):
-											#		command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+str(start_index)
-											#		command_tracker=command_tracker+1
-											#		if(command_tracker==initial_len):
-											#			start_index=start_index+1
-											#			command_tracker=0
-											#	print "after one2many operation \n\n"
-                					        		        #        pprint(command_list1)
+											
 										##one2many has ended here##
 								
 									elif("VALUE" in modifier_keys):
@@ -824,8 +723,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 											print "\n ranges_list end \n"
 											if not("LINK" in modifier_keys):
 												print "\n inside value one2one expand mode \n"
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-												#if(modifier_data['MAPPING']=='one2one'):
                 					        		                if(len(ranges_list)!=len(command_list1)):
                 					        		                        command_list1=command_list1*len(ranges_list)
                 					        		                for each_command in range(len(command_list1)):
@@ -837,21 +734,17 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												print "\ncommand_list1 end \n"
 											else:
 												print "\n inside value one2many expand mode \n"
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
                 					        		                initial_len=len(command_list1)
                 					        		                command_tracker=0
                 					        		                real_index=0
                 					        		                add_num=initial_len
                 					        		                command_list1=command_list1*len(ranges_list)
                 					        		                for each_command in range(len(command_list1)):
-                					        		                        #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
                 					        		                        command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{'+num+'}}.*$', str(ranges_list[each_command]), raw_command_list[i])
                 					        		                        command_tracker=command_tracker+1
                 					        		                        if(command_tracker==initial_len):
                 					        		                                real_index=real_index+1
                 					        		                                initial_len=initial_len+add_num
-                					        		                                #start_index=start_index+1
-                					        		                                #command_tracker=command_tracker+1
 												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 												print "\ncommand_list1 start \n"
                                                                                                 pprint(command_list1)
@@ -882,13 +775,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 											print "\nranges_list end\n"
 											if not ("LINK" in modifier_keys):
 												print "\n inside value one2one list mode \n"
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-												#raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-												#if(modifier_data['MAPPING']=='one2one'):
 												if(len(ranges_list)!=len(command_list1)):
 													command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
-													#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
 													command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
 												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 
@@ -903,20 +792,16 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 												add_num=initial_len
 												command_list1=command_list1*len(ranges_list)
 												for each_command in range(len(command_list1)):
-                					        		                	#command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
                 					        		                	command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}.*$', ranges_list[each_command], raw_command_list[i])
                 					        		                	command_tracker=command_tracker+1
                 					        		                	if(command_tracker==initial_len):
                 					        		                        	real_index=real_index+1
 														initial_len=initial_len+add_num
-														#start_index=start_index+1
-                					        		                        	#command_tracker=command_tracker+1
 												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 												print "\ncommand_list1 start \n"
                                                                                                 pprint(command_list1)
                                                                                                 print "\ncommand_list1 end \n"
 							else:
-								#command_list1=[raw_command_list[i]+"  ".format(i) for pk in command_list1]
 								
 								for pq in range(len(command_list1)):
 									command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "	
@@ -925,7 +810,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 						for each_file in targets:
 							static_cmd_dict_splitted=command_list1[0].split(" ")
                                          		append_or_not=0
-							#for every_device in tmp_list:
                                          		if("R"+str(each_file) in router_group_dict.keys()):
                                          		        list_of_tags=router_group_dict["R"+str(each_file)]
                                          		        for each_list_of_tags in list_of_tags:
@@ -933,10 +817,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 										append_or_not=1
 							if(append_or_not==1):
                                          			router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-								#command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
                                          		else:
                                          		        router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-								#command_list1.append("set apply-groups "+static_cmd_dict_splitted[2])
 							print "now writing to the file"
 							if(each_file in total_targets):
         					        	 with open("R"+str(each_file)+"_config", 'a') as outfile: 
@@ -950,208 +832,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
         					command_list1=[]                                        	
 						
 	static_cmd_dict={}		
-	##cp_command_list1=command_list1*1
-	#print "inside recursive modifiier whether_or_not == \n\n"
-	##print "command_list1\n\n"
-	#print "first command list1 \n\n"
-	##pprint(command_list1)
-	#command_list1=[]
-	#command_list1.append(tmp_str)
-	##if whether_or_not==1:
-	##	target_list=data["TARGETS"].split(",")
-	#if(needylist_key=="list"):
-	#	print "if list \n\n"
-	#else:
-	#	raw_command=needylist_key
-	#raw_command_list=raw_command.split(' ')
-	#num=1
-	#print "first raw command list"
-	#pprint(raw_command_list)
-	##print "data[$1]=="+"\n\n"
-	##print data['$'+str(num)]
-	##sys.exit(5)
-	#for i in xrange(len(raw_command_list)):
-	#	if(re.search(r'.*\$(\w)',raw_command_list[i])):
-	#		print "matched a number \n\n=="+str(i)+"\n\n"
-	#		p=re.compile(r'\$\w')
-	#		mod_num_list=p.findall(raw_command_list[i])
-	#		for each_mod_num_list in mod_num_list:
-	#			matchobj=re.search(r'.*\$(\w)',each_mod_num_list)
-	#			
-	#		#matchobj=re.search(r'.*\$(\w)',raw_command_list[i])
-	#		num=matchobj.group(1)
-	#		modifier_data=data['mod_'+str(num)]
-	#		modifier_keys=modifier_data.keys()
-	#		if ("START" in modifier_keys):
-	#			if not  ("MAPPING" in modifier_keys):
-	#				if not ("TYPE" in modifier_keys):
-	#					print "call ipv4 or ipv6 next ip function mapping is one2one== \n\n"
-	#					raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-	#					if (len(command_list1)==1):
-        #                        	                print "inside if not equal to count 1 \n\n"
-        #                        	                command_list1=command_list1*(int(modifier_data["COUNT"]))
-        #                        	                print "commmand_list1 len==="+str(len(command_list1))+"\n\n"
 
-	#					if(modifier_data["TYPE"]=="IPV4"):
-	#						command_track=0
-	#						ip_addr=modifier_data["START"];
-	#						ip_step='x'
-	#						ip_count=0
-	#						if "STEP" in modifier_keys:
-	#							ip_step=modifier_data["STEP"];
-	#						if "COUNT" in modifier_keys:
-	#							ip_count=int(modifier_data["COUNT"]);
-	#						generate_ip(ip_addr,ip_step,ip_count)
-	#						### another pattern for writing IP address ###
-	#						for address in ip_range(modifier_data["START"]):
-	#							if(command_track==int(modifier_keys["COUNT"])):
-	#								break
-	#							print "generated address is=="+address+"\n\n"
-	#							command_list1[command_track]=command_list1[command_track]+" "+raw_command_list[i] +address
-	#							command_track=command_track+1
-	#						### another pattern 							
-	#				else:
-	#					print "mapping is  one2one== \n\n"
-	#					start_index=int(modifier_data["START"])
-	#					raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-	#					if (len(command_list1)!=int(modifier_data["COUNT"])):
-	#						print "inside if not equal to count 1 \n\n"
-	#						command_list1=command_list1*(int(modifier_data["COUNT"]))
-	#						print "commmand_list1 len==="+str(len(command_list1))+"\n\n"
-	#					for each_command in range(len(command_list1)):
-	#						command_list1[each_command]=command_list1[each_command]+" "+raw_command_list[i]+str(start_index)
-	#						start_index=start_index+1
-	#					print "after one2one operation \n\n"
-	#					pprint(command_list1)
-	#				##one2one is ended here##
-	#			else:
-	#				if "TYPE" in modifier_keys:
-	#					if(modifier_data["TYPE"]=="IPV4"):
-	#						print "call ipv4 or ipv6 next ip function mapping is one2many== \n\n"
-	#						raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-	#						initial_len=len(command_list1)
-        #                	                	command_tracker=0
-        #                	                	command_list1=command_list1*int(modifier_data["COUNT"])
-	#						list_tracker=0
-	#						for address in ip_range(modifier_data["START"]):
-	#							if(command_tracker==int(modifier_data["COUNT"])):
-        #                	                                        break
-        #                	                                print "generated address is=="+address+"\n\n"
-	#							for ukl in range(list_tracker,list_tracker+initial_len):
-	#								command_list1[ukl]=command_list1[ukl]+" "+raw_command_list[i] +address
-	#							list_tracker=list_tracker+initial_len
-	#							command_tracker=command_tracker+1
-	#							
-        #                	                	
-        #                	                print "after one2many operation \n\n"
-        #                	                pprint(command_list1)
-	#				else:
-	#					
-	#					start_index=int(modifier_data["START"])
-	#					print "start index=="+str(start_index)+"\n\n"
-	#					raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-	#					initial_len=len(command_list1)
-	#					command_tracker=0
-	#					command_list1=command_list1*int(modifier_data["COUNT"])
-	#					for each_command in range(len(command_list1)):
-	#						command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+str(start_index)
-	#						command_tracker=command_tracker+1
-	#						if(command_tracker==initial_len):
-	#							start_index=start_index+1
-	#							command_tracker=0
-	#					print "after one2many operation \n\n"
-        #                	                pprint(command_list1)
-	#			##one2many has ended here##
-	#		else:
-	#			if("MODE" in modifier_keys):
-	#				mode_type=modifier_data['MODE']
-	#				if(mode_type=="LIST"):
-	#					ranges=modifier_data["sub_range"]
-	#					ranges_list=ranges.split(',')
-	#					if ("MAPPING" in modifier_keys):
-	#						raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-	#						if(modifier_data['MAPPING']=='one2one'):
-	#							if(len(ranges_list)!=len(command_list1)):
-	#								command_list1=command_list1*len(ranges_list)
-	#							for each_command in range(len(command_list1)):
-	#								command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-	#						else:
-	#							initial_len=len(command_list1)
-	#							command_tracker=0
-	#							real_index=0
-	#							add_num=initial_len
-	#							command_list1=command_list1*len(ranges_list)
-	#							for each_command in range(len(command_list1)):
-        #                                                        	command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
-        #                                                        	command_tracker=command_tracker+1
-        #                                                        	if(command_tracker==initial_len):
-        #                                                                	real_index=real_index+1
-	#									initial_len=initial_len+add_num
-	#									#start_index=start_index+1
-        #                                                                	#command_tracker=command_tracker+1
-	#							
-	#					else:
-	#						print "please specify the mapping in your yaml file script aborting \n\n"
-        #                                 		sys.exit(4)
 
-	#					
-	#				elif(mode_type=="EXPAND"):
-	#					ranges=modifier_data["sub_range"]
-        #                                        ranges_list=mixrange(ranges)
-	#					if("MAPPING" in modifier_keys):
-	#						raw_command_list[i]=re.sub(r'\$.*$', "", raw_command_list[i])
-	#						if(modifier_data['MAPPING']=='one2one'):
-        #                                                        if(len(ranges_list)!=len(command_list1)):
-        #                                                                command_list1=command_list1*len(ranges_list)
-        #                                                        for each_command in range(len(command_list1)):
-        #                                                                command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-	#						else:
-        #                                                        initial_len=len(command_list1)
-        #                                                        command_tracker=0
-        #                                                        real_index=0
-        #                                                        add_num=initial_len
-        #                                                        command_list1=command_list1*len(ranges_list)
-        #                                                        for each_command in range(len(command_list1)):
-        #                                                                command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
-        #                                                                command_tracker=command_tracker+1
-        #                                                                if(command_tracker==initial_len):
-        #                                                                        real_index=real_index+1
-        #                                                                        initial_len=initial_len+add_num
-        #                                                                        #start_index=start_index+1
-        #                                                                        #command_tracker=command_tracker+1
-
-	#					else:
-	#						print "please specify the mapping in your yaml file script aborting \n\n"
-        #                                                sys.exit(8)
-	#					
-	#					
-	#			else:
-	#				print "please specify the mode list or expand in your yaml file script aborting \n\n"
-	#				sys.exit(2)
-	#	else:
-	#		#command_list1=[raw_command_list[i]+"  ".format(i) for pk in command_list1]
-	#		for pq in range(len(command_list1)):
-	#			command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "	
-	#			
-	#print "\n\n "+raw_command+"\n\n"
-					
-
-	
-def config_vlan(data) :
-	
-	if '-' in data :
-		val = data.split('-')
-		for i in range(int(val[0]),int(val[1])+1,1):
-			print "set groups vlan vlan vlan_L2_",i," vlan_id ",i;
-	elif ',' in data :
-		val = data.split(',')
-		for i in val :
-			print "set groups vlan vlan vlan_L2_",i," vlan_id ",i;
-	else :
-		print "###### PLEASE ENTER CORRECT FORMAT ##############";
-
-			
-		
 
 if  __name__ == "__main__" :
 	#filepath = "./example/ipclose.yaml"

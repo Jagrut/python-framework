@@ -10,8 +10,7 @@ VLANS_CONFIG:
  
 PAS_CONFIGS: 
   ipclos_policy1: 
-    ? "ipclos_policy policy-options policy-statement clos-out term"
-    : 
+    "ipclos_policy policy-options policy-statement clos-out term": 
       - "loopback from route-filter 11.0.0.0/8 orlonger"
       - "loopback then accept"
       - "ospf from route-filter 32.0.0.0/4 orlonger"
@@ -30,8 +29,7 @@ PAS_CONFIGS:
       - "default-route then accept"
       - "others then reject"
   ipclos_policy2: 
-    ? "ipclos_policy_v6 policy-options policy-statement clos-v6-out term"
-    : 
+    "ipclos_policy_v6 policy-options policy-statement clos-v6-out term": 
       - "loopback from route-filter fd00:babe:babe:babe::/64 orlonger"
       - "loopback then accept"
       - "ospf from route-filter 2001::/16 orlonger"
@@ -44,23 +42,21 @@ PAS_CONFIGS:
 PAS_CONFIG_MAPS: 
   R0: "ipclos_policy1"
   R1: "ipclos_policy2"
-fbf_interfaces: "ae_20,30"
+fbf_interfaces: "ae20,30"
 ipclos_fbf1: 
   GRPID: ipclos_fbf
   TARGETS: R0-1
   TARGET_R0: 
     - 
-      ? "interfaces {{x}} unit 0 family inet filter input fbf"
-      : 
+      "interfaces {{x}} unit 0 family inet filter input fbf": 
         mod_x: 
-          VALUE: "ae_20,30"
+          VALUE: "ae20,ae30"
           mode: list
   TARGET_R1: 
     - 
-      ? "interfaces {{x}} unit 0 family inet filter input fbf"
-      : 
+      "interfaces {{x}} unit 0 family inet filter input fbf": 
         mod_x: 
-          VALUE: "ae_30,40"
+          VALUE: "ae30,ae40"
           mode: list
   list: 
     - "routing-options interface-routes rib-group inet fbf-group"
@@ -94,7 +90,7 @@ isis1:
     - "protocols isis interface {{x}} level 2 priority 100"
     - 
       mod_x: 
-        VALUE: "ae_10,20,30"
+        VALUE: "ae10,ae20,ae30"
   TARGET_R2: 
     - "protocols isis interface {{x}}"
     - "protocols isis interface {{x}} point-to-point"
@@ -108,14 +104,12 @@ pure_L31:
   GRPID: pure_L3
   TARGET_R0: 
     - 
-      ? "interface {{x}} unit 0 family inet address {{y}}"
-      : 
+      "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
           START: 12.1.0.0/31
           STEP: "0.0.0.2"
     - 
-      ? "interface {{x}} unit 0 family inet address {{y}}"
-      : 
+      "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
           START: "fd00:cafe:babe:aa02:0000::1/80"
           STEP: "::0001:0:0:0"
@@ -125,37 +119,33 @@ pure_L31:
         VALUE: R0_R2_1-4
   TARGET_R1: 
     - 
-      ? "interface {{x}} unit 0 family inet address {{y}}"
-      : 
+      "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
           START: 12.1.0.0/31
           STEP: "0.0.0.2"
     - 
-      ? "interface {{x}} unit 0 family inet address {{y}}"
-      : 
+      "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
           START: "fd00:cafe:babe:aa02:0000::1/80"
           STEP: "0:0:0:0:0001::0"
     - "interfaces {{x}} mtu 9216"
     - 
       mod_x: 
-        VALUE: "ae_10,20,30,40"
+        VALUE: "ae10,ae20,ae30,ae40"
   TARGET_R2: 
     - 
-      ? "interface {{x}} unit 0 family inet address {{y}}"
-      : 
+      "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
           START: 12.1.0.0/31
           STEP: "0.0.0.2"
     - 
-      ? "interface {{x}} unit 0 family inet address {{y}}"
-      : 
+      "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
           START: "fd00:cafe:babe:aa02:0000::1/80"
           STEP: "0:0:0:0:0001::0"
     - "interfaces {{x}} mtu 9216"
     - 
       mod_x: 
-        VALUE: "ae_10,20,30,40"
+        VALUE: "ae10,ae20,ae30,ae40"
 unit_num: 1-10
-vrf_interfaces: "ae_60,61"
+vrf_interfaces: "ae60,ae61"
