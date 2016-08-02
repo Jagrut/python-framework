@@ -106,12 +106,12 @@ pure_L31:
     - 
       "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
-          START: 12.1.0.0/31
+          VALUE: 12.1.0.0/31
           STEP: "0.0.0.2"
     - 
       "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
-          START: "fd00:cafe:babe:aa02:0000::1/80"
+          VALUE: "fd00:cafe:babe:aa02:0000::1/80"
           STEP: "::0001:0:0:0"
     - "interfaces {{x}} mtu 9216"
     - 
@@ -121,12 +121,12 @@ pure_L31:
     - 
       "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
-          START: 12.1.0.0/31
+          VALUE: 12.1.0.0/31
           STEP: "0.0.0.2"
     - 
       "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
-          START: "fd00:cafe:babe:aa02:0000::1/80"
+          VALUE: "fd00:cafe:babe:aa02:0000::1/80"
           STEP: "0:0:0:0:0001::0"
     - "interfaces {{x}} mtu 9216"
     - 
@@ -136,12 +136,12 @@ pure_L31:
     - 
       "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
-          START: 12.1.0.0/31
+          VALUE: 12.1.0.0/31
           STEP: "0.0.0.2"
     - 
       "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
-          START: "fd00:cafe:babe:aa02:0000::1/80"
+          VALUE: "fd00:cafe:babe:aa02:0000::1/80"
           STEP: "0:0:0:0:0001::0"
     - "interfaces {{x}} mtu 9216"
     - 
