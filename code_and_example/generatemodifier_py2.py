@@ -7,7 +7,8 @@ import re
 import itertools
 from netaddr import *
 from collections import defaultdict
-
+import six
+from termcolor import colored
 router_group_dict=defaultdict(list)
 total_targets=[]
 def generate_ip(ip_addr,ip_step,ip_count):
@@ -191,7 +192,7 @@ def yaml_reader(filepath):
 			
 	else:
 		print "you have defined PAS_CONFIG KEY but forgot to create PAS_CONFIG_MAPS keys aborting script\n\n"			
-    
+   		sys.exit(23) 
     print "\nrouter_group_dict start\n"
     pprint(router_group_dict)
     print "\nrouter gorup_dict end\n"
@@ -309,6 +310,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 	tmp_str=command_list1[0]
 	command_list1=[]
 	cmt_cnt=0
+	hash_key_list=[]
+	hash_value_list=[]
 	print "\n inside "+each_need+"tag\n"
 	print "\n needylist keys start\n"
 	pprint(needylist_key)
@@ -322,6 +325,19 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 					if(re.search(r'.*mod_(\w)',iterate_keys)):
 						matchobj= re.search(r'.*mod_(\w)',iterate_keys)
 						static_cmd_dict[matchobj.group(1)]=each_and_every_cmd
+					elif(re.search(r'.*mod_\((\w)',iterate_keys)):
+						splitted_iterate_keys=iterate_keys.split(',')
+						#hash_struct_keys=data[needylist_key][each_and_every_cmd][iterate_keys].keys()
+						#for each_hash_struct_keys in hash_struct_keys:
+						#	hash_key_list.append(each_hash_struct_keys)
+						#	hash_value_list.append(data[needylist_key][each_and_every_cmd][iterate_keys][each_hash_struct_keys])
+						#print "\nhash_key_list start\n"
+						#pprint(hash_key_list)
+						#print "\nhash_key_list end\n"
+						#print "\nhash_value_list start\n"
+						#pprint(hash_value_list)	
+						#print "\nhash_value_list end\n"
+						
 			else:
 				print "first for loop all static commands no modifier \n\n"
 		print "\n static_cmd_dict start \n"
@@ -333,9 +349,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 				print "\n it's a dictionary \n"
                                 each_and_every_cmd_keys=data[needylist_key][each_and_every_cmd].keys()
                                 for iterate_keys in each_and_every_cmd_keys:
-                                        if not(re.search(r'.*mod_(\w)',iterate_keys)):
+                                        if not(re.search(r'.*mod_(\w)',iterate_keys) or re.search(r'.*mod_\((\w)',iterate_keys)):
 						raw_command=iterate_keys
 						print "\nraw_command===="+raw_command+"\n"
+						
 						raw_command_list=raw_command.split(' ')
 						print "\n raw_command_list start\n"
 						pprint(raw_command_list)
@@ -351,7 +368,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 								print "\nmod_num_list end\n"
 								for each_mod_num_list in mod_num_list:
 									matchobj=re.search(r'.*{{(\w)}}',each_mod_num_list)
-									
 									num=matchobj.group(1)
 									print "\ninside mod_num_list for loop matchobj.group"+num+"\n"
 									modifier_data={}
@@ -360,15 +376,61 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 										print "\nin data[needylist_key][each_and_every_cmd][iterate_keys]== dict\n"	
 										if(data[needylist_key][each_and_every_cmd][iterate_keys] is not None):
 											inside_modifier_keys=data[needylist_key][each_and_every_cmd][iterate_keys].keys()
-										if('mod_'+str(num) in inside_modifier_keys):
-											modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys]['mod_'+str(num)]
-											modifier_keys=modifier_data.keys()
-										elif(str(num) in static_cmd_dict.keys()):
-											modifier_data=data[needylist_key][int(static_cmd_dict[num])]['mod_'+str(num)]
-											modifier_keys=modifier_data.keys()
-										else:
-											print "modifier key "+num+" is missing in "+each_need +"tag aborting script\n\n"
-											sys.exit(50)
+										hash_structure_exists=0
+										for each_inside_modifier_keys in inside_modifier_keys:
+											print "in for loop each_inside_modifier_keys hash structure checking"
+											ranges_list=[]
+											if(re.search(r'.*mod_\(.*'+num+'.*',each_inside_modifier_keys)):
+												
+												splitted_iterate_keys=each_inside_modifier_keys.split(',')
+												hash_struct_keys=data[needylist_key][each_and_every_cmd][iterate_keys][each_inside_modifier_keys].keys()
+												hash_key_list=[]
+												hash_value_list=[]
+												for each_hash_struct_keys in hash_struct_keys:
+													hash_key_list.append(each_hash_struct_keys)
+													hash_value_list.append(data[needylist_key][each_and_every_cmd][iterate_keys][each_inside_modifier_keys][each_hash_struct_keys])
+												print "\nhash_key_list start\n"
+												pprint(hash_key_list)
+												print "\nhash_key_list end\n"
+												print "\nhash_value_list start\n"
+												pprint(hash_value_list)	
+												print "\nhash_value_list end\n"
+	
+												print "in for loop each_inside_modifier_keys hash structure found checking"
+												splitted_each_inside_modifier_keys=each_inside_modifier_keys.split(',')
+												hash_structure_exists=1
+												if(splitted_each_inside_modifier_keys[0][-1]==num):
+													hash_trace=0
+													for each_hash_list in hash_key_list:
+														hash_value_len=len(mix_range_with_letters(hash_value_list[hash_trace]))
+														hash_trace=hash_trace+1
+														for repeat_till in range(hash_value_len):
+															ranges_list.append(each_hash_list)
+													print "\ninside hash structure ranges_list start\n"
+													pprint(ranges_list)
+													print "\ninside hash structure ranges_list end\n"
+
+												elif(splitted_each_inside_modifier_keys[1][0]==num):		
+													for each_hash_list in hash_value_list:
+                                                                                                                ranges_list=ranges_list+mix_range_with_letters(each_hash_list)
+												print "now append the commands\n"
+												if (len(command_list1)!=len(ranges_list)):
+													command_list1=command_list1*len(ranges_list)
+												for tracerack in range(len(command_list1)):
+													command_list1[tracerack]=command_list1[tracerack]+" "+ re.sub(r'{{'+num+'}}.*$', ranges_list[tracerack], raw_command_list[i])
+												raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
+
+										if(hash_structure_exists==0):
+											if('mod_'+str(num)  in inside_modifier_keys):
+												modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys]['mod_'+str(num)]
+												modifier_keys=modifier_data.keys()
+											elif(str(num) in static_cmd_dict.keys()):
+												modifier_data=data[needylist_key][int(static_cmd_dict[num])]['mod_'+str(num)]
+												modifier_keys=modifier_data.keys()
+											else:
+												print colored("modifier key "+num+" is missing in "+each_need +"tag aborting script\n\n",'red')
+												sys.exit(50)
+																						
 									else:
 										if(str(num) in static_cmd_dict.keys()):
 											modifier_data=data[needylist_key][int(static_cmd_dict[num])]["mod_"+str(num)]
@@ -394,7 +456,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        	        		                if("COUNT" in modifier_keys):
 															command_list1=command_list1*(int(modifier_data["COUNT"]))
                 					        	        		                else:
-															print "as a first ip modifier key you must define a Count key aborting script \n"
+															print "as a first ip modifier key you must define a Count key in a "+each_need+" tag aborting script \n"
 															sys.exit(100)
 														print "commmand_list1 len==="+str(len(command_list1))+"\n\n"
 
@@ -601,7 +663,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 						raw_command=data[needylist_key][each_and_every_cmd]
 						print "\nraw_command=="+raw_command+"\n"
 						raw_command_list=raw_command.split(' ')
-						for i in xrange(len(raw_command_list)):
+						for i in range(len(raw_command_list)):
 							if(re.search(r'.*{{(\w)}}',raw_command_list[i])):
 								print "matched a number \n\n=="+str(i)+"\n\n"
 								p=re.compile(r'{{\w}}')
@@ -640,7 +702,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 					        	        		                if("COUNT" in modifier_keys):
 															command_list1=command_list1*(int(modifier_data["COUNT"]))
                 					        	        		                else:
-															print "as a first ip modifier key you must define a Count key aborting script \n"
+															print "as a first ip modifier key you must define a Count key in a "+each_need+" tag aborting script \n"
 															sys.exit(100)
 														print "commmand_list1 len==="+str(len(command_list1))+"\n\n"
 
@@ -834,8 +896,25 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 						
 	static_cmd_dict={}		
 
-
-
+def mix_range_with_letters(ranges):
+	token_range_list=ranges.split(",")
+	ranges_list=[]
+	for each_token_range_list in token_range_list:
+	        if(each_token_range_list[0]=="R"):
+	                last_underscore=each_token_range_list.rfind('_')
+	                actual_range=each_token_range_list[last_underscore+1:]
+	                initial_range_len=len(ranges_list)
+	                ranges_list=ranges_list+mixrange(actual_range)
+	                for each_range_item in range(initial_range_len,len(ranges_list)):
+	                        ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
+	        else:
+	                m = re.search("\d", each_token_range_list)
+	                actual_range=each_token_range_list[m.start():]
+	                initial_range_len=len(ranges_list)
+	                ranges_list=ranges_list+mixrange(actual_range)
+	                for each_range_item in range(initial_range_len,len(ranges_list)):
+	                        ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
+	return ranges_list
 if  __name__ == "__main__" :
 	#filepath = "./example/ipclose.yaml"
 	filepath = sys.argv[1]
