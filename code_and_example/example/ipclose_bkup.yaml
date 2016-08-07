@@ -2,100 +2,12 @@
    fbf_interfaces: &fbf_interfaces_list "ae_20,30",
    vrf_interfaces: &vrf_interfaces_list "ae_60,61",
    unit_num: &unit_list "1-10",
-   'PAS_CONFIGS':
-      {
-          'ipclos_policy1':
-             {
-                 'ipclos_policy policy-options policy-statement clos-out term':
-                    [
-                       'loopback from route-filter 11.0.0.0/8 orlonger',
-                       'loopback then accept',
-                       'ospf from route-filter 32.0.0.0/4 orlonger',
-                       'ospf then accept',
-                       'slb from route-filter 48.0.0.0/8 orlonger',
-                       'slb then accept',
-                       'irb from route-filter 16.0.0.0/8 orlonger',
-                       'irb from route-filter 17.0.0.0/8 orlonger',
-                       'irb from route-filter 18.0.0.0/8 orlonger',
-                       'irb from route-filter 19.0.0.0/8 orlonger',
-                       'irb from route-filter 14.0.0.0/8 orlonger',
-                       'irb from route-filter 51.0.0.0/8 orlonger',
-                       'irb from route-filter 52.0.0.0/8 orlonger',
-                       'irb then accept',
-                       'default-route from route-filter 0.0.0.0/0 exact',
-                       'default-route then accept',
-                       'others then reject'
-                    ]
-             },
-          'ipclos_policy2':
-             {
-                 'ipclos_policy_v6 policy-options policy-statement clos-v6-out term':
-                    [
-                       'loopback from route-filter fd00:babe:babe:babe::/64 orlonger',
-                       'loopback then accept',
-                       'ospf from route-filter 2001::/16 orlonger',
-                       'ospf then accept',
-                       'irb from route-filter fd00:face:feed::/24 orlonger',
-                       'irb then accept',
-                       'default-route from route-filter ::/0 exact',
-                       'default-route then accept',
-                       'others then reject'
-                    ] 
-             }
-          
-
-      },
-    'PAS_CONFIG_MAPS':
-      {
-         'R0-1':'ipclos_policy1,ipclos_policy2'
-      },
-
-    'ipclos_fbf1':
-       {
-          'list':[
-                   'set groups ipclos_fbf routing-options interface-routes rib-group inet fbf-group': ~,
-                   'set groups ipclos_fbf routing-options rib-groups fbf-group import-rib inet.0',
-                   'set groups ipclos_fbf routing-options rib-groups fbf-group import-rib fbf.inet.0',
-                   'set groups ipclos_fbf firewall family inet filter fbf term 1 from source-address 50.6.0.0/16',
-                   'set groups ipclos_fbf firewall family inet filter fbf term 1 from destination-address 16.0.0.0/8',
-                   'set groups ipclos_fbf firewall family inet filter fbf term 1 then COUNT fbf',
-                   'set groups ipclos_fbf firewall family inet filter fbf term 1 then routing-instance fbf',
-                   'set groups ipclos_fbf firewall family inet filter fbf term 2 then accept',
-                   'set groups ipclos_fbf routing-instances fbf instance-type virtual-router',
-                   'set groups ipclos_fbf routing-instances fbf routing-options rib fbf.inet.0 static route 0.0.0.0/0 next-hop 12.2.1.1' 
-                  ],
-          'TARGETS' : 'R0-1',
-          'TARGET_R0':
-             [
-                 'interfaces {{$x}} unit 0 family inet filter input fbf':
-                    {
-                       'mod_x':
-                           {
-                               'VALUE': *fbf_interfaces_list,
-                               'mode':'list' 
-                           }
-                    }
-             ],
-          'TARGET_R1':
-             [
-                'interfaces {{$x}} unit 0 family inet filter input fbf':
-                    {          
-                       'mod_x':
-                           {
-                               'VALUE': 'ae30,ae40',
-                               'mode':'list'
-                           }
-                    }
-
-             ],
-          'GRPID':'ipclos_fbf',
-       },
    'ipclos_vrf_stanza':
        {
            'GRPID': 'ipclos_vrf',
            'TARGETS_R0-2,5-7,10':
-                [
-                   'interfaces {{$x}} unit {{$y}} family iso':
+              [
+                   'interfaces {{x}} unit {{y}} family iso':
                        {
                          'mod_x':
                              {
@@ -110,26 +22,25 @@
                              }
 
                        },
-                   'interfaces lo0 unit {{$x}} family inet address {{$y}} primary':
+                   'interfaces lo0 unit {{x}} family inet address {{y}} primary':
                        {
                          'mod_x':
                              {
-                                 'range_list':*unit_list
+                                 'VALUE':*unit_list
                              },
                          'mod_y':
                              {
-                                 'type':'ipv4',
-                                 'START':'11.2.1.1/32',
+                                 'VALUE':'11.2.1.1/32',
                                  'STEP':'0.1.0.0'
                              }
                        },
-                   'routing-instances ipclos-vrf-{{$x}}':
+                   'routing-instances ipclos-vrf-{{x}}':
                       {
                          'list':[
                                  'instance-type virtual-router',
-                                 'interface lo0.{{$x}}',
-                                 'interface ae60.{{$x}}',
-                                 'interface ae61.{{$x}}',
+                                 'interface lo0.{{x}}',
+                                 'interface ae60.{{x}}',
+                                 'interface ae61.{{x}}',
                                  'routing-options autonomous-system 64512',
                                  'protocols bgp advertise-inactive',
                                  'protocols bgp mtu-discovery',
@@ -143,11 +54,11 @@
                                  'protocols bgp group CLOS multipath multiple-as',
                                  'protocols isis level 1 disable',
                                  'protocols isis level 2 wide-metrics-only',
-                                 'protocols isis interface {{$y}}.{{$x}} point-to-point',
-                                 'protocols isis interface {{$y}}.{{$x}} level 2 hello-interval 1',
-                                 'protocols isis interface {{$y}}.{{$x}} level 2 hold-time 3',
-                                 'protocols isis interface {{$y}}.{{$x}} level 2 priority 100',
-                                 'protocols isis interface lo0.{{$x}}',
+                                 'protocols isis interface {{y}}.{{x}} point-to-point',
+                                 'protocols isis interface {{y}}.{{x}} level 2 hello-interval 1',
+                                 'protocols isis interface {{y}}.{{x}} level 2 hold-time 3',
+                                 'protocols isis interface {{y}}.{{x}} level 2 priority 100',
+                                 'protocols isis interface lo0.{{x}}',
                                  'mod_x':
                                      {
                                          'VALUE':*unit_list
@@ -158,92 +69,92 @@
                                      }
                                      ],
                          'TARGET_R0':[
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                 'mod_y':
                                                     {
-                                                       'START':'11.2.2.4',
+                                                       'VALUE':'11.2.2.4',
                                                        'STEP':'0.1.0.0',
                                                        'COUNT':'10' 
                                                     }
                                             },
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                 'mod_y':
                                                     {
-                                                       'START':'11.2.2.1',
+                                                       'VALUE':'11.2.2.1',
                                                        'COUNT':'10',
                                                        'STEP':'0.1.0.0'
                                                     }
                                             },
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                'mod_y':
                                                    {
-                                                       'START':'11.2.2.2',
+                                                       'VALUE':'11.2.2.2',
                                                        'COUNT':'10',
                                                        'STEP':'0.1.0.0'
                                                    }
                                             }
                                      ],
                          'TARGET_R1':[
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                 'mod_y':
                                                     {
-                                                       'START':'11.2.2.4',
+                                                       'VALUE':'11.2.2.4',
                                                        'STEP':'0.1.0.0',
                                                        'COUNT':'10' 
                                                     }
                                             },
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                 'mod_y':
                                                     {
-                                                       'START':'11.2.2.1',
+                                                       'VALUE':'11.2.2.1',
                                                        'COUNT':'10',
                                                        'STEP':'0.1.0.0'
                                                     }
                                             },
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                'mod_y':
                                                    {
-                                                       'START':'11.2.1.1',
+                                                       'VALUE':'11.2.1.1',
                                                        'COUNT':'10',
                                                        'STEP':'0.1.0.0'
                                                    }
                                             }
                                      ],
                          'TARGET_R2':[
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                 'mod_y':
                                                     {
-                                                       'START':'11.2.2.4',
+                                                       'VALUE':'11.2.2.4',
                                                        'STEP':'0.1.0.0',
                                                        'COUNT':'10' 
                                                     }
                                             },
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                 'mod_y':
                                                     {
-                                                       'START':'11.2.1.1',
+                                                       'VALUE':'11.2.1.1',
                                                        'COUNT':'10',
                                                        'STEP':'0.1.0.0'
                                                     }
                                             },
-                                         'bgp group CLOS neighbor {{$y}} peer-as 64512':
+                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
                                             {
                                                'mod_y':
                                                    {
-                                                       'START':'11.2.1.2',
+                                                       'VALUE':'11.2.1.2',
                                                        'COUNT':'10',
                                                        'STEP':'0.1.0.0'
                                                    }
                                             },
-                                         'interface {{$x}}.{{$y}}':
+                                         'interface {{x}}.{{y}}':
                                             {
                                                'mod_x':
                                                    {
@@ -256,215 +167,6 @@
                                             }   
                                      ]
                       },
-                    'interfaces lo0 unit {{$x}} family iso address {{$y}}':
-                      {
-                          'mod_x':
-                              {
-                                 'VALUE': *unit_list
-                              },
-                          'mod_y':
-                              {
-                                 'VALUE':'00.0008.0110.0200.1001.00',
-                                 'STEP':'00.0000.0000.0100.0000.00'
-                              }
-                      }      
               ]
-       },
-   'staticlag_lacp1':
-       {
-          'GRPID':'staticlag_lacp',
-          'TARGET_R0':[
-                        'interfaces {{$v}} ether-options 802.3ad {{$k}}':
-                            {
-                               'mod_(k,v)':
-                                   {
-                                      'ae10':['R0_R3_1-4'],
-                                      'ae20':['R0_R4_1-2'],
-                                      'ae4' :['R0_R5_1-2'],
-                                      'ae0' :['R0_R2_1-2'],
-                                      'ae1' :['R0_R2_3-6'],
-                                      'ae61':['R1_R2_1-5'],
-                                      'LINK':'one2many'
-                                   }
-                            },
-                        'interfaces {{$x}} aggregated-ether-options lacp active periodic fast',
-                        'interfaces {{$x}} aggregated-ether-options minimum-links {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                      'VALUE':'2,2,3'
-                                   }
-                            },
-                        'mod_x':
-                                   {
-                                      'VALUE':'ae0-1,ae4,ae10,ae20,ae61'
-                                   }
-                      ],
-          'TARGET_R1':[
-                        'interfaces {{$v}} ether-options 802.3ad {{$k}}':
-                            {
-                               'mod_(k,v)':
-                                   {
-                                      'ae40':['R0_R3_1-4'],
-                                      'ae20':['R0_R4_1-2'],
-                                      'ae30' :['R0_R5_1-2'],
-                                      'ae61' :['R0_R2_3-6'],
-                                      'LINK':'one2many'
-                                   }
-                            },
-                        'interfaces {{$x}} aggregated-ether-options lacp active periodic fast',
-                        'interfaces {{$x}} aggregated-ether-options minimum-links {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                      'VALUE':'2,2,3'
-                                   }
-                            },
-                        'mod_x':
-                                   {
-                                      'VALUE':'ae0-1,ae4,ae10,ae20,ae61'
-                                   }
-                      ],
-          'TARGET_R2':[
-                        'interfaces {{$v}} ether-options 802.3ad {{$k}}':
-                            {
-                               'mod_(k,v)':
-                                   {
-                                      'ae2':['R0_R4_1-2'],
-                                      'ae4' :['R0_R5_1-2'],
-                                      'ae3' :['R0_R2_1-2'],
-                                      'ae1' :['R0_R2_3-6'],
-                                      'ae61':['R1_R2_1-5'],
-                                      'LINK':'one2many'
-                                   }
-                            },
-                        'interfaces {{$x}} aggregated-ether-options lacp active periodic fast',
-                        'interfaces {{$x}} aggregated-ether-options minimum-links {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                      'VALUE':'2,2,3'
-                                   }
-                            },
-                        'mod_x':
-                                   {
-                                      'VALUE':'ae0-1,ae4,ae10,ae20,ae61'
-                                   }
-                      ], 
-       },
-   'pure_L31':
-       {
-          'GRPID':'pure_L3',
-          'TARGET_R0':[
-                        'interface {{$x}} unit 0 family inet address {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                     'START':'12.1.0.0/31',
-                                     'STEP':'0.0.0.2'
-                                   }
-                            },
-                        'interface {{$x}} unit 0 family inet address {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                     'START':'fd00:cafe:babe:aa02:0000::1/80',
-                                     'STEP':'0:0:0:0:0001::0/80'
-                                   }
-                            },
-                        'interfaces {{$x}} mtu 9216',
-                        'mod_x':
-                            {
-                               'VALUE':'R0_R2_1-4,R0_R3_1-3,R0_R4_1-2,ae0-4'
-                            }
-                      ],
-          'TARGET_R1':[
-                        'interface {{$x}} unit 0 family inet address {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                     'START':'12.1.0.0/31',
-                                     'STEP':'0.0.0.2'
-                                   }
-                            },
-                        'interface {{$x}} unit 0 family inet address {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                     'START':'fd00:cafe:babe:aa02:0000::1/80',
-                                     'STEP':'0:0:0:0:0001::0/80'
-                                   }
-                            },
-                        'interfaces {{$x}} mtu 9216',
-                        'mod_x':
-                            {
-                               'VALUE':'ae10,ae20,ae30,ae40'
-                            }
-                      ],
-          'TARGET_R2':[
-                        'interface {{$x}} unit 0 family inet address {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                     'START':'12.1.0.0/31',
-                                     'STEP':'0.0.0.2'
-                                   }
-                            },
-                        'interface {{$x}} unit 0 family inet address {{$y}}':
-                            {
-                               'mod_y':
-                                   {
-                                     'START':'fd00:cafe:babe:aa02:0000::1/80',
-                                     'STEP':'0:0:0:0:0001::0/80'
-                                   }
-                            },
-                        'interfaces {{$x}} mtu 9216',
-                        'mod_x':
-                            {
-                               'VALUE':'R0_R3_1-3,ae10,ae20,ae30,ae40'
-                            }
-                      ],
-       },
-  'isis1':
-       {
-          'GRPID':'isis',
-          'TARGETS':'R0-2',
-          'protocols isis level 2 wide-metrics-only',
-          'TARGET_R0':
-              [
-                        'interfaces {{$x}}.{{$y}} family iso',
-                        'protocols isis interface {{$x}}.{{$y}} level 2 priority 100',
-                        'protocols isis interface {{$x}}.{{$y}} level 2 hello-interval 1',
-                        'protocols isis interface {{$x}}.{{$y}} level 2 hold-time 3',
-                        'mod_x':
-                            {
-                               'VALUE':'R0_R5_1'
-                            },
-                        'mod_y':
-                            {
-                               'VALUE':'1-45',
-                               'LINK':'one2many'
-                            }
-              ],
-          'TARGET_R1':
-              [
-                         'protocols isis interface {{$x}}',
-                         'protocols isis interface {{$x}} point-to-point',
-                         'protocols isis interface {{$x}} level 2 priority 100',
-                         'mod_x':
-                             {
-                                'VALUE':'ae10,ae20,ae30,lo0.0'
-                             }
-              ],
-          'TARGET_R2':
-              [
-                         'protocols isis interface {{$x}}',
-                         'protocols isis interface {{$x}} point-to-point',
-                         'protocols isis interface {{$x}} level 2 priority 100',
-                         'mod_x':
-                             {
-                                'VALUE':'ae0,ae3,ae6,R2_R5_1-5'
-                             }
-              ]
-       }  
- }
+       }
+}
