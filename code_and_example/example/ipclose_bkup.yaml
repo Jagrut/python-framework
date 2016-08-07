@@ -1,6 +1,6 @@
 {
-   fbf_interfaces: &fbf_interfaces_list "ae_20,30",
-   vrf_interfaces: &vrf_interfaces_list "ae_60,61",
+   fbf_interfaces: &fbf_interfaces_list "ae20,ae30",
+   vrf_interfaces: &vrf_interfaces_list "ae60,ae61",
    unit_num: &unit_list "1-10",
    'ipclos_vrf_stanza':
        {
@@ -12,22 +12,17 @@
                          'mod_x':
                              {
                                  'VALUE':*vrf_interfaces_list,
-                                 'mode':'list'
                              },
                          'mod_y':
                              {
                                  'VALUE':*unit_list,
-                                 'mode':'expand',
                                  'LINK':'one2many'
                              }
 
                        },
                    'interfaces lo0 unit {{x}} family inet address {{y}} primary':
                        {
-                         'mod_x':
-                             {
-                                 'VALUE':*unit_list
-                             },
+                         
                          'mod_y':
                              {
                                  'VALUE':'11.2.1.1/32',
@@ -54,119 +49,76 @@
                                  'protocols bgp group CLOS multipath multiple-as',
                                  'protocols isis level 1 disable',
                                  'protocols isis level 2 wide-metrics-only',
-                                 'protocols isis interface {{y}}.{{x}} point-to-point',
-                                 'protocols isis interface {{y}}.{{x}} level 2 hello-interval 1',
-                                 'protocols isis interface {{y}}.{{x}} level 2 hold-time 3',
-                                 'protocols isis interface {{y}}.{{x}} level 2 priority 100',
+                                 'protocols isis interface {{y}}.{{x}} point-to-point':
+                                   {    
+                                     'mod_x':
+                                         {
+                                            'VALUE':*unit_list,
+                                            'LINK':'one2many'
+                                         },
+                                     'mod_y':
+                                         {
+                                             'VALUE': *vrf_interfaces_list,
+                                             'LINK':'one2many'
+                                         }
+                                   },
+                                 'protocols isis interface {{y}}.{{x}} level 2 hello-interval 1':
+                                   {
+                                     'mod_x':
+                                         {
+                                             'VALUE':*unit_list,
+                                             'LINK':'one2many'
+                                         },
+                                     'mod_y':
+                                         {
+                                             'VALUE': *vrf_interfaces_list,
+                                             'LINK':'one2many'
+                                         }
+
+                                   },
+                                 'protocols isis interface {{y}}.{{x}} level 2 hold-time 3':
+                                   {
+                                     'mod_x':
+                                         {
+                                             'VALUE':*unit_list,
+                                             'LINK':'one2many'
+                                         },
+                                     'mod_y':
+                                         {
+                                             'VALUE': *vrf_interfaces_list,
+                                             'LINK':'one2many'
+                                         }
+
+                                   },
+                                 'protocols isis interface {{y}}.{{x}} level 2 priority 100':
+                                   {
+                                     'mod_x':
+                                         {
+                                             'VALUE':*unit_list,
+                                             'LINK':'one2many'
+                                         },
+                                     'mod_y':
+                                         {
+                                             'VALUE': *vrf_interfaces_list,
+                                             'LINK':'one2many'
+                                         }
+
+                                   },
                                  'protocols isis interface lo0.{{x}}',
                                  'mod_x':
                                      {
-                                         'VALUE':*unit_list
+                                         'VALUE':*unit_list,
                                      },
                                  'mod_y':
                                      {
                                          'VALUE': *vrf_interfaces_list
                                      }
-                                     ],
-                         'TARGET_R0':[
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                                'mod_y':
-                                                    {
-                                                       'VALUE':'11.2.2.4',
-                                                       'STEP':'0.1.0.0',
-                                                       'COUNT':'10' 
-                                                    }
-                                            },
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                                'mod_y':
-                                                    {
-                                                       'VALUE':'11.2.2.1',
-                                                       'COUNT':'10',
-                                                       'STEP':'0.1.0.0'
-                                                    }
-                                            },
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                               'mod_y':
-                                                   {
-                                                       'VALUE':'11.2.2.2',
-                                                       'COUNT':'10',
-                                                       'STEP':'0.1.0.0'
-                                                   }
-                                            }
-                                     ],
-                         'TARGET_R1':[
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                                'mod_y':
-                                                    {
-                                                       'VALUE':'11.2.2.4',
-                                                       'STEP':'0.1.0.0',
-                                                       'COUNT':'10' 
-                                                    }
-                                            },
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                                'mod_y':
-                                                    {
-                                                       'VALUE':'11.2.2.1',
-                                                       'COUNT':'10',
-                                                       'STEP':'0.1.0.0'
-                                                    }
-                                            },
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                               'mod_y':
-                                                   {
-                                                       'VALUE':'11.2.1.1',
-                                                       'COUNT':'10',
-                                                       'STEP':'0.1.0.0'
-                                                   }
-                                            }
-                                     ],
-                         'TARGET_R2':[
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                                'mod_y':
-                                                    {
-                                                       'VALUE':'11.2.2.4',
-                                                       'STEP':'0.1.0.0',
-                                                       'COUNT':'10' 
-                                                    }
-                                            },
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                                'mod_y':
-                                                    {
-                                                       'VALUE':'11.2.1.1',
-                                                       'COUNT':'10',
-                                                       'STEP':'0.1.0.0'
-                                                    }
-                                            },
-                                         'bgp group CLOS neighbor {{y}} peer-as 64512':
-                                            {
-                                               'mod_y':
-                                                   {
-                                                       'VALUE':'11.2.1.2',
-                                                       'COUNT':'10',
-                                                       'STEP':'0.1.0.0'
-                                                   }
-                                            },
-                                         'interface {{x}}.{{y}}':
-                                            {
-                                               'mod_x':
-                                                   {
-                                                       'VALUE':'R2_R5_1'
-                                                   },
-                                               'mod_y':
-                                                   {
-                                                       'VALUE':'201-210'
-                                                   }
-                                            }   
-                                     ]
+                                ], 
                       },
+                   'mod_x':
+                             {
+                                 'VALUE':*unit_list
+                             },
               ]
        }
 }
