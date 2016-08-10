@@ -1,7 +1,7 @@
 {
-   fbf_interfaces: &fbf_interfaces_list "ae20,ae30",
-   vrf_interfaces: &vrf_interfaces_list "ae60,ae61",
-   unit_num: &unit_list "1-10",
+   fbf_interfaces: &fbf_interfaces_LIST_HOLDER "ae20,ae30",
+   vrf_interfaces: &vrf_interfaces_LIST_HOLDER "ae60,ae61",
+   unit_num: &unit_LIST_HOLDER "1-10",
    'ipclos_vrf_stanza':
        {
            'GRPID': 'ipclos_vrf',
@@ -11,11 +11,11 @@
                        {
                          'mod_x':
                              {
-                                 'VALUE':*vrf_interfaces_list,
+                                 'VALUE':*vrf_interfaces_LIST_HOLDER,
                              },
                          'mod_y':
                              {
-                                 'VALUE':*unit_list,
+                                 'VALUE':*unit_LIST_HOLDER,
                                  'LINK':'one2many'
                              }
 
@@ -31,7 +31,7 @@
                        },
                    'routing-instances ipclos-vrf-{{x}}':
                       {
-                         'list':[
+                         'LIST_HOLDER':[
                                  'instance-type virtual-router',
                                  'interface lo0.{{x}}',
                                  'interface ae60.{{x}}',
@@ -53,12 +53,12 @@
                                    {    
                                      'mod_x':
                                          {
-                                            'VALUE':*unit_list,
+                                            'VALUE':*unit_LIST_HOLDER,
                                             'LINK':'one2many'
                                          },
                                      'mod_y':
                                          {
-                                             'VALUE': *vrf_interfaces_list,
+                                             'VALUE': *vrf_interfaces_LIST_HOLDER,
                                              'LINK':'one2many'
                                          }
                                    },
@@ -66,12 +66,12 @@
                                    {
                                      'mod_x':
                                          {
-                                             'VALUE':*unit_list,
+                                             'VALUE':*unit_LIST_HOLDER,
                                              'LINK':'one2many'
                                          },
                                      'mod_y':
                                          {
-                                             'VALUE': *vrf_interfaces_list,
+                                             'VALUE': *vrf_interfaces_LIST_HOLDER,
                                              'LINK':'one2many'
                                          }
 
@@ -80,12 +80,12 @@
                                    {
                                      'mod_x':
                                          {
-                                             'VALUE':*unit_list,
+                                             'VALUE':*unit_LIST_HOLDER,
                                              'LINK':'one2many'
                                          },
                                      'mod_y':
                                          {
-                                             'VALUE': *vrf_interfaces_list,
+                                             'VALUE': *vrf_interfaces_LIST_HOLDER,
                                              'LINK':'one2many'
                                          }
 
@@ -94,12 +94,12 @@
                                    {
                                      'mod_x':
                                          {
-                                             'VALUE':*unit_list,
+                                             'VALUE':*unit_LIST_HOLDER,
                                              'LINK':'one2many'
                                          },
                                      'mod_y':
                                          {
-                                             'VALUE': *vrf_interfaces_list,
+                                             'VALUE': *vrf_interfaces_LIST_HOLDER,
                                              'LINK':'one2many'
                                          }
 
@@ -107,17 +107,17 @@
                                  'protocols isis interface lo0.{{x}}',
                                  'mod_x':
                                      {
-                                         'VALUE':*unit_list,
+                                         'VALUE':*unit_LIST_HOLDER,
                                      },
                                  'mod_y':
                                      {
-                                         'VALUE': *vrf_interfaces_list
+                                         'VALUE': *vrf_interfaces_LIST_HOLDER
                                      }
                                 ], 
                       },
                    'mod_x':
                              {
-                                 'VALUE':*unit_list
+                                 'VALUE':*unit_LIST_HOLDER
                              },
               ]
        }
