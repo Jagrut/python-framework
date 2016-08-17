@@ -296,26 +296,6 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
                                 if(len(recursive_list)>=1):
                                         print("\nrecursive call to where_is_list\n")
                                         where_is_list(data[iter_needylist_keys],recursive_list,each_need,command_list1)
-def POOL_TO_LIST(pool):
-        poollist=[]
-        if ',' in pool :
-                        val = pool.split(',')
-                        for x in val :
-                                if '-' in x :
-                                        val1 = x.split('-')
-                                        #print val1
-                                        for ii in range(int(val1[0]),int(val1[1])+1,1):
-                                                poollist.append(ii)
-                                else :
-                                        poollist.append(x)
-        elif '-' in pool :
-                val1 = pool.split('-')
-                for ii in range(int(val1[0]),int(val1[1])+1,1):
-                        poollist.append(ii)
-        else :
-                poollist.append(pool)
-        return poollist
-
 def PAS_STATIC_CMDS(Data,Targets) :
         NoOfTargets=len(Targets)
         while(NoOfTargets!=0) :
@@ -514,13 +494,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                 ip_count=int(modifier_data["COUNT"]);
                                                                                                         
                                                                                                         ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                                                                                        ### another pattern for writing IP address ###
-                                                                                                        #for address in ip_range(modifier_data["VALUE"]):
-                                                                                                        #        if(command_track==int(modifier_keys["COUNT"])):
-                                                                                                        #                break
-                                                                                                        #        print "generated address is=="+address+"\n\n"
-                                                                                                        #        command_list1[command_track]=command_list1[command_track]+" "+raw_command_list[i] +address
-                                                                                                        #        command_track=command_track+1
                                                                                                         for address in ip_addr_list:
                                                                                                                 if(command_track==len(command_list1)):
                                                                                                                         break
@@ -564,24 +537,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                 else:
                                                                                         if ((not("MODE" in modifier_keys)) or modifier_data["MODE"]=="expand"):
                                                                                                 ranges=modifier_data["VALUE"]
-                                                                                                token_range_list=ranges.split(",")
-                                                                                                ranges_list=[]
-                                                                                                for each_token_range_list in token_range_list:
-                                                                                                        if(each_token_range_list[0]=="R"):
-                                                                                                                last_underscore=each_token_range_list.rfind('_')
-                                                                                                                actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                        else:
-                                                                                                                m = re.search("\d", each_token_range_list)
-                                                                                                                actual_range=each_token_range_list[m.start():]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
-                                                                                                
+                                                                                                ranges_list=mix_range_with_letters(ranges)
                                                                                                 print("\nranges list start\n")
                                                                                                 pprint(ranges_list)        
                                                                                                 print("\nranges list end\n")        
@@ -621,23 +577,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                         
                                                                                         else:
                                                                                                 ranges=modifier_data["VALUE"]
-                                                                                                token_range_list=ranges.split(",")
-                                                                                                ranges_list=[]
-                                                                                                for each_token_range_list in token_range_list:
-                                                                                                        if(each_token_range_list[0]=="R"):
-                                                                                                                last_underscore=each_token_range_list.rfind('_')
-                                                                                                                actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                        else:
-                                                                                                                m = re.search("\d", each_token_range_list)
-                                                                                                                actual_range=each_token_range_list[m.start():]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
+                                                                                                ranges_list=mix_range_with_letters(ranges)
                                                                                                 print("\nranges start\n")
                                                                                                 pprint(ranges_list)
                                                                                                 print("\nranges end\n")
@@ -826,24 +766,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                 else:
                                                                                         if( (not("MODE" in modifier_keys)) or modifier_data["MODE"]=='expand'):
                                                                                                 ranges=modifier_data["VALUE"]
-                                                                                                token_range_list=ranges.split(",")
-                                                                                                ranges_list=[]
-                                                                                                for each_token_range_list in token_range_list:
-                                                                                                        if(each_token_range_list[0]=="R"):
-                                                                                                                last_underscore=each_token_range_list.rfind('_')
-                                                                                                                actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                        else:
-                                                                                                                m = re.search("\d", each_token_range_list)
-                                                                                                                actual_range=each_token_range_list[m.start():]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
-                                                                                                print("\n ranges_list start \n")        
+                                                                                                ranges_list=mix_range_with_letters(ranges)
+                                                                                                print("\n ranges_list start \n")
                                                                                                 pprint(ranges_list)
                                                                                                 print("\n ranges_list end \n")
                                                                                                 if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
@@ -879,24 +803,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                         
                                                                                         else:
                                                                                                 ranges=modifier_data["VALUE"]
-                                                                                                token_range_list=ranges.split(",")
-                                                                                                ranges_list=[]
-                                                                                                for each_token_range_list in token_range_list:
-                                                                                                        if(each_token_range_list[0]=="R"):
-                                                                                                                last_underscore=each_token_range_list.rfind('_')
-                                                                                                                actual_range=each_token_range_list[last_underscore+1:]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                                                                                                        else:
-                                                                                                                m = re.search("\d", each_token_range_list)
-                                                                                                                actual_range=each_token_range_list[m.start():]
-                                                                                                                initial_range_len=len(ranges_list)
-                                                                                                                ranges_list=ranges_list+mixrange(actual_range)
-                                                                                                                for each_range_item in range(initial_range_len,len(ranges_list)):
-                                                                                                                        ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])        
-
+                                                                                                #token_range_list=ranges.split(",")
+                                                                                                ranges_list=mix_range_with_letters(ranges)
+                                                                                                
                                                                                                 print("\nranges_list start\n")
                                                                                                 pprint(ranges_list)
                                                                                                 print("\nranges_list end\n")
@@ -984,9 +893,5 @@ def mix_range_with_letters(ranges):
                                 ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
         return ranges_list
 if  __name__ == "__main__" :
-        #filepath = "./example/ipclose.yaml"
         filepath = sys.argv[1]
-        
         data = yaml_reader(filepath)
-        #x = data['VLAN_POOL1']['VLAN_POOL_IPV4']['RANGE']
-        #config_vlan(x)
