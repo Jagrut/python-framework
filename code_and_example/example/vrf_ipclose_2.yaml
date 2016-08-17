@@ -1,0 +1,100 @@
+{
+   fbf_interfaces: &fbf_interfaces_LIST_HOLDER "ae20,ae30",
+   vrf_interfaces: &vrf_interfaces_LIST_HOLDER "ae60,ae61",
+   unit_num: &unit_LIST_HOLDER "1-10",
+   'ipclos_vrf_stanza':
+       {
+           'GRPID': 'ipclos_vrf',
+           'TARGETS_R0-2,5-7,10':
+              [
+                   'interfaces {{x}} unit {{y}} family iso':
+                       {
+                         'mod_x':
+                             {
+                                 'VALUE':*vrf_interfaces_LIST_HOLDER,
+                             },
+                         'mod_y':
+                             {
+                                 'VALUE':*unit_LIST_HOLDER,
+                                 'LINK':'one2many'
+                             }
+
+                       },
+                   'interfaces lo0 unit {{x}} family inet address {{y}} primary':
+                       {
+                         
+                         'mod_y':
+                             {
+                                 'VALUE':'11.2.1.1/32',
+                                 'STEP':'0.1.0.0'
+                             }
+                       },
+                   'routing-instances ipclos-vrf-{{x}}':
+                      [
+                                 'instance-type virtual-router',
+                                 'interface lo0.{{x}}',
+                                 'interface ae60.{{x}}',
+                                 'interface ae61.{{x}}',
+                                 'routing-options autonomous-system 64512',
+                                 'protocols bgp advertise-inactive',
+                                 'protocols bgp mtu-discovery',
+                                 'protocols bgp group CLOS type internal',
+                                 'protocols bgp group CLOS hold-time 10',
+                                 'protocols bgp group CLOS advertise-peer-as',
+                                 'protocols bgp group CLOS log-updown',
+                                 'protocols bgp group CLOS family inet unicast',
+                                 'protocols bgp group CLOS export nhs',
+                                 'protocols bgp group CLOS export clos-out',
+                                 'protocols bgp group CLOS multipath multiple-as',
+                                 'protocols isis level 1 disable',
+                                 'protocols isis level 2 wide-metrics-only',
+                                 'protocols isis interface {{y}}.{{x}} point-to-point':
+                                   {    
+                                     'mod_x':
+                                         {
+                                            'VALUE':*unit_LIST_HOLDER,
+                                            'LINK':'one2many'
+                                         },
+                                     'mod_y':
+                                         {
+                                             'VALUE': *vrf_interfaces_LIST_HOLDER,
+                                             'LINK':'one2many'
+                                         }
+                                   },
+                                 'protocols isis interface {{y}}.{{x}}':
+                                   {
+                                     'LIST_HOLDER': 
+                                       [
+                                       'poin-to-point',
+                                       'level 2 hello-interval 1',
+                                       'level 2 hold-time 3',
+                                       'level 2 priority 100'
+                                      ],                                   
+                                     'mod_x':
+                                         {
+                                             'VALUE':*unit_LIST_HOLDER,
+                                             'LINK':'one2many'
+                                         },
+                                     'mod_y':
+                                         {
+                                             'VALUE': *vrf_interfaces_LIST_HOLDER,
+                                             'LINK':'one2many'
+                                         }
+                                  },
+                                 'protocols isis interface lo0.{{x}}',
+                                 'mod_x':
+                                     {
+                                         'VALUE':*unit_LIST_HOLDER,
+                                     },
+                                 'mod_y':
+                                     {
+                                         'VALUE': *vrf_interfaces_LIST_HOLDER
+                                     }
+                      ], 
+                   'mod_x':
+                             {
+                                 'VALUE':*unit_LIST_HOLDER
+                             },
+              ]
+       }
+}

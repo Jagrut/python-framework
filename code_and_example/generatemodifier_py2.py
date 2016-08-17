@@ -162,19 +162,21 @@ def yaml_reader(filepath):
                         for each_tag_key in tag_keys:
                                 if isinstance(command_set[each_tag_key],list):
                                         #static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
+                                        if not(command_set[each_tag_key]=="LIST_HOLDER"):
+                                        	static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
                                         tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
-                                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][0]+" \n"
+                                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][0]+"\n"
                                         for command_set_itr in range(1,len(command_set[each_tag_key])):
-                                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[each_tag_key][command_set_itr]+" \n"
-                                else:
-                                        all_command_set_keys=list(command_set[each_tag_key].keys())
-                                        for each_all_command_set_keys in all_command_set_keys:
-                                                 if isinstance(command_set[each_tag_key][each_all_command_set_keys],list):
-                                                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
-                                                        tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
-                                                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][each_all_command_set_keys][0]+" \n"
-                                                        for command_set_itr in range(1,len(command_set[each_tag_key][each_all_command_set_keys])):
-                                                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[each_tag_key][each_all_command_set_keys][command_set_itr]+" \n"
+                                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+tmp_static_cmd_str+" " + command_set[each_tag_key][command_set_itr]+"\n"
+                                #else:
+                                #        all_command_set_keys=list(command_set[each_tag_key].keys())
+                                #        for each_all_command_set_keys in all_command_set_keys:
+                                #                 if isinstance(command_set[each_tag_key][each_all_command_set_keys],list):
+                                #                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
+                                #                        tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
+                                #                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][each_all_command_set_keys][0]+" \n"
+                                #                        for command_set_itr in range(1,len(command_set[each_tag_key][each_all_command_set_keys])):
+                                #                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[each_tag_key][each_all_command_set_keys][command_set_itr]+" \n"
         print("before static cmd dict\n\n")
         pprint(static_cmd_dict)
         print("after static cmd dict\n\n")
@@ -383,6 +385,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 print("\n static_cmd_dict end \n")        
                 for each_and_every_cmd in range(needylist_key_len):
                         command_list1=list(tmp_str)
+                        print("\nchecking dictionary or list start\n\n")
+                        pprint(data[needylist_key][each_and_every_cmd])
+                        print("\nchecking dictionary or list end \n\n")
                         if(isinstance(data[needylist_key][each_and_every_cmd],dict)):
                                 print("\n it's a dictionary \n")
                                 each_and_every_cmd_keys=list(data[needylist_key][each_and_every_cmd].keys())
@@ -668,6 +673,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                 print("\n recursively vrf list called see this\n")
                                                                                 recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
                                                                                 return
+                                                                        if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
+                                                                                print("\n hierarchical vrf lst called see this\n")
+                                                                                recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                                                return
                                                         else:
                                                                 for pq in range(len(command_list1)):
                                                                         command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "        
@@ -690,18 +699,26 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                          if(each_file in total_targets):
                                                                  with open("R"+str(each_file)+"_config", 'a') as outfile: 
                                                                          for each_comm in command_list1:
-                                                                                outfile.write(each_comm+"\n")
+                                                                                #outfile.write(each_comm+"\n")
+                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
+                                                                                
 
                                                          else:
                                                                  total_targets.append(each_file)
                                                                  with open("R"+str(each_file)+"_config", 'w') as outfile: 
                                                                          for each_comm in command_list1:
-                                                                                outfile.write(each_comm+"\n")
+                                                                                #outfile.write(each_comm+"\n")
+                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
                                                 command_list1=[]                                                
 
                                                 
                         else:
                                                 print("not a dictionary\n")
+                                                if(isinstance(data[needylist_key][each_and_every_cmd],list)):
+                                                        print("\n\nlist found in data[needylist_key][each_and_every_cmd]\n\n")
+                                                        raw_command=data[needylist_key][each_and_every_cmd]
+                                                        pprint(raw_command)
+                                                        sys.exit(121)
                                                 raw_command=data[needylist_key][each_and_every_cmd]
                                                 print("\nraw_command=="+raw_command+"\n")
                                                 raw_command_list=raw_command.split(' ')
@@ -935,12 +952,14 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                          if(each_file in total_targets):
                                                                  with open("R"+str(each_file)+"_config", 'a') as outfile: 
                                                                          for each_comm in command_list1:
-                                                                                outfile.write(each_comm+"\n")
+                                                                                #outfile.write(each_comm+"\n")
+                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
                                                          else:
                                                                  total_targets.append(each_file)
                                                                  with open("R"+str(each_file)+"_config", 'w') as outfile: 
                                                                          for each_comm in command_list1:
-                                                                                outfile.write(each_comm+"\n")
+                                                                                #outfile.write(each_comm+"\n")
+                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
                                                 command_list1=[]                                                
                                                 
         static_cmd_dict={}                
