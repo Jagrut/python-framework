@@ -115,7 +115,7 @@ L3_Interfaces:
           STEP: "0:0:0:0:0001::0"
     - "interfaces {{x}} mtu 9216"
     - mod_x: 
-        VALUE: "ae_10,20,30"
+        VALUE: "ae10,ae20,ae30"
   TARGET_R2: 
     - "interface {{x}} unit 0 family inet address {{y}}": 
         mod_y: 
@@ -127,7 +127,7 @@ L3_Interfaces:
           STEP: "0:0:0:0:0001::0"
     - "interfaces {{x}} mtu 9216"
     - mod_x: 
-        VALUE: "ae_0-3"
+        VALUE: "ae0-3"
         
 PAS_CONFIGS: 
   per_packet_load_balance:

@@ -609,14 +609,14 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         print("\n command list start\n") 
                                                                                                         pprint(command_list1)
                                                                                                         print("\n command list end\n")
-                                                                        if("LIST_HOLDER" in inside_modifier_keys):
-                                                                                print("\n recursively vrf list called see this\n")
-                                                                                recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
-                                                                                return
-                                                                        if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
-                                                                                print("\n hierarchical vrf lst called see this\n")
-                                                                                recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
-                                                                                return
+                                                                if("LIST_HOLDER" in inside_modifier_keys):
+                                                                    print("\n recursively vrf list called see this\n")
+                                                                    recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
+                                                                    return
+                                                                if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
+                                                                    print("\n hierarchical vrf lst called see this\n")
+                                                                    recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                                    return
                                                         else:
                                                                 for pq in range(len(command_list1)):
                                                                         command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "        
