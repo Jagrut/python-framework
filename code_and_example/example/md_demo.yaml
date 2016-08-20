@@ -1,0 +1,179 @@
+{
+  "ISIS_config": {
+    "LIST_HOLDER":[
+      "interfaces {{intf}} vlan-tagging",
+      "interfaces {{intf}} aggregated-ether-options lacp active",
+      "interfaces {{intf}} aggregated-ether-options lacp periodic fast",
+      "mod_intf":
+          {
+            "VALUE": "ae0-1"
+          } 
+    ],
+    "TARGETS":"R0-1",
+    "TARGET_R0": [
+      "chassis aggregated-devices ethernet device-count 5",
+      "interfaces {{x}} ether-options 802.3ad {{y}}": {
+          "mod_(y,x)": {
+            "ae0": "et-0/0/24,et-0/0/25"
+             }
+        },
+      "interfaces lo0 unit 0 family": [
+          "inet address 192.168.0.1/32",
+          "iso address 08.0002.0192.0168.0001.00"
+        ],
+      "protocols isis interface lo0.0",
+      "interfaces ae0 unit {{x}}": {
+          "mod_x": {
+            "VALUE": "1-2"
+          },
+          "LIST_HOLDER": [
+              "vlan-id {{x}}": {
+                "mod_x": {
+                  "VALUE": "1-2"
+                 }
+               },
+             
+              "family inet address {{y}}/24": 
+                {
+                  'mod_y':
+                      {
+                        "STEP": "0.0.1.0",
+                        "VALUE": "10.0.1.2"
+                      }
+                },
+              "family iso"
+
+            ]
+          },
+      "protocols isis interface ae0.{{x}}": {
+          "mod_x": {
+            "VALUE": "1-2"
+          }
+        }
+    ],
+    "TARGET_R1": [
+      "chassis aggregated-devices ethernet device-count 5",
+      "interfaces {{x}} ether-options 802.3ad {{y}}": {
+          "mod_(y,x)": {
+            "ae0": "et-0/0/0,et-0/0/1"
+             }
+        },
+      "interfaces lo0 unit 0 family": [
+          "inet address 192.168.0.2/32",
+          "iso address 08.0002.0192.0168.0002.00"
+        ],
+      "protocols isis interface lo0.0",
+      "interfaces ae0 unit {{x}}": {
+          "mod_x": {
+            "VALUE": "1-2"
+          },
+          "LIST_HOLDER": [
+              "vlan-id {{x}}": {
+                "mod_x": {
+                  "VALUE": "1-2"
+                 }
+               },
+             
+              "family inet address {{y}}/24": 
+                {
+                  'mod_y':
+                      {
+                        "STEP": "0.0.1.0",
+                        "VALUE": "10.0.1.3"
+                      }
+                },
+              "family iso"
+
+            ]
+          },
+      "protocols isis interface ae0.{{x}}": {
+          "mod_x": {
+            "VALUE": "1-2"
+          }
+        }
+    ],
+
+    "GRPID": "ISIS_CONFIG"
+  },
+  "OSPF_config": {
+    "TARGET_R0": [
+      "chassis aggregated-devices ethernet device-count 5",
+      "interfaces {{x}} ether-options 802.3ad {{y}}": {
+          "mod_(y,x)": {
+            "ae1": "et-0/0/26,et-0/0/27"
+          }
+        },
+      "interfaces ae1 unit {{x}}":{
+          "mod_x":{
+             "VALUE":"0"
+           },
+          "LIST_HOLDER":[
+             "family ethernet-switching interface-mode trunk",
+             "family ethernet-switching vlan members pas{{y}}":
+              {
+                 "mod_y":
+                     {
+                        "VALUE":"20-21",
+                        "LINK":"one2many"
+                     }
+              } 
+           ]
+       },
+      "interfaces irb unit {{x}} family inet address {{y}}/24":{
+         "mod_y":{
+                "VALUE":"11.0.1.2",
+                "STEP":"0.0.1.0"
+             }
+       },
+      "protocols ospf area 0.0.0.0 interface irb.{{x}}",
+      "protocols ospf area 0.0.0.0 interface xe-0/0/30.0",
+      "protocols ospf area 0.0.0.0 interface xe-0/0/30:0.0",
+      "vlans pas{{x}} vlan-id {{x}}",
+      "vlans pas{{x}} l3-interface irb.{{x}}",
+      "mod_x":{
+                "VALUE":"20-21"
+             }
+
+    ],
+    "TARGET_R1": [
+      "chassis aggregated-devices ethernet device-count 5",
+      "interfaces {{x}} ether-options 802.3ad {{y}}": {
+          "mod_(y,x)": {
+            "ae1": "et-0/0/2,et-0/0/3"
+          }
+        },
+      "interfaces ae1 unit {{x}}":{
+          "mod_x":{
+             "VALUE":"0"
+           },
+          "LIST_HOLDER":[
+             "family ethernet-switching interface-mode trunk",
+             "family ethernet-switching vlan members pas{{y}}":
+              {
+                 "mod_y":
+                     {
+                        "VALUE":"20-21",
+                        "LINK":"one2many"
+                     }
+              } 
+           ]
+       },
+      "interfaces irb unit {{x}} family inet address {{y}}/24":{
+         "mod_y":{
+                "VALUE":"11.0.1.2",
+                "STEP":"0.0.0.1"
+             }
+       },
+      "protocols ospf area 0.0.0.0 interface irb.{{x}}",
+      "protocols ospf area 0.0.0.0 interface xe-0/0/30.0",
+      "protocols ospf area 0.0.0.0 interface xe-0/0/30:0.0",
+      "vlans pas{{x}} vlan-id {{x}}",
+      "vlans pas{{x}} l3-interface irb.{{x}}",
+      "mod_x":{
+                "VALUE":"20-21"
+             }
+
+    ],
+    "GRPID": "OSPF_CONFIG"
+  }
+}

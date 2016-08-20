@@ -1,0 +1,41 @@
+---
+PAS_CONFIGS:
+  per_packet_load_balance:
+    "ipclos":
+      - routing-options forwarding-table export LOAD-BALANCE
+      - policy-options policy-statement LOAD-BALANCE then load-balance per-packet
+  ipclos_policy_v4:
+    "ipclos_policy policy-options policy-statement clos-out term":
+      - "loopback from route-filter 11.0.0.0/8 orlonger"
+      - "loopback then accept"
+      - "ospf from route-filter 32.0.0.0/4 orlonger"
+      - "ospf then accept"
+      - "slb from route-filter 48.0.0.0/8 orlonger"
+      - "slb then accept"
+      - "irb from route-filter 16.0.0.0/8 orlonger"
+      - "irb from route-filter 17.0.0.0/8 orlonger"
+      - "irb from route-filter 18.0.0.0/8 orlonger"
+      - "irb from route-filter 19.0.0.0/8 orlonger"
+      - "irb from route-filter 14.0.0.0/8 orlonger"
+      - "irb from route-filter 51.0.0.0/8 orlonger"
+      - "irb from route-filter 52.0.0.0/8 orlonger"
+      - "irb then accept"
+      - "default-route from route-filter 0.0.0.0/0 exact"
+      - "default-route then accept"
+      - "others then reject"
+  ipclos_policy_v6:
+    "ipclos_policy_v6 policy-options policy-statement clos-v6-out term":
+      - "loopback from route-filter fd00:babe:babe:babe::/64 orlonger"
+      - "loopback then accept"
+      - "ospf from route-filter 2001::/16 orlonger"
+      - "ospf then accept"
+      - "irb from route-filter fd00:face:feed::/24 orlonger"
+      - "irb then accept"
+      - "default-route from route-filter ::/0 exact"
+      - "default-route then accept"
+      - "others then reject"
+
+PAS_CONFIG_MAPS:
+  R0-1: "ipclos_policy_v4,ipclos_policy_v6"
+  R0-2: "per_packet_load_balance"
+
