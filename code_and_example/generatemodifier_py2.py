@@ -251,12 +251,19 @@ def yaml_reader(filepath):
         
         if ("TARGETS" in needylist_keys):
                 regex = re.compile(r"\s*r\s*", flags=re.I)
+                print("\n\ndata[each_need][TARGETS]\n\n"+data[each_need]["TARGETS"]+"\n")
                 needy_device_ind_list=regex.split(data[each_need]["TARGETS"])
+                print("\nneedy_device_ind_list start\n")
+                pprint(needy_device_ind_list)
+                print("\nneedy_device_ind_list end\n")
                 if '' in needy_device_ind_list:
                         needy_device_ind_list.remove('')
                 tmp_list=[]
                 for each_generate_list in needy_device_ind_list :
-                        tmp_list=tmp_list+mixrange(each_generate_list)
+                        if(each_generate_list[len(each_generate_list)-1]==","):
+                        	tmp_list=tmp_list+mixrange(each_generate_list[:-1])
+                        else:
+                                tmp_list=tmp_list+mixrange(each_generate_list)
                 for each_outer_needylist_keys in needylist_keys:
                         if not (re.search(r"\s*target\s*",each_outer_needylist_keys,re.IGNORECASE)):
                                 recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list)
@@ -328,6 +335,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
         #command_list1=[]
         cmt_cnt=0
         hash_key_list=[]
+        hierarchical=0
         hash_value_list=[]
         print("\n inside "+each_need+"tag\n")
         print("\n needylist keys start\n")
@@ -612,45 +620,52 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                 if("LIST_HOLDER" in inside_modifier_keys):
                                                                     print("\n recursively vrf list called see this\n")
                                                                     recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
-                                                                    return
+                                                                    hierarchical=1
+                                                                    continue 
                                                                 if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
                                                                     print("\n hierarchical vrf lst called see this\n")
                                                                     recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
-                                                                    return
+                                                                    hierarchical=1
+                                                                    continue
                                                         else:
                                                                 for pq in range(len(command_list1)):
-                                                                        command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "        
+                                                                        command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
                                                                 print("in fffffff not match else\n")
                                                                 pprint(command_list1)
+                                                                if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list) and i==(len(raw_command_list)-1)):
+                                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                                        hierarchical=1
+                                                                        continue
                                                 #target_array=targets.split(",")
-                                                for each_file in targets:
-                                                         static_cmd_dict_splitted=command_list1[0].split(" ")
-                                                         append_or_not=0 
-                                                         if("R"+str(each_file) in list(router_group_dict.keys())):
-                                                                list_of_tags=router_group_dict["R"+str(each_file)]
-                                                                for each_list_of_tags in list_of_tags:
-                                                                        if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-                                                                                append_or_not=1                                                                  
-                                                         if(append_or_not==1):
-                                                                router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                         else:
-                                                                router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                         print("\nnow writing into a file\n")
-                                                         if(each_file in total_targets):
-                                                                 with open("R"+str(each_file)+"_config", 'a') as outfile: 
-                                                                         for each_comm in command_list1:
-                                                                                #outfile.write(each_comm+"\n")
-                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                                                                                
+                                                if(hierarchical==0):
+                                                      for each_file in targets:
+                                                               static_cmd_dict_splitted=command_list1[0].split(" ")
+                                                               append_or_not=0 
+                                                               if("R"+str(each_file) in list(router_group_dict.keys())):
+                                                                      list_of_tags=router_group_dict["R"+str(each_file)]
+                                                                      for each_list_of_tags in list_of_tags:
+                                                                              if not(each_list_of_tags==static_cmd_dict_splitted[2]):
+                                                                                      append_or_not=1                                                                  
+                                                               if(append_or_not==1):
+                                                                      router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+                                                               else:
+                                                                      router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+                                                               print("\nnow writing into a file\n")
+                                                               if(each_file in total_targets):
+                                                                       with open("R"+str(each_file)+"_config", 'a') as outfile: 
+                                                                               for each_comm in command_list1:
+                                                                                      #outfile.write(each_comm+"\n")
+                                                                                      outfile.write(re.sub(' +',' ',each_comm)+"\n")
+                                                                                      
 
-                                                         else:
-                                                                 total_targets.append(each_file)
-                                                                 with open("R"+str(each_file)+"_config", 'w') as outfile: 
-                                                                         for each_comm in command_list1:
-                                                                                #outfile.write(each_comm+"\n")
-                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
+                                                               else:
+                                                                       total_targets.append(each_file)
+                                                                       with open("R"+str(each_file)+"_config", 'w') as outfile: 
+                                                                               for each_comm in command_list1:
+                                                                                      #outfile.write(each_comm+"\n")
+                                                                                      outfile.write(re.sub(' +',' ',each_comm)+"\n")
                                                 command_list1=[]                                                
-
+                                                hierarchical=0
                                                 
                         else:
                                                 print("not a dictionary\n")
@@ -875,9 +890,14 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
 
 def mix_range_with_letters(ranges):
         token_range_list=ranges.split(",")
+        print("in mix_range_with_letters start")
         ranges_list=[]
         for each_token_range_list in token_range_list:
+                #if(each_token_range_list[0]=="e" or each_token_range_list[0]=="x" or each_token_range_list[0]=="g"):
+                #       print("in mix_range_with_letters if hard code inerfaces")
+                #        #return token_range_list
                 if(each_token_range_list[0]=="R"):
+                        print("in mix_range_with_letteers")
                         last_underscore=each_token_range_list.rfind('_')
                         actual_range=each_token_range_list[last_underscore+1:]
                         initial_range_len=len(ranges_list)
@@ -885,13 +905,21 @@ def mix_range_with_letters(ranges):
                         for each_range_item in range(initial_range_len,len(ranges_list)):
                                 ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
                 else:
-                        m = re.search("\d", each_token_range_list)
-                        actual_range=each_token_range_list[m.start():]
-                        initial_range_len=len(ranges_list)
-                        ranges_list=ranges_list+mixrange(actual_range)
-                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
+                        m = re.search("\d+\-\d+", each_token_range_list)
+                        print("match condition m\n\n")
+                        pprint(m)
+                        if(m):
+                             actual_range=each_token_range_list[m.start():]
+                             initial_range_len=len(ranges_list)
+                             ranges_list=ranges_list+mixrange(actual_range)
+                             for each_range_item in range(initial_range_len,len(ranges_list)):
+                                     ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
+                        else:
+                             tmp_list=[]
+                             tmp_list.append(each_token_range_list)
+                             ranges_list=ranges_list+tmp_list
         return ranges_list
 if  __name__ == "__main__" :
-        filepath = sys.argv[1]
-        data = yaml_reader(filepath)
+         #filepath = "./example/ipclose.yaml"
+         filepath = sys.argv[1]
+         data = yaml_reader(filepath)
