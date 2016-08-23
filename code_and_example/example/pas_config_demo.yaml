@@ -10,35 +10,34 @@
   TARGET_R0:  
     - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
                                  "mod_(ae,intf)": 
-                                        ae0: "et-0/0/24,et-0/0/25"
-                                        ae1: "et-0/0/26,et-0/0/27"
+                                        ae0: et-0/0/24,et-0/0/25
+                                        ae1: et-0/0/26,et-0/0/27
   TARGET_R1: 
     - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
                                  "mod_(ae,intf)": 
-                                        ae0: "et-0/0/0,et-0/0/1"
-                                        ae1: "et-0/0/2,et-0/0/3"
+                                        ae0: et-0/0/0,et-0/0/1
+                                        ae1: et-0/0/2,et-0/0/3
                                         
- IRB_CONFIG:
-  TARGETS: R0,R1
-  LIST_HOLDER:
-    - "vlans PAS-{{id}} vlan-id {{id}}"
-    - "vlans PAS-{{id}} l3-interface irb.{{id}}"
-    -  mod_id: 
-        VALUE: "1-10"          
-  TARGET_R0:                                       
+ IRB_CONFIG:       
+  TARGET_R0:  
+      - "vlans PAS-{{id}} vlan-id {{id}}"
+      - "vlans PAS-{{id}} l3-interface irb.{{id}}"
       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24" :
-        mod_ipaddr: 
-          STEP: "0.0.1.0"
-          VALUE: "11.0.1.1"
-      -  mod_id: 
-         VALUE: "1-10"    
-  TARGET_R1:
-        - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24" :
-          mod_ipaddr: 
-            STEP: "0.0.1.0"
-            VALUE: "11.0.1.2" 
-        -  mod_id: 
-           VALUE: "1-10"   
+            mod_ipaddr: 
+                 STEP: "0.0.1.0"
+                 VALUE: "11.0.1.1"
+      - mod_id: 
+          VALUE: "1-10"  
+  TARGET_R1:  
+      - "vlans PAS-{{id}} vlan-id {{id}}"
+      - "vlans PAS-{{id}} l3-interface irb.{{id}}"
+      - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24" :
+            mod_ipaddr: 
+                 STEP: "0.0.1.0"
+                 VALUE: "11.0.1.2"
+      - mod_id: 
+          VALUE: "1-10"
+         
  LOOPBACK_CONFIG:
    TARGET_R0:
     - "interfaces lo0 unit 0 family inet address 1.1.1.1/32"
@@ -55,6 +54,7 @@
     - "interfaces ae0 vlan-tagging"
     
    TARGET_R0: 
+    - "interfaces xe-0/0/30:0 unit 0 family inet address 11.0.1.1/24"
     - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
     - "interfaces ae0 unit {{ifl}} family iso"    
     - mod_ifl:
@@ -62,7 +62,7 @@
     - mod_ipAddr : 
            STEP: "0.0.1.0"
            VALUE: "10.0.1.1"
-   TARGET_R0: 
+   TARGET_R1: 
     - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
     - "interfaces ae0 unit {{ifl}} family iso"    
     - mod_ifl:
@@ -75,26 +75,28 @@
   GRPID: ISIS_CONFIG
   TARGETS: R0,R1
   LIST_HOLDER: 
-    - "protocols isis interface lo0.0"
-    - "protocols isis overload timeout 1800"
-    - "protocols isis reference-bandwidth 10000000000"
-    - "interfaces ae0.{{ifl}} family iso"
-    - "protocols isis interface ae0.{{ifl}} level 2 priority 100"
-    - "protocols isis interface ae0.{{ifl}} level 2 hello-interval 3"
-    - "protocols isis interface ae0.{{ifl}} level 2 hold-time 9"
-    - mod_ifl: 
+    - "protocols isis" :
+       - "interface lo0.0"
+       - "overload timeout 1800"
+       - "reference-bandwidth 10000000000"
+       - "interfaces ae0.{{ifl}}":
+               - "family iso"
+               - "level 2":
+                    - "priority 100"
+                    - "hello-interval 3"
+                    - "hold-time 9"
+       - mod_ifl: 
               VALUE: 1-10
  OSPF_CONFIG: 
   GRPID: PAS_OSPF
   TARGETS: R0,R1
-  TARGET_R0: 
-    - "protocols ospf area 0.0.0.0 interface lo0.0"
-    - "protocols ospf area 0.0.0.0 interface irb.{{x}}"
-    - "protocols ospf area 0.0.0.0 interface xe-0/0/30:0.0"
-    - mod_x: 
-        VALUE: 1-10
-  TARGET_R1: 
-    - "protocols ospf area 0.0.0.0 interface lo0.0"
-    - "protocols ospf area 0.0.0.0 interface irb.{{x}}"
-    - mod_x: 
-        VALUE: 1-10
+  LIST_HOLDER:
+        - "protocols ospf area 0.0.0.0 interface lo0.0 passive" :  
+        - "protocols ospf area 0.0.0.0 interface irb.{{ifl}}" :
+                        - "hello-interval 1"
+                        - "dead-interval 4"                       
+        - mod_ifl: 
+               VALUE: 1-10
+  TARGET_R1:
+        - "protocols ospf area 0.0.0.0" :
+            - "interface xe-0/0/30:0.0"

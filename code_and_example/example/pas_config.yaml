@@ -79,12 +79,12 @@
     - "protocols isis interface lo0.0"
     - "protocols isis overload timeout 1800"
     - "protocols isis reference-bandwidth 10000000000"
-    - "interfaces ae0.{{$ifl}} family iso"
+    - "interfaces ae0.{{ifl}} family iso"
     - "protocols isis interface ae0.{{ifl}} level 2 priority 100"
     - "protocols isis interface ae0.{{ifl}} level 2 hello-interval 3"
     - "protocols isis interface ae0.{{ifl}} level 2 hold-time 9"
     - mod_ifl: 
-              value: 1-10
+              VALUE: 1-10
  OSPF_CONFIG: 
   GRPID: PAS_OSPF
   TARGETS: R0,R1
