@@ -60,7 +60,7 @@ def configsetgenerator(str1,str2):
         #                     for each_comm in command_list1:
                                     #outfile.write(each_comm+"\n")
         #                            outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                             print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_fil     e)+"file  \n",'green'))
+     #print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_fil     e)+"file  \n",'green'))
 
 
         #else:
@@ -131,7 +131,7 @@ def configdeletegenerator(str1,str2):
         #                     for each_comm in command_list1:
                                     #outfile.write(each_comm+"\n")
         #                            outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                             print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_fil     e)+"file  \n",'green'))
+      #                       print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_fil     e)+"file  \n",'green'))
 
 
         #else:
@@ -512,12 +512,12 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 #for each_hash_struct_keys in hash_struct_keys:
                                                 #        hash_key_list.append(each_hash_struct_keys)
                                                 #        hash_value_list.append(data[needylist_key][each_and_every_cmd][iterate_keys][each_hash_struct_keys])
-                                                print "\nhash_key_list start\n"
+                                                #print"\nhash_key_list start\n"
                                                 #pprint(hash_key_list)
-                                                print "\nhash_key_list end\n"
-                                                print "\nhash_value_list start\n"
+                                                #print "\nhash_key_list end\n"
+                                                #print "\nhash_value_list start\n"
                                                 #pprint(hash_value_list)        
-                                                print "\nhash_value_list end\n"
+                                                #print "\nhash_value_list end\n"
                                                 
                 print("\n static_cmd_dict start \n")
                 pprint(static_cmd_dict)
@@ -549,6 +549,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                 pprint(mod_num_list)
                                                                 print("\nmod_num_list end\n")
                                                                 inside_modifier_keys=[]
+                                                                mod_num_list_index=1
                                                                 for each_mod_num_list in mod_num_list:
                                                                         matchobj=re.search(r'.*?(\w+)',each_mod_num_list)
                                                                         num=matchobj.group(1)
@@ -603,7 +604,11 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                 if (len(command_list1)!=len(ranges_list)):
                                                                                                         command_list1=command_list1*len(ranges_list)
                                                                                                 for tracerack in range(len(command_list1)):
-                                                                                                        command_list1[tracerack]=command_list1[tracerack]+" "+ re.sub(r'{{'+num+'}}', ranges_list[tracerack], raw_command_list[i])
+                                                                                                        if(mod_num_list_index==len(mod_num_list)):
+                                                                                                              command_list1[tracerack]=command_list1[tracerack]+" "+ re.sub(r'{{'+num+'}}', ranges_list[tracerack], raw_command_list[i])
+                                                                                                        else:
+                                                                                                              command_list1[tracerack]=command_list1[tracerack]+" "+ re.sub(r'{{'+num+'}}.*', ranges_list[tracerack], raw_command_list[i])
+                                                                                                              
                                                                                                 raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 
                                                                                 if(hash_structure_exists==0):
@@ -661,7 +666,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                 if(command_track==len(command_list1)):
                                                                                                                         break
                                                                                                                 print("generated address is=="+address+"\n\n")
-                                                                                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}', address, raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}', address, raw_command_list[i])
+                                                                                                                else:
+                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}.*', address, raw_command_list[i])
                                                                                                                 command_track=command_track+1
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
                                                                                                         print("\ncommand list start\n")
@@ -686,7 +694,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                         break
                                                                                                                 print("generated address is=="+address+"\n\n")
                                                                                                                 for ukl in range(list_tracker,list_tracker+initial_len):
+                                                                                                                     if(mod_num_list_index==len(mod_num_list)):   
                                                                                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}', address, raw_command_list[i])
+                                                                                                                     else:
+                                                                                                                        command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}.*', address, raw_command_list[i])
                                                                                                                 list_tracker=list_tracker+initial_len
                                                                                                                 command_tracker=command_tracker+1
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
@@ -710,7 +721,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                 command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
                                                                                                                 #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-                                                                                                                command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                       command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                       command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
                                                                                                         print("\n command list start\n")
                                                                                                         pprint(command_list1)
@@ -725,7 +739,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         for each_command in range(len(command_list1)):
                                                                                                                 #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
                                                                                                                 print("\neach_command====="+str(each_command)+"\n")
-                                                                                                                command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{'+num+'}}', ranges_list[real_index], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                      command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[real_index], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                      command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', ranges_list[real_index], raw_command_list[i])
                                                                                                                 command_tracker=command_tracker+1
                                                                                                                 if(command_tracker==initial_len):
                                                                                                                         real_index=real_index+1
@@ -749,7 +766,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         if(len(ranges_list)!=len(command_list1)):
                                                                                                                 command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
                                                                                                         print("\n command list start\n") 
                                                                                                         pprint(command_list1)
@@ -763,7 +783,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         add_num=initial_len
                                                                                                         command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                command_list1[each_command]=command_list1[each_command]+re.  sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
                                                                                                                 command_tracker=command_tracker+1
                                                                                                                 if(command_tracker==initial_len):
                                                                                                                         real_index=real_index+1
@@ -772,6 +795,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         print("\n command list start\n") 
                                                                                                         pprint(command_list1)
                                                                                                         print("\n command list end\n")
+                                                                        mod_num_list_index=mod_num_list_index+1
                                                                 if("LIST_HOLDER" in inside_modifier_keys):
                                                                     print("\n recursively vrf list called see this\n")
                                                                     recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
@@ -844,6 +868,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                 print("\n mod_num_list start \n")
                                                                 pprint(mod_num_list)
                                                                 print("\n mod_num_list end \n")
+                                                                mod_num_list_index=1
                                                                 for each_mod_num_list in mod_num_list:
                                                                         matchobj=re.search(r'.*?(\w+)',each_mod_num_list)
                                                                         
@@ -902,7 +927,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                 if(command_track==ip_count):
                                                                                                                         break
                                                                                                                 print("generated address is=="+address+"\n\n")
-                                                                                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}', address, raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}', address, raw_command_list[i])
+                                                                                                                else:
+                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}.*', address, raw_command_list[i])
                                                                                                                 command_track=command_track+1
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
                                                                                                         print("\n command_list start\n")
@@ -926,7 +954,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                         break
                                                                                                                 print("generated address is=="+address+"\n\n")
                                                                                                                 for ukl in range(list_tracker,list_tracker+initial_len):
-                                                                                                                        command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}', address, raw_command_list[i])
+                                                                                                                        if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                              command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}', address, raw_command_list[i]) 
+                                                                                                                        else:
+                                                                                                                              command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}.*', address, raw_command_list[i]) 
                                                                                                                 list_tracker=list_tracker+initial_len
                                                                                                                 command_tracker=command_tracker+1
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
@@ -952,7 +983,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                                 command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
                                                                                                                 #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-                                                                                                                command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
                                                                                                         print("\ncommand_list1 start \n")
                                                                                                         pprint(command_list1)
@@ -965,7 +999,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         add_num=initial_len
                                                                                                         command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                command_list1[each_command]=command_list1[each_command]+ re. sub(r'{{'+num+'}}', str(ranges_list[real_index]), raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', str(ranges_list[real_index]), raw_command_list[i])
+                                                                                                                else:
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', str(ranges_list[real_index]), raw_command_list[i])
                                                                                                                 command_tracker=command_tracker+1
                                                                                                                 if(command_tracker==initial_len):
                                                                                                                         real_index=real_index+1
@@ -988,7 +1025,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         if(len(ranges_list)!=len(command_list1)):
                                                                                                                 command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
                                                                                                         raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
 
                                                                                                         print("\ncommand_list1 start \n")
@@ -1002,7 +1042,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         add_num=initial_len
                                                                                                         command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                if(mod_num_list_index==len(mod_num_list)):
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
+                                                                                                                else:
+                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
                                                                                                                 command_tracker=command_tracker+1
                                                                                                                 if(command_tracker==initial_len):
                                                                                                                         real_index=real_index+1
@@ -1011,6 +1054,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         print("\ncommand_list1 start \n")
                                                                                                         pprint(command_list1)
                                                                                                         print("\ncommand_list1 end \n")
+                                                                        mod_num_list_index=mod_num_list_index+1
                                                         else:
                                                                 
                                                                 for pq in range(len(command_list1)):
@@ -1085,14 +1129,14 @@ def mix_range_with_letters(ranges):
                              tmp_list.append(each_token_range_list)
                              ranges_list=ranges_list+tmp_list
         return ranges_list
-def Config_Generate_using_template_file(filepath):
+#def Config_Generate_using_template_file(filepath):
          #filepath = "./example/ipclose.yaml"
          #filepath = sys.argv[1]
-         data = yaml_reader(filepath)
-#if  __name__ == "__main__" :
-#         #filepath = "./example/ipclose.yaml"
-#         filepath = sys.argv[1]
 #         data = yaml_reader(filepath)
+if  __name__ == "__main__" :
+         #filepath = "./example/ipclose.yaml"
+         filepath = sys.argv[1]
+         data = yaml_reader(filepath)
 		
 		
 		
