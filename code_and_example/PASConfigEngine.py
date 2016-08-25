@@ -16,10 +16,27 @@ import datetime
 def configsetgenerator(str1,str2):
      command_list1=[]
      command_list1.append("set "+str2)
+     if(isinstance(str1,dict)):
+         command_list1=concate_hash(command_list1,str1,"")
+         file_list="english_config.set"
+         groups_list=[]
+         for each_comm in command_list1:
+                            if(re.search(r'.*group.*',each_comm)):
+                                    command_splitted=each_comm.split(" ")
+                                    if not(command_splitted[2] in groups_list):
+                                          groups_list.append(command_splitted[2].strip())
+         with open(file_list,'w') as outfile:
+                            for each_comm in command_list1:
+                                   outfile.write(re.sub(' +',' ',each_comm)+"\n")
+         with open(file_list,'a') as outfile:
+                            for each_comm in groups_list:
+                                   outfile.write("\nset apply-groups "+each_comm+"\n")
+         return file_list
+
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
      i=0
-     
+      
      for each_tmp_list1 in tmp_list1:
          tmp_str1=each_tmp_list1.strip()
          tmp_list2=tmp_str1.split("as")
@@ -42,10 +59,44 @@ def configsetgenerator(str1,str2):
                         for each_comm in groups_list:
                                outfile.write("\nset apply-groups "+each_comm+"\n")
      return file_list    
-     pprint(command_list1)
+
+def concate_hash(command_list,hash_to_expand,path):
+    if(isinstance(hash_to_expand,dict)):
+       hash_keys=hash_to_expand.keys()
+       for each_hash_key in hash_keys:
+           if(isinstance(hash_to_expand[each_hash_key],dict)):
+              path=path+" "+each_hash_key
+              concatenate_hash(hash_to_expand[each_hash_key],path)
+           elif(isinstance(hash_to_expand[each_hash_key],list)):
+              tmp_list=hash_to_expand[each_hash_key]
+              for each_item in tmp_list:
+                  command_list.append(path+" "+ str(each_hash_key) + " " + str(each_item) )
+           else:
+              command_list.append(path+" "+str(each_hash_key)+" "+str(hash_to_expand[each_hash_key]))
+    return command_list
+   
 def configdeletegenerator(str1,str2):
      command_list1=[]
      command_list1.append("delete "+str2)
+     if(isinstance(str1,dict)):
+         command_list1=concate_hash(command_list1,str1,"")
+         file_list="english_config.set"
+         groups_list=[]
+         for each_comm in command_list1:
+                            if(re.search(r'.*group.*',each_comm)):
+                                    command_splitted=each_comm.split(" ")
+                                    if not(command_splitted[2] in groups_list):
+                                          groups_list.append(command_splitted[2].strip())
+         with open(file_list,'w') as outfile:
+                            for each_comm in command_list1:
+                                   outfile.write(re.sub(' +',' ',each_comm)+"\n")
+         with open(file_list,'a') as outfile:
+                            for each_comm in groups_list:
+                                   outfile.write("\nset apply-groups "+each_comm+"\n")
+         return file_list
+
+
+
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
      i=0
@@ -63,7 +114,6 @@ def configdeletegenerator(str1,str2):
                         for each_comm in command_list1:
                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
      return file_list
-     pprint(command_list1)
 
 def generate_ip(ip_addr,ip_step,ip_count):
         ip_addr_list=[]
@@ -457,163 +507,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         pprint(modifier_keys)
                                                                         print("\nmodifier keys end\n")
                                                                         print("reading modifier values\n\n")
-                                                                        if("VALUE" in modifier_keys):
-                                                                                unindentified=modifier_data["VALUE"]
-                                                                                if(unindentified.find('.')!=-1 or unindentified.find(':')!=-1):
-                                                                                        if ((not("LINK" in modifier_keys)) or modifier_data["Link"]=="one2one"):
-                                                                                                if  ((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip" ):
-                                                                                                        print("call ipv4 or ipv6 next ip function mapping is one2one== \n\n")
-                                                                                                        if (len(command_list1)==1):
-                                                                                                                print("inside if not equal to count 1 \n\n")
-                                                                                                                if("COUNT" in modifier_keys):
-                                                                                                                        command_list1=command_list1*(int(modifier_data["COUNT"]))
-                                                                                                                else:
-                                                                                                                        print("as a first ip modifier key you must define a Count key in a "+each_need+" group aborting script \n")
-                                                                                                                        sys.exit(100)
-                                                                                                                print("commmand_list1 len==="+str(len(command_list1))+"\n\n")
-
-                                                                                                        command_track=0
-                                                                                                        ip_addr=modifier_data["VALUE"];
-                                                                                                        ip_step='x'
-                                                                                                        ip_count=0
-                                                                                                        if "STEP" in modifier_keys:
-                                                                                                                ip_step=modifier_data["STEP"];
-                                                                                                        print("\nip_step=="+ip_step+"\n")
-                                                                                                        if "COUNT" in modifier_keys:
-                                                                                                                ip_count=int(modifier_data["COUNT"]);
-                                                                                                        
-                                                                                                        ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                                                                                        for address in ip_addr_list:
-                                                                                                                if(command_track==len(command_list1)):
-                                                                                                                        break
-                                                                                                                print("generated address is=="+address+"\n\n")
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}', address, raw_command_list[i])
-                                                                                                                else:
-                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}.*', address, raw_command_list[i])
-                                                                                                                command_track=command_track+1
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\ncommand list start\n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\ncommand list end\n")
-                                                                                                        
-                                                                                                        ### another pattern                                                         
-                                                                                                
-                                                                                        else:
-                                                                                                if  ((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
-                                                                                                        print("call one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n")
-                                                                                                        if not ("COUNT" in modifier_keys):
-                                                                                                                print("in one2many link relation COUNT  must defined aborting script \n\n")
-                                                                                                                sys.exit(150)
-                                                                                                        initial_len=len(command_list1)
-                                                                                                        command_tracker=0
-                                                                                                        command_list1=command_list1*int(modifier_data["COUNT"])
-                                                                                                        list_tracker=0
-                                                                                                        ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                                                                                        for address in ip_addr_list:
-                                                                                                                if(command_tracker==int(modifier_data["COUNT"])):
-                                                                                                                        break
-                                                                                                                print("generated address is=="+address+"\n\n")
-                                                                                                                for ukl in range(list_tracker,list_tracker+initial_len):
-                                                                                                                     if(mod_num_list_index==len(mod_num_list)):   
-                                                                                                                        command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}', address, raw_command_list[i])
-                                                                                                                     else:
-                                                                                                                        command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}.*', address, raw_command_list[i])
-                                                                                                                list_tracker=list_tracker+initial_len
-                                                                                                                command_tracker=command_tracker+1
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\ncommand list start\n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\ncommand list end\n")
-                
-                                                                                                                
-                                                                                                        print("after one2many operation \n\n")
-                                                                                                        pprint(command_list1)                
-                                                                                else:
-                                                                                        if ((not("MODE" in modifier_keys)) or modifier_data["MODE"]=="expand"):
-                                                                                                ranges=modifier_data["VALUE"]
-                                                                                                ranges_list=mix_range_with_letters(ranges)
-                                                                                                print("\nranges list start\n")
-                                                                                                pprint(ranges_list)        
-                                                                                                print("\nranges list end\n")        
-                                                                                                if ((not("LINK" in modifier_keys)) or modifier_data["LINK"]=="one2one"):
-                                                                                                        print("\n inside one2one link relation\n")
-                                                                                                        if(len(ranges_list)!=len(command_list1)):
-                                                                                                                command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                       command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                       command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\n command list start\n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\n command list end\n")        
-                                                                                                else:
-                                                                                                        print("\n inside one2many link relation\n")
-                                                                                                        initial_len=len(command_list1)
-                                                                                                        command_tracker=0
-                                                                                                        real_index=0
-                                                                                                        add_num=initial_len
-                                                                                                        command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                print("\neach_command====="+str(each_command)+"\n")
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                      command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[real_index], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                      command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', ranges_list[real_index], raw_command_list[i])
-                                                                                                                command_tracker=command_tracker+1
-                                                                                                                if(command_tracker==initial_len):
-                                                                                                                        real_index=real_index+1
-                                                                                                                        initial_len=initial_len+add_num
-                                                                                                                        #start_index=start_index+1
-                                                                                                                        #command_tracker=command_tracker+1
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\n command list start\n") 
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\n command list end\n")
-
-                                                                                        
-                                                                                        else:
-                                                                                                ranges=modifier_data["VALUE"]
-                                                                                                ranges_list=mix_range_with_letters(ranges)
-                                                                                                print("\nranges start\n")
-                                                                                                pprint(ranges_list)
-                                                                                                print("\nranges end\n")
-                                                                                                if  ((not("LINK" in modifier_keys)) or modifier_data["LINK"]=="one2one"):
-                                                                                                        print("\ninside one2one link relation\n")
-                                                                                                        if(len(ranges_list)!=len(command_list1)):
-                                                                                                                command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\n command list start\n") 
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\n command list end\n")
-
-                                                                                                else:
-                                                                                                        print("\ninside one2many link relation\n")
-                                                                                                        initial_len=len(command_list1)
-                                                                                                        command_tracker=0
-                                                                                                        real_index=0
-                                                                                                        add_num=initial_len
-                                                                                                        command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                                                                                                command_tracker=command_tracker+1
-                                                                                                                if(command_tracker==initial_len):
-                                                                                                                        real_index=real_index+1
-                                                                                                                        initial_len=initial_len+add_num
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\n command list start\n") 
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\n command list end\n")
+                                                                        command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)
                                                                         mod_num_list_index=mod_num_list_index+1
                                                                 if("LIST_HOLDER" in inside_modifier_keys):
                                                                     print("\n recursively vrf list called see this\n")
@@ -637,35 +531,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 #target_array=targets.split(",")
                                                 if(hierarchical==0):
                                                       print(colored("\n"+each_need+" tag successfully generated now writing to the files  \n",'green'))
-                                                      
-                                                      for each_file in targets:
-                                                               static_cmd_dict_splitted=command_list1[0].split(" ")
-                                                               append_or_not=0 
-                                                               if("R"+str(each_file) in list(router_group_dict.keys())):
-                                                                      list_of_tags=router_group_dict["R"+str(each_file)]
-                                                                      for each_list_of_tags in list_of_tags:
-                                                                              if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-                                                                                      append_or_not=1                                                                  
-                                                               if(append_or_not==1):
-                                                                      router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                               else:
-                                                                      router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                               print("\nnow writing into a file\n")
-                                                               if(each_file in total_targets):
-                                                                       with open("R"+str(each_file)+"_config.set", 'a') as outfile: 
-                                                                               for each_comm in command_list1:
-                                                                                      #outfile.write(each_comm+"\n")
-                                                                                      outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                                                                               print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
-                                                                                      
-
-                                                               else:
-                                                                       total_targets.append(each_file)
-                                                                       with open("R"+str(each_file)+"_config.set", 'w') as outfile: 
-                                                                               for each_comm in command_list1:
-                                                                                      #outfile.write(each_comm+"\n")
-                                                                                      outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                                                                               print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
+                                                      write_to_targets(command_list1,targets)      
                                                 command_list1=[]                                                
                                                 hierarchical=0
                                                 
@@ -707,163 +573,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         print("\n modifier_keys start\n")
                                                                         pprint(modifier_keys)
                                                                         print("\n modifier_keys end\n")
-                                                                        print("reading modifier values\n\n")        
-                                                                        if("VALUE" in modifier_keys):
-                                                                                unindentified=modifier_data["VALUE"]
-                                                                                if(unindentified.find('.')!=-1 or unindentified.find(':')!=-1):
-                                                                                         if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
-                                                                                                 if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
-                                                                                                        print("\n call start in else one2one ipv4 or ipv6 next ip function mapping is one2one== \n\n")
-                                                                                                        if (len(command_list1)==1):
-                                                                                                                print("inside if not equal to count 1 \n\n")
-                                                                                                                if("COUNT" in modifier_keys):
-                                                                                                                        command_list1=command_list1*(int(modifier_data["COUNT"]))
-                                                                                                                else:
-                                                                                                                        print("as a first ip modifier key you must define a Count key in a "+each_need+" group aborting script \n")
-                                                                                                                        sys.exit(100)
-                                                                                                                print("commmand_list1 len==="+str(len(command_list1))+"\n\n")
-                                                                                                        print("\nafter if\n")
-                                                                                                        command_track=0
-                                                                                                        ip_addr=modifier_data["VALUE"];
-                                                                                                        ip_step='x'
-                                                                                                        ip_count=0
-                                                                                                        if "STEP" in modifier_keys:
-                                                                                                                ip_step=modifier_data["STEP"];
-                                                                                                        if "COUNT" in modifier_keys:
-                                                                                                                ip_count=int(modifier_data["COUNT"]);
-                                                                                                        print("\ncalling ip addr list method \n")
-                                                                                                        ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                                                                                        print("\ncalling ip addr list method end \n")
-                                                                                                        ip_count=len(command_list1)
-                                                                                                        for address in ip_addr_list:
-                                                                                                                if(command_track==ip_count):
-                                                                                                                        break
-                                                                                                                print("generated address is=="+address+"\n\n")
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}', address, raw_command_list[i])
-                                                                                                                else:
-                                                                                                                     command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+num+'}}.*', address, raw_command_list[i])
-                                                                                                                command_track=command_track+1
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\n command_list start\n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\n command_list end\n")
-                                                                                                
-                                                                                         else:
-                                                                                                if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
-                                                                                                        print("call start in else one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n")
-                                                                                                        if not ("COUNT" in modifier_keys):
-                                                                                                                print("in one2many link relation count must defined aborting script \n\n")
-                                                                                                                sys.exit(150)
-                                                                                                        initial_len=len(command_list1)
-                                                                                                        command_tracker=0
-                                                                                                        command_list1=command_list1*int(modifier_data["COUNT"])
-                                                                                                        list_tracker=0
-                                                                                                        ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                                                                                        for address in ip_addr_list:
-                                                                                                                if(command_tracker==int(modifier_data["COUNT"])):
-                                                                                                                        break
-                                                                                                                print("generated address is=="+address+"\n\n")
-                                                                                                                for ukl in range(list_tracker,list_tracker+initial_len):
-                                                                                                                        if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                              command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}', address, raw_command_list[i]) 
-                                                                                                                        else:
-                                                                                                                              command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+num+'}}.*', address, raw_command_list[i]) 
-                                                                                                                list_tracker=list_tracker+initial_len
-                                                                                                                command_tracker=command_tracker+1
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                                        
-                                                                                                                
-                                                                                                        print("after one2many operation \n\n")
-                                                                                                        pprint(command_list1)
-                                                                                                
-                                                                                        ##one2many has ended here##
-         
-                                                                                else:
-                                                                                        if( (not("MODE" in modifier_keys)) or modifier_data["MODE"]=='expand'):
-                                                                                                ranges=modifier_data["VALUE"]
-                                                                                                ranges_list=mix_range_with_letters(ranges)
-                                                                                                print("\n ranges_list start \n")
-                                                                                                pprint(ranges_list)
-                                                                                                print("\n ranges_list end \n")
-                                                                                                if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
-                                                                                                        print("\n inside value one2one expand mode \n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\n command list1 end")
-                                                                                                        if(len(ranges_list)!=len(command_list1)):
-                                                                                                                command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\ncommand_list1 start \n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\ncommand_list1 end \n")
-                                                                                                else:
-                                                                                                        print("\n inside value one2many expand mode \n")
-                                                                                                        initial_len=len(command_list1)
-                                                                                                        command_tracker=0
-                                                                                                        real_index=0
-                                                                                                        add_num=initial_len
-                                                                                                        command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', str(ranges_list[real_index]), raw_command_list[i])
-                                                                                                                else:
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}.*', str(ranges_list[real_index]), raw_command_list[i])
-                                                                                                                command_tracker=command_tracker+1
-                                                                                                                if(command_tracker==initial_len):
-                                                                                                                        real_index=real_index+1
-                                                                                                                        initial_len=initial_len+add_num
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\ncommand_list1 start \n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\ncommand_list1 end \n")
-                                                                                        
-                                                                                        else:
-                                                                                                ranges=modifier_data["VALUE"]
-                                                                                                ranges_list=mix_range_with_letters(ranges)
-                                                                                                
-                                                                                                print("\nranges_list start\n")
-                                                                                                pprint(ranges_list)
-                                                                                                print("\nranges_list end\n")
-                                                                                                if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
-                                                                                                        print("\n inside value one2one list mode \n")
-                                                                                                        if(len(ranges_list)!=len(command_list1)):
-                                                                                                                command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                      command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-
-                                                                                                        print("\ncommand_list1 start \n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\ncommand_list1 end \n")
-                                                                                                else:
-                                                                                                        print("\n inside value one2many list mode \n")
-                                                                                                        initial_len=len(command_list1)
-                                                                                                        command_tracker=0
-                                                                                                        real_index=0
-                                                                                                        add_num=initial_len
-                                                                                                        command_list1=command_list1*len(ranges_list)
-                                                                                                        for each_command in range(len(command_list1)):
-                                                                                                                if(mod_num_list_index==len(mod_num_list)):
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
-                                                                                                                else:
-                                                                                                                     command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+num+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                                                                                                command_tracker=command_tracker+1
-                                                                                                                if(command_tracker==initial_len):
-                                                                                                                        real_index=real_index+1
-                                                                                                                        initial_len=initial_len+add_num
-                                                                                                        raw_command_list[i]=re.sub(r'{{'+num+'}}', "", raw_command_list[i])
-                                                                                                        print("\ncommand_list1 start \n")
-                                                                                                        pprint(command_list1)
-                                                                                                        print("\ncommand_list1 end \n")
+                                                                        print("reading modifier values\n\n")
+                                                                        command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)        
                                                                         mod_num_list_index=mod_num_list_index+1
                                                         else:
                                                                 
@@ -872,40 +583,206 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                 print("\n command_list start in else not match fffff\n") 
                                                                 pprint(command_list1)
                                                                 print("\n command_list start in else not match fffff\n") 
-                                                for each_file in targets:
-                                                         print(colored("\n"+each_need+" tag successfully generated now writing to the files\n",'green'))
-                                                         static_cmd_dict_splitted=command_list1[0].split(" ")
-                                                         append_or_not=0
-                                                         if("R"+str(each_file) in list(router_group_dict.keys())):
-                                                                 list_of_tags=router_group_dict["R"+str(each_file)]
-                                                                 for each_list_of_tags in list_of_tags:
-                                                                         if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-                                                                                append_or_not=1
-                                                         if(append_or_not==1):
-                                                                 router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                         else:
-                                                                 router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
-                                                         print("now writing to the file")
-                                                         if(each_file in total_targets):
-                                                                 with open("R"+str(each_file)+"_config.set", 'a') as outfile: 
-                                                                         for each_comm in command_list1:
-                                                                                #outfile.write(each_comm+"\n")
-                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                                                                         print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
-                                                         else:
-                                                                 total_targets.append(each_file)
-                                                                 with open("R"+str(each_file)+"_config.set", 'w') as outfile: 
-                                                                         for each_comm in command_list1:
-                                                                                #outfile.write(each_comm+"\n")
-                                                                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
-                                                                         print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
+                                                write_to_targets(command_list1,targets)
                                                 command_list1=[]                                                
                 targets_str=""
                 for each_targets in targets:
                      targets_str=targets_str+"R"+str(each_targets)+","
                 print("\n"+each_need+" group successfully generated for "+targets_str[:-1]+"  \n")
                                                 
-        static_cmd_dict={}                
+        static_cmd_dict={}
+
+def write_to_targets(command_list1,targets):
+  for each_file in targets:
+           #print(colored("\n"+each_need+" tag successfully generated now writing to the files\n",'green'))
+           static_cmd_dict_splitted=command_list1[0].split(" ")
+           append_or_not=0
+           if("R"+str(each_file) in list(router_group_dict.keys())):
+                   list_of_tags=router_group_dict["R"+str(each_file)]
+                   for each_list_of_tags in list_of_tags:
+                           if not(each_list_of_tags==static_cmd_dict_splitted[2]):
+                                  append_or_not=1
+           if(append_or_not==1):
+                   if(re.search(r'.*group.*',static_cmd_dict_splitted):
+                   router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+           else:
+                   router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+           print("now writing to the file")
+           if(each_file in total_targets):
+                   with open("R"+str(each_file)+"_config.set", 'a') as outfile: 
+                           for each_comm in command_list1:
+                                  #outfile.write(each_comm+"\n")
+                                  outfile.write(re.sub(' +',' ',each_comm)+"\n")
+                           #print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
+           else:
+                   total_targets.append(each_file)
+                   with open("R"+str(each_file)+"_config.set", 'w') as outfile: 
+                           for each_comm in command_list1:
+                                  #outfile.write(each_comm+"\n")
+                                  outfile.write(re.sub(' +',' ',each_comm)+"\n")
+                           #print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
+
+
+                
+def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i):
+
+   if("VALUE" in modifier_keys):
+           unindentified=modifier_data["VALUE"]
+           if(unindentified.find('.')!=-1 or unindentified.find(':')!=-1):
+                    if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
+                            if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
+                                   print("\n call start in else one2one ipv4 or ipv6 next ip function mapping is one2one== \n\n")
+                                   if (len(command_list1)==1):
+                                           print("inside if not equal to count 1 \n\n")
+                                           if("COUNT" in modifier_keys):
+                                                   command_list1=command_list1*(int(modifier_data["COUNT"]))
+                                           else:
+                                                   print("as a first ip modifier key you must define a Count key in a "+each_need+" group aborting script \n")
+                                                   sys.exit(100)
+                                           print("commmand_list1 len==="+str(len(command_list1))+"\n\n")
+                                   print("\nafter if\n")
+                                   command_track=0
+                                   ip_addr=modifier_data["VALUE"];
+                                   ip_step='x'
+                                   ip_count=0
+                                   if "STEP" in modifier_keys:
+                                           ip_step=modifier_data["STEP"];
+                                   if "COUNT" in modifier_keys:
+                                           ip_count=int(modifier_data["COUNT"]);
+                                   print("\ncalling ip addr list method \n")
+                                   ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
+                                   print("\ncalling ip addr list method end \n")
+                                   ip_count=len(command_list1)
+                                   for address in ip_addr_list:
+                                           if(command_track==ip_count):
+                                                   break
+                                           print("generated address is=="+address+"\n\n")
+                                           if(mod_num_list_index==len(mod_num_list)):
+                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', address, raw_command_list[i])
+                                           else:
+                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i])
+                                           command_track=command_track+1
+                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   print("\n command_list start\n")
+                                   pprint(command_list1)
+                                   print("\n command_list end\n")
+                           
+                    else:
+                           if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
+                                   print("call start in else one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n")
+                                   if not ("COUNT" in modifier_keys):
+                                           print("in one2many link relation count must defined aborting script \n\n")
+                                           sys.exit(150)
+                                   initial_len=len(command_list1)
+                                   command_tracker=0
+                                   command_list1=command_list1*int(modifier_data["COUNT"])
+                                   list_tracker=0
+                                   ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
+                                   for address in ip_addr_list:
+                                           if(command_tracker==int(modifier_data["COUNT"])):
+                                                   break
+                                           print("generated address is=="+address+"\n\n")
+                                           for ukl in range(list_tracker,list_tracker+initial_len):
+                                                   if(mod_num_list_index==len(mod_num_list)):
+                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', address, raw_command_list[i]) 
+                                                   else:
+                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i]) 
+                                           list_tracker=list_tracker+initial_len
+                                           command_tracker=command_tracker+1
+                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                                   
+                                           
+                                   print("after one2many operation \n\n")
+                                   pprint(command_list1)
+                           
+                   ##one2many has ended here##
+   
+           else:
+                   if( (not("MODE" in modifier_keys)) or modifier_data["MODE"]=='expand'):
+                           ranges=modifier_data["VALUE"]
+                           ranges_list=mix_range_with_letters(ranges)
+                           print("\n ranges_list start \n")
+                           pprint(ranges_list)
+                           print("\n ranges_list end \n")
+                           if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
+                                   print("\n inside value one2one expand mode \n")
+                                   pprint(command_list1)
+                                   print("\n command list1 end")
+                                   if(len(ranges_list)!=len(command_list1)):
+                                           command_list1=command_list1*len(ranges_list)
+                                   for each_command in range(len(command_list1)):
+                                           #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
+                                           if(mod_num_list_index==len(mod_num_list)):
+                                                command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', ranges_list[each_command], raw_command_list[i])
+                                           else:
+                                                command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', ranges_list[each_command], raw_command_list[i])
+                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   print("\ncommand_list1 start \n")
+                                   pprint(command_list1)
+                                   print("\ncommand_list1 end \n")
+                           else:
+                                   print("\n inside value one2many expand mode \n")
+                                   initial_len=len(command_list1)
+                                   command_tracker=0
+                                   real_index=0
+                                   add_num=initial_len
+                                   command_list1=command_list1*len(ranges_list)
+                                   for each_command in range(len(command_list1)):
+                                           if(mod_num_list_index==len(mod_num_list)):
+                                                command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', str(ranges_list[real_index]), raw_command_list[i])
+                                           else:
+                                                command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', str(ranges_list[real_index]), raw_command_list[i])
+                                           command_tracker=command_tracker+1
+                                           if(command_tracker==initial_len):
+                                                   real_index=real_index+1
+                                                   initial_len=initial_len+add_num
+                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   print("\ncommand_list1 start \n")
+                                   pprint(command_list1)
+                                   print("\ncommand_list1 end \n")
+                   
+                   else:
+                           ranges=modifier_data["VALUE"]
+                           ranges_list=mix_range_with_letters(ranges)
+                           
+                           print("\nranges_list start\n")
+                           pprint(ranges_list)
+                           print("\nranges_list end\n")
+                           if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
+                                   print("\n inside value one2one list mode \n")
+                                   if(len(ranges_list)!=len(command_list1)):
+                                           command_list1=command_list1*len(ranges_list)
+                                   for each_command in range(len(command_list1)):
+                                           if(mod_num_list_index==len(mod_num_list)):
+                                                 command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', ranges_list[each_command], raw_command_list[i])
+                                           else:
+                                                 command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', ranges_list[each_command], raw_command_list[i])
+                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+   
+                                   print("\ncommand_list1 start \n")
+                                   pprint(command_list1)
+                                   print("\ncommand_list1 end \n")
+                           else:
+                                   print("\n inside value one2many list mode \n")
+                                   initial_len=len(command_list1)
+                                   command_tracker=0
+                                   real_index=0
+                                   add_num=initial_len
+                                   command_list1=command_list1*len(ranges_list)
+                                   for each_command in range(len(command_list1)):
+                                           if(mod_num_list_index==len(mod_num_list)):
+                                                command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', ranges_list[each_command], raw_command_list[i])
+                                           else:
+                                                command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', ranges_list[each_command], raw_command_list[i])
+                                           command_tracker=command_tracker+1
+                                           if(command_tracker==initial_len):
+                                                   real_index=real_index+1
+                                                   initial_len=initial_len+add_num
+                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   print("\ncommand_list1 start \n")
+                                   pprint(command_list1)
+                                   print("\ncommand_list1 end \n")
+   return command_list1
 
 def mix_range_with_letters(ranges):
         token_range_list=ranges.split(",")
