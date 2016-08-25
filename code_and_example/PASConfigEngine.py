@@ -19,52 +19,15 @@ def configsetgenerator(str1,str2):
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
      i=0
-     #tmp_list=[]
-     #regex = re.compile(r"\s*r\s*", flags=re.I)
-     #targets_str=""
-     #map_device_ind_list=regex.split(str3)
-     #if '' in map_device_ind_list:
-     #        map_device_ind_list.remove('')
-     #for each_generate_list in map_device_ind_list :
-     #        if(each_generate_list[len(each_generate_list)-1]==","):
-     #                   	tmp_list=tmp_list+mixrange(each_generate_list[:-1])
-     #        else:
-     #                           tmp_list=tmp_list+mixrange(each_generate_list)
-     print("\n\ntmp_list start\n\n")
-     pprint(tmp_list)
-     print("\n\ntmp_list end\n\n")
-
+     
      for each_tmp_list1 in tmp_list1:
          tmp_str1=each_tmp_list1.strip()
-         #if(re.search(r'config.*',tmp_str1)):
-         #m=re.search(r'config.*',tmp_str1) 
-         #command_list1.append("set "+str2)
-         #tmp_str1=re.sub(r'config','', tmp_str1)
-         #tmp_str1=tmp_str1.strip();
-         #command_list1=command_list1*(len(tmp_list1))
-         #if(re.search(r'delete.*',tmp_str1)):
-         #m=re.search(r'config.*',tmp_str1)
-         #command_list1.append("delete "+str2)
-         #tmp_str1=re.sub(r'delete','', tmp_str1)
-         #tmp_str1=tmp_str1.strip();
-         #command_list1=command_list1*(len(tmp_list1))
          tmp_list2=tmp_str1.split("as")
          for each_tmp_list2 in tmp_list2:
              tmp_str2=each_tmp_list2.strip()
              command_list1[i]=command_list1[i]+" "+tmp_str2
          i=i+1
      file_list=""
-     #for each_file in tmp_list:
-        #if(each_file in total_targets):
-        #        with open("R"+str(each_file)+"english_config.set", 'a') as outfile:
-        #                     for each_comm in command_list1:
-                                    #outfile.write(each_comm+"\n")
-        #                            outfile.write(re.sub(' +',' ',each_comm)+"\n")
-     #print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_fil     e)+"file  \n",'green'))
-
-
-        #else:
-        #        total_targets.append(each_file)
      file_list="english_config.set"
      groups_list=[]
      for each_comm in command_list1:
@@ -74,50 +37,20 @@ def configsetgenerator(str1,str2):
                                       groups_list.append(command_splitted[2].strip())
      with open(file_list,'w') as outfile:
                         for each_comm in command_list1:
-                               #outfile.write(each_comm+"\n")
                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
      with open(file_list,'a') as outfile:
                         for each_comm in groups_list:
-                               #outfile.write(each_comm+"\n")
                                outfile.write("\nset apply-groups "+each_comm+"\n")
      return file_list    
      pprint(command_list1)
-     #return command_list1
 def configdeletegenerator(str1,str2):
      command_list1=[]
      command_list1.append("delete "+str2)
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
-     #tmp_list=[]
      i=0
-     #regex = re.compile(r"\s*r\s*", flags=re.I)
-     #targets_str=""
-     #map_device_ind_list=regex.split(str3)
-     #if '' in map_device_ind_list:
-     #        map_device_ind_list.remove('')
-     #for each_generate_list in map_device_ind_list :
-     #        if(each_generate_list[len(each_generate_list)-1]==","):
-     #                           tmp_list=tmp_list+mixrange(each_generate_list[:-1])
-     #        else:
-     #                           tmp_list=tmp_list+mixrange(each_generate_list)
-
-     print("\n\ntmp_list start\n\n")
-     pprint(tmp_list)
-     print("\n\ntmp_list end\n\n")
      for each_tmp_list1 in tmp_list1:
          tmp_str1=each_tmp_list1.strip()
-         #if(re.search(r'config.*',tmp_str1)):
-         #m=re.search(r'config.*',tmp_str1) 
-         #command_list1.append("set "+str2)
-         #tmp_str1=re.sub(r'config','', tmp_str1)
-         #tmp_str1=tmp_str1.strip();
-         #command_list1=command_list1*(len(tmp_list1))
-         #if(re.search(r'delete.*',tmp_str1)):
-         #m=re.search(r'config.*',tmp_str1)
-         #command_list1.append("delete "+str2)
-         #tmp_str1=re.sub(r'delete','', tmp_str1)
-         #tmp_str1=tmp_str1.strip();
-         #command_list1=command_list1*(len(tmp_list1))
          tmp_list2=tmp_str1.split("as")
          for each_tmp_list2 in tmp_list2:
              tmp_str2=each_tmp_list2.strip()
@@ -125,71 +58,30 @@ def configdeletegenerator(str1,str2):
          i=i+1
      
      file_list=""
-     #for each_file in tmp_list:
-        #if(each_file in total_targets):
-        #        with open("R"+str(each_file)+"english_config.set", 'a') as outfile:
-        #                     for each_comm in command_list1:
-                                    #outfile.write(each_comm+"\n")
-        #                            outfile.write(re.sub(' +',' ',each_comm)+"\n")
-      #                       print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_fil     e)+"file  \n",'green'))
-
-
-        #else:
-        #        total_targets.append(each_file)
      file_list="english_config.set"
      with open(file_list,'w') as outfile:
                         for each_comm in command_list1:
-                               #outfile.write(each_comm+"\n")
                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
      return file_list
      pprint(command_list1)
 
-     #return command_list1
 def generate_ip(ip_addr,ip_step,ip_count):
         ip_addr_list=[]
         ip_addr_list.append(ip_addr)
         prefix=0
-        if(ip_step=='x' and (IPNetwork(ip_addr).version==4)):
-                network_host=ip_addr.split('/')
+        network_host=ip_addr.split('/')
+        if(ip_step=='x'):
                 if(len(network_host)==1):
                         print("You haven't define step either mask aborting scipt\n\n")
                         sys.exit(1)
                 else:
                         network_host[0]=network_host[0]+"/0"
-                        prefix=int(network_host[1])
-                        if(prefix==32):
-                                ip_step='0.0.0.1'
-                        elif(prefix==24):
-                                ip_step='0.0.1.0'
-                        elif(prefix==16):
-                                ip_step="0.1.0.0"
-                        elif(prefix==8):
-                                ip_step='1.0.0.0'
-                        else:
-                                ip = IPNetwork(ip_addr)
-                                count=1
-                                while(count<ip_count):
-                                        ip_addr_list.append(str(ip.ip+count*(ip.size))+"/"+str(prefix))
-                                        count=count+1
-        if(ip_step=='x' and (IPNetwork(ip_addr).version==6)):
-                print("\n\nip_step===x and calling ipv6 generator \n\n" +str(ip_count))
-                network_host=ip_addr.split('/')
-                if(len(network_host)==1):
-                        print("You haven't define step either mask aborting scipt\n\n")
-                        sys.exit(2)
-                else:
                         ip = IPNetwork(ip_addr)
                         count=1
                         while(count<ip_count):
-                                print("\ncount =="+str(count)+"\n")
                                 ip_addr_list.append(str(ip.ip+count*(ip.size))+"/"+str(network_host[1]))
                                 count=count+1
-                        return ip_addr_list
-                                       
-                                
-                
         if not(ip_step=='x'):
-                network_host=ip_addr.split('/')
                 if(len(network_host)==1):
                         ip_addr=ip_addr+"/0"
                         ip = IPNetwork(ip_addr)
@@ -207,47 +99,6 @@ def generate_ip(ip_addr,ip_step,ip_count):
                                 ip_addr_list.append(str(ip.ip+count*num_to_increase)+"/"+network_host[1])
                         count=count+1
         return ip_addr_list
-def ip_range(input_string):
-     network_host=input_string.split('/')
-     #octets = network_host[0]
-     octets = network_host[0].split('.')
-     r=[]
-     ranges=[]
-      
-     for octet in octets: 
-         if ',' in octet: 
-                 for i in octet.split(','):
-                         if '-' not in i:
-                                 r.append(int(i))
-                                 #ranges.append(r)
-                                 #r=[]
-                         else:   
-                                 l,h=list(map(int,i.split('-')))
-                                 #r+=[range(l,h+1)]
-                                 for kpl in range(l,h+1):
-                                        r.append(kpl)
-                                 
-                                 #ranges.append(r)
-                                 #r=[]
-                 ranges.append(r)
-         else:   
-                 if '-' not in octet:
-                         r.append(int(octet))
-                         ranges.append(r)
-                         r=[]
-                 else:   
-                         l,h=list(map(int,octet.split('-')))
-                         for kpl in range(l,h+1):
-                                 r.append(kpl)
-                         ranges.append(r)
-                         r=[]
- 
-     print("new ranges__==\n\n")
-     pprint(ranges)
-     #chunks = [map(int, octet.split('-')) for octet in octets]
-     for address in itertools.product(*ranges):
-         yield '.'.join(map(str, address)) +'/'+network_host[1]
-
 
 def yaml_reader(filepath):
     file = open(filepath,"r")
@@ -283,15 +134,6 @@ def yaml_reader(filepath):
                                 del command_set['GRPID']
                         else:
                                 static_cmd_dict[each_pas_config_tag]="set groups "+each_pas_config_tag
-                #temp_cmd=static_cmd_dict[each_pas_config_tag]
-                #if isinstance(command_set,list):
-                #        static_cmd_dict[each_pas_config_tag]="set groups "+each_pas_config_tag
-                #        tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
-                #        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[0]+" \n"
-                #        for command_set_itr in range(1,len(command_set)):
-                #                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[command_set_itr]+" \n"
-                #        print "hi hello how r u?\n"
-                #else:
                         tag_keys=list(command_set.keys())
                         for each_tag_key in tag_keys:
                                 if isinstance(command_set[each_tag_key],list):
@@ -302,15 +144,6 @@ def yaml_reader(filepath):
                                         static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][0]+"\n"
                                         for command_set_itr in range(1,len(command_set[each_tag_key])):
                                                 static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+tmp_static_cmd_str+" " + command_set[each_tag_key][command_set_itr]+"\n"
-                                #else:
-                                #        all_command_set_keys=list(command_set[each_tag_key].keys())
-                                #        for each_all_command_set_keys in all_command_set_keys:
-                                #                 if isinstance(command_set[each_tag_key][each_all_command_set_keys],list):
-                                #                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
-                                #                        tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
-                                #                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][each_all_command_set_keys][0]+" \n"
-                                #                        for command_set_itr in range(1,len(command_set[each_tag_key][each_all_command_set_keys])):
-                                #                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+tmp_static_cmd_str+" " + command_set[each_tag_key][each_all_command_set_keys][command_set_itr]+" \n"
         print("before static cmd dict\n\n")
         pprint(static_cmd_dict)
         print("after static cmd dict\n\n")
@@ -506,19 +339,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                         if(re.search(r'.*mod_(\w)',iterate_keys)):
                                                 matchobj= re.search(r'.*mod_(\w+)',iterate_keys)
                                                 static_cmd_dict[matchobj.group(1)]=each_and_every_cmd
-                                        elif(re.search(r'.*mod_\((\w)',iterate_keys)):
-                                                splitted_iterate_keys=iterate_keys.split(',')
-                                                #hash_struct_keys=data[needylist_key][each_and_every_cmd][iterate_keys].keys()
-                                                #for each_hash_struct_keys in hash_struct_keys:
-                                                #        hash_key_list.append(each_hash_struct_keys)
-                                                #        hash_value_list.append(data[needylist_key][each_and_every_cmd][iterate_keys][each_hash_struct_keys])
-                                                #print"\nhash_key_list start\n"
-                                                #pprint(hash_key_list)
-                                                #print "\nhash_key_list end\n"
-                                                #print "\nhash_value_list start\n"
-                                                #pprint(hash_value_list)        
-                                                #print "\nhash_value_list end\n"
-                                                
+                                                                                        
                 print("\n static_cmd_dict start \n")
                 pprint(static_cmd_dict)
                 print("\n static_cmd_dict end \n")        
@@ -720,7 +541,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         if(len(ranges_list)!=len(command_list1)):
                                                                                                                 command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[each_command]
                                                                                                                 if(mod_num_list_index==len(mod_num_list)):
                                                                                                                        command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[each_command], raw_command_list[i])
                                                                                                                 else:
@@ -737,7 +557,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         add_num=initial_len
                                                                                                         command_list1=command_list1*len(ranges_list)
                                                                                                         for each_command in range(len(command_list1)):
-                                                                                                                #command_list1[each_command]=command_list1[each_command]+raw_command_list[i]+ranges_list[real_index]
                                                                                                                 print("\neach_command====="+str(each_command)+"\n")
                                                                                                                 if(mod_num_list_index==len(mod_num_list)):
                                                                                                                       command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+num+'}}', ranges_list[real_index], raw_command_list[i])
@@ -916,13 +735,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
                                                                                                         print("\ncalling ip addr list method end \n")
                                                                                                         ip_count=len(command_list1)
-                                                                                                        ### another pattern for writing IP address ###
-                                                                                                        #for address in ip_range(modifier_data["VALUE"]):
-                                                                                                        #        if(command_track==int(modifier_keys["COUNT"])):
-                                                                                                        #                break
-                                                                                                        #        print "generated address is=="+address+"\n\n"
-                                                                                                        #        command_list1[command_track]=command_list1[command_track]+" "+raw_command_list[i] +address
-                                                                                                        #        command_track=command_track+1
                                                                                                         for address in ip_addr_list:
                                                                                                                 if(command_track==ip_count):
                                                                                                                         break
@@ -936,7 +748,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                         print("\n command_list start\n")
                                                                                                         pprint(command_list1)
                                                                                                         print("\n command_list end\n")
-                                                                                                        ### another pattern                                                         
                                                                                                 
                                                                                          else:
                                                                                                 if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
@@ -1014,7 +825,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                         
                                                                                         else:
                                                                                                 ranges=modifier_data["VALUE"]
-                                                                                                #token_range_list=ranges.split(",")
                                                                                                 ranges_list=mix_range_with_letters(ranges)
                                                                                                 
                                                                                                 print("\nranges_list start\n")
@@ -1062,7 +872,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                 print("\n command_list start in else not match fffff\n") 
                                                                 pprint(command_list1)
                                                                 print("\n command_list start in else not match fffff\n") 
-                                                #target_array=targets.split(",")
                                                 for each_file in targets:
                                                          print(colored("\n"+each_need+" tag successfully generated now writing to the files\n",'green'))
                                                          static_cmd_dict_splitted=command_list1[0].split(" ")
@@ -1103,9 +912,6 @@ def mix_range_with_letters(ranges):
         print("in mix_range_with_letters start")
         ranges_list=[]
         for each_token_range_list in token_range_list:
-                #if(each_token_range_list[0]=="e" or each_token_range_list[0]=="x" or each_token_range_list[0]=="g"):
-                #       print("in mix_range_with_letters if hard code inerfaces")
-                #        #return token_range_list
                 if(each_token_range_list[0]=="R"):
                         print("in mix_range_with_letteers")
                         last_underscore=each_token_range_list.rfind('_')
