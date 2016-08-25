@@ -15,8 +15,8 @@ import time
 import datetime
 def configsetgenerator(str1,str2):
      command_list1=[]
-     command_list1.append("set "+str2)
      if(isinstance(str1,dict)):
+         command_list1.append("set "+str2)
          command_list1=concate_hash(command_list1,str1,"")
          file_list="english_config.set"
          groups_list=[]
@@ -35,16 +35,18 @@ def configsetgenerator(str1,str2):
 
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
-     i=0
       
      for each_tmp_list1 in tmp_list1:
          tmp_str1=each_tmp_list1.strip()
          tmp_list2=tmp_str1.split("as")
          for each_tmp_list2 in tmp_list2:
-             tmp_str2=each_tmp_list2.strip()
-             command_list1[i]=command_list1[i]+" "+tmp_str2
-         i=i+1
-     file_list=""
+             expanded_list=mix_range_with_letters(each_tmp_list2.strip())
+             command_list1.append("set "+str2+" "+expanded_list[0])
+             if(len(expanded_list)>1):
+                for each_item in expanded_list:
+                    command_list1.append("set "+str2+" "+each_item)
+                    
+             
      file_list="english_config.set"
      groups_list=[]
      for each_comm in command_list1:
@@ -77,8 +79,8 @@ def concate_hash(command_list,hash_to_expand,path):
    
 def configdeletegenerator(str1,str2):
      command_list1=[]
-     command_list1.append("delete "+str2)
      if(isinstance(str1,dict)):
+         command_list1.append("delete "+str2)
          command_list1=concate_hash(command_list1,str1,"")
          file_list="english_config.set"
          groups_list=[]
@@ -90,23 +92,25 @@ def configdeletegenerator(str1,str2):
          with open(file_list,'w') as outfile:
                             for each_comm in command_list1:
                                    outfile.write(re.sub(' +',' ',each_comm)+"\n")
-         with open(file_list,'a') as outfile:
-                            for each_comm in groups_list:
-                                   outfile.write("\nset apply-groups "+each_comm+"\n")
+         #with open(file_list,'a') as outfile:
+         #                   for each_comm in groups_list:
+         #                          outfile.write("\nset apply-groups "+each_comm+"\n")
          return file_list
 
 
 
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
-     i=0
      for each_tmp_list1 in tmp_list1:
          tmp_str1=each_tmp_list1.strip()
          tmp_list2=tmp_str1.split("as")
          for each_tmp_list2 in tmp_list2:
-             tmp_str2=each_tmp_list2.strip()
-             command_list1[i]=command_list1[i]+" "+tmp_str2
-         i=i+1
+             expanded_list=mix_range_with_letters(each_tmp_list2.strip())
+             command_list1.append("delete "+str2+" "+expanded_list[0])
+             if(len(expanded_list)>1):
+                for each_item in expanded_list:
+                    command_list1.append("delete "+str2+" "+each_item)
+
      
      file_list=""
      file_list="english_config.set"
@@ -360,8 +364,6 @@ def PAS_STATIC_CMDS(Data,Targets,tag_name) :
                 NoOfTargets-=1
 
 
-
-
 def mixrange(s):
     r = []
     for i in s.split(','):
@@ -371,6 +373,28 @@ def mixrange(s):
             l,h = list(map(int, i.split('-')))
             r+= list(range(l,h+1))
     return r
+
+def mix_range_with_letters(ranges):
+        token_range_list=ranges.split(",")
+        print("in mix_range_with_letters start")
+        ranges_list=[]
+        for each_token_range_list in token_range_list:
+                m = re.search("\d+\-\d+", each_token_range_list)
+                print("match condition m\n\n")
+                pprint(m)
+                if(m):
+                     actual_range=m.group(0)
+                     initial_range_len=len(ranges_list)
+                     ranges_list=ranges_list+mixrange(actual_range)
+                     for each_range_item in range(initial_range_len,len(ranges_list)):
+                             ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])+each_token_range_list[m.end():]
+                else:
+                     tmp_list=[]
+                     tmp_list.append(each_token_range_list)
+                     ranges_list=ranges_list+tmp_list
+        pprint(ranges_list)
+        return ranges_list
+
 
 def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
         static_cmd_dict={}
@@ -603,8 +627,7 @@ def write_to_targets(command_list1,targets):
                            if not(each_list_of_tags==static_cmd_dict_splitted[2]):
                                   append_or_not=1
            if(append_or_not==1):
-                   if(re.search(r'.*group.*',static_cmd_dict_splitted):
-                   router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+                         router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
            else:
                    router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
            print("now writing to the file")
@@ -784,34 +807,6 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-def mix_range_with_letters(ranges):
-        token_range_list=ranges.split(",")
-        print("in mix_range_with_letters start")
-        ranges_list=[]
-        for each_token_range_list in token_range_list:
-                if(each_token_range_list[0]=="R"):
-                        print("in mix_range_with_letteers")
-                        last_underscore=each_token_range_list.rfind('_')
-                        actual_range=each_token_range_list[last_underscore+1:]
-                        initial_range_len=len(ranges_list)
-                        ranges_list=ranges_list+mixrange(actual_range)
-                        for each_range_item in range(initial_range_len,len(ranges_list)):
-                                ranges_list[each_range_item]=each_token_range_list[:last_underscore]+str(ranges_list[each_range_item])
-                else:
-                        m = re.search("\d+\-\d+", each_token_range_list)
-                        print("match condition m\n\n")
-                        pprint(m)
-                        if(m):
-                             actual_range=each_token_range_list[m.start():]
-                             initial_range_len=len(ranges_list)
-                             ranges_list=ranges_list+mixrange(actual_range)
-                             for each_range_item in range(initial_range_len,len(ranges_list)):
-                                     ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])
-                        else:
-                             tmp_list=[]
-                             tmp_list.append(each_token_range_list)
-                             ranges_list=ranges_list+tmp_list
-        return ranges_list
 #def Config_Generate_using_template_file(filepath):
          #filepath = "./example/ipclose.yaml"
          #filepath = sys.argv[1]
