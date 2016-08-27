@@ -516,7 +516,15 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                         else:
                                                                                                 print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                                 sys.exit(50)
-                                                                                                                                                                                
+                                                                       
+                                                                        elif(isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
+                                                                            list_found=data[needylist_key][each_and_every_cmd][iterate_keys]
+                                                                            for ('mod_'+str(num)) in list_found:
+                                                                                modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys][list_found.index('mod_'+str(num))]
+                                                                                modifier_keys=list(modifier_data.keys())
+                                                                                
+                                                                                
+                                                                                                         
                                                                         else:
                                                                                 if(str(num) in list(static_cmd_dict.keys())):
                                                                                         modifier_data=data[needylist_key][int(static_cmd_dict[num])]["mod_"+str(num)]
