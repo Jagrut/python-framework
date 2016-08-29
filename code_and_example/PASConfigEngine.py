@@ -404,6 +404,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
         hash_key_list=[]
         hierarchical=0
         hash_value_list=[]
+        went_in_to_generate_cmd=0
         if(isinstance(data[needylist_key],list)):
                 needylist_key_len=len(data[needylist_key])
                 for each_and_every_cmd in range(needylist_key_len):
@@ -429,7 +430,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                         if not(re.search(r'.*mod_(\w)',iterate_keys) or re.search(r'.*mod_\((\w)',iterate_keys)):
                                                 raw_command=iterate_keys
                                                 print("\nraw_command===="+raw_command+"\n")
-                                                
+                                                went_in_to_generate_cmd=1
                                                 raw_command_list=raw_command.split(' ')
                                                 print("\n raw_command_list start\n")
                                                 pprint(raw_command_list)
@@ -518,10 +519,22 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                 sys.exit(50)
                                                                        
                                                                         elif(isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
+                                                                            print("\nmight be a modifier in array\n")
                                                                             list_found=data[needylist_key][each_and_every_cmd][iterate_keys]
-                                                                            for ('mod_'+str(num)) in list_found:
-                                                                                modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys][list_found.index('mod_'+str(num))]
-                                                                                modifier_keys=list(modifier_data.keys())
+                                                                            print("\nlist iterate_kyes \n")
+                                                                            pprint(data[needylist_key][each_and_every_cmd][iterate_keys])
+                                                                            print("\nlist iterate_keys end\n")   
+                                                                            for each_item in range(len(list_found)):
+                                                                                print("\n inside for loop\n")
+                                                                                if(isinstance(data[needylist_key][each_and_every_cmd][iterate_keys][each_item],dict)):
+                                                                                     print("\nin is dictionary\n")
+                                                                                     tmp_keys=data[needylist_key][each_and_every_cmd][iterate_keys][each_item].keys()
+                                                                                     print("\n tmp_keys \n")
+                                                                                     pprint(tmp_keys)
+                                                                                     if ('mod_'+str(num) in tmp_keys):
+                                                                                        print("\nmodifier matched in list_found\n")
+                                                                                        modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys][each_item]['mod_'+str(num)]
+                                                                                        modifier_keys=list(modifier_data.keys())
                                                                                 
                                                                                 
                                                                                                          
@@ -536,37 +549,48 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         pprint(modifier_data)
                                                                         print("\nmodifier data end\n")
                                                                         print("\nmodifier keys start\n")
+                                                                        target_specific_list=[]
+                                                                        is_target_specific_modifier=0
+                                                                        modifier_targets=[]
+                                                                        target_specific_list=concate_hash(target_specific_list,modifier_data,"")
+                                                                        for each_target_specific_list in target_specific_list:
+                                                                            splitted_target_or_not=each_target_specific_list.split(' ')
+                                                                            if(len(splitted_target_or_not)>2):
+                                                                               is_target_specific_modifier=1
                                                                         pprint(modifier_keys)
                                                                         print("\nmodifier keys end\n")
                                                                         print("reading modifier values\n\n")
                                                                         command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)
                                                                         mod_num_list_index=mod_num_list_index+1
-                                                                if("LIST_HOLDER" in inside_modifier_keys):
-                                                                    print("\n recursively vrf list called see this\n")
-                                                                    recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
-                                                                    hierarchical=1
-                                                                    continue 
-                                                                if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
-                                                                    print("\n hierarchical vrf lst called see this\n")
-                                                                    recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
-                                                                    hierarchical=1
-                                                                    continue
                                                         else:
                                                                 for pq in range(len(command_list1)):
                                                                         command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
                                                                 print("in fffffff not match else\n")
                                                                 pprint(command_list1)
-                                                                if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list) and i==(len(raw_command_list)-1)):
-                                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
-                                                                        hierarchical=1
-                                                                        continue
+                                                                #if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list) and i==(len(raw_command_list)-1)):
+                                                                #        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                                #        hierarchical=1
+                                                                #        continue
                                                 #target_array=targets.split(",")
+                                                if("LIST_HOLDER" in inside_modifier_keys):
+                                                    print("\n recursively vrf list called see this\n")
+                                                    recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
+                                                    hierarchical=1
+                                                    #continue 
+                                                if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
+                                                    print("\n hierarchical vrf lst called see this\n")
+                                                    recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                    hierarchical=1
+                                                    #continue
+ 
                                                 if(hierarchical==0):
                                                       print(colored("\n"+each_need+" tag successfully generated now writing to the files  \n",'green'))
                                                       write_to_targets(command_list1,targets)      
                                                 command_list1=[]                                                
                                                 hierarchical=0
-                                                
+                                        if(each_and_every_cmd_keys[len(each_and_every_cmd_keys)-1]==iterate_keys and len(command_list1)>0 and hierarchical==0 and went_in_to_generate_cmd==0):
+                                                print("in array hierarchy")
+                                                write_to_targets(command_list1,targets)        
                         else:
                                                 print("not a dictionary\n")
                                                 if(isinstance(data[needylist_key][each_and_every_cmd],list)):
@@ -579,6 +603,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 raw_command_list=raw_command.split(' ')
                                                 for i in range(len(raw_command_list)):
                                                         if(re.search(r'.*{{(\w+)}}',raw_command_list[i])):
+                                                                went_in_to_generate_cmd=1
                                                                 print("matched a number \n\n=="+str(i)+"\n\n")
                                                                 p=re.compile(r'.*?{{(\w+)}}')
                                                                 mod_num_list=p.findall(raw_command_list[i])
