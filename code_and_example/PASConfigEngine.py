@@ -11,6 +11,7 @@ import six
 from termcolor import colored
 router_group_dict=defaultdict(list)
 total_targets=[]
+dict1={}
 import time
 import datetime
 def getname(tmp_str):
@@ -281,13 +282,7 @@ def yaml_reader(filepath):
                 map_list=list(maps_device.keys())
                 tmp_list=[]
                 for each_map_device in map_list:
-                        regex = re.compile(r"\s*r\s*", flags=re.I)
-                        targets_str=""
-                        map_device_ind_list=regex.split(each_map_device)
-                        if '' in map_device_ind_list:
-                                map_device_ind_list.remove('')
-                        for each_generate_list in map_device_ind_list :
-                                tmp_list=tmp_list+mixrange(each_generate_list)
+                        tmp_list=mix_range_with_letters(each_map_device)
 
                         if(isinstance(maps_device[each_map_device],list)):
                                 
@@ -295,21 +290,21 @@ def yaml_reader(filepath):
                                         static_cmd_dict_splitted=static_cmd_dict[maps_device[each_map_device][write_data]].split(" ")
                                         for every_device in tmp_list:
                                                 append_or_not=0
-                                                if("R"+str(every_device) in list(router_group_dict.keys())):
-                                                        list_of_tags=router_group_dict["R"+str(every_device)]
+                                                if(str(every_device) in list(router_group_dict.keys())):
+                                                        list_of_tags=router_group_dict[str(every_device)]
                                                         for each_list_of_tags in list_of_tags:
                                                                 if not(each_list_of_tags==static_cmd_dict_splitted[2]):
                                                                         append_or_not=1
                                                         if(append_or_not==1):
-                                                                router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
+                                                                router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
                                                                 static_cmd_dict[maps_device[each_map_device][write_data]]=static_cmd_dict[maps_device[each_map_device][write_data]]+"\nset apply-groups "+ static_cmd_dict_splitted[2]
                                                 else:
-                                                        router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
+                                                        router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
                                                         static_cmd_dict[maps_device[each_map_device][write_data]]=static_cmd_dict[maps_device[each_map_device][write_data]]+"\nset apply-groups "+ static_cmd_dict_splitted[2]
                                         PAS_STATIC_CMDS(static_cmd_dict[maps_device[each_map_device][write_data]],tmp_list,maps_device[each_map_device][write_data])
                                         targets_str=""
                                         for each_targets in tmp_list:
-                                             targets_str=targets_str+"R"+str(each_targets)+","
+                                             targets_str=targets_str+str(each_targets)+","
                                         print("\n"+maps_device[each_map_device][write_data]+" group successfully generated for "+targets_str+"  \n") 
                         else:
                                 targets_str=""
@@ -318,21 +313,21 @@ def yaml_reader(filepath):
                                         static_cmd_dict_splitted=static_cmd_dict[map_devices_list[write_data]].split(" ")
                                         for every_device in tmp_list:
                                                 append_or_not=0
-                                                if("R"+str(every_device) in list(router_group_dict.keys())):
-                                                        list_of_tags=router_group_dict["R"+str(every_device)]
+                                                if(str(every_device) in list(router_group_dict.keys())):
+                                                        list_of_tags=router_group_dict[str(every_device)]
                                                         for each_list_of_tags in list_of_tags:
                                                                 if not(each_list_of_tags==static_cmd_dict_splitted[2]):
                                                                         append_or_not=1                                                                
                                                 if(append_or_not==1):
-                                                        router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
+                                                        router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
                                                 else:
-                                                        router_group_dict["R"+str(every_device)].append(static_cmd_dict_splitted[2])
+                                                        router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
                                         PAS_STATIC_CMDS(static_cmd_dict[map_devices_list[write_data]],tmp_list,map_devices_list[write_data])
                                         targets_str=""
                                         print("tag name \n"+map_devices_list[write_data]+"\n")
                                         print("targets_str=="+targets_str+"\n")
                                         for each_targets in tmp_list:
-                                             targets_str=targets_str+"R"+str(each_targets)+","
+                                             targets_str=targets_str+str(each_targets)+","
                                         print("targets_str middle=="+targets_str+"\n")
                                         print("\n"+map_devices_list[write_data]+" group successfully generated for "+targets_str[:-1]+"  \n") 
                                         targets_str=""
@@ -364,20 +359,7 @@ def yaml_reader(filepath):
         
         
         if ("TARGETS" in needylist_keys):
-                regex = re.compile(r"\s*r\s*", flags=re.I)
-                print("\n\ndata[each_need][TARGETS]\n\n"+data[each_need]["TARGETS"]+"\n")
-                needy_device_ind_list=regex.split(data[each_need]["TARGETS"])
-                print("\nneedy_device_ind_list start\n")
-                pprint(needy_device_ind_list)
-                print("\nneedy_device_ind_list end\n")
-                if '' in needy_device_ind_list:
-                        needy_device_ind_list.remove('')
-                tmp_list=[]
-                for each_generate_list in needy_device_ind_list :
-                        if(each_generate_list[len(each_generate_list)-1]==","):
-                        	tmp_list=tmp_list+mixrange(each_generate_list[:-1])
-                        else:
-                                tmp_list=tmp_list+mixrange(each_generate_list)
+                tmp_list=mix_range_with_letters(data[each_need]["TARGETS"])
                 for each_outer_needylist_keys in needylist_keys:
                         if not (re.search(r"\s*target\s*",each_outer_needylist_keys,re.IGNORECASE)):
                                 recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list)
@@ -413,8 +395,8 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
 
                 if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
                         last_underscore=iter_needylist_keys.rfind('_')
-                        actual_range=iter_needylist_keys[last_underscore+2:]
-                        tmp_list=mixrange(actual_range)
+                        actual_range=iter_needylist_keys[last_underscore+1:]
+                        tmp_list=mix_range_with_letters(actual_range)
 
                         if(isinstance(data[iter_needylist_keys],list)):
                                 print("\ncalling recursive_modifier from inside where_is_list")
@@ -429,7 +411,7 @@ def PAS_STATIC_CMDS(Data,Targets,tag_name) :
         pprint(Data)
         print("\nin PAS_STATIC_CMDS end\n")
         while(NoOfTargets!=0) :
-                file="R"+str(Targets[(NoOfTargets-1)])+"_config.set"
+                file=str(Targets[(NoOfTargets-1)])+"_config.set"
                 if(Targets[(NoOfTargets-1)] in total_targets):
                         text_file = open(file, "a")
                 else:
@@ -742,7 +724,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                
                                                                command_list1=target_modifier_dict[each_target]
                                                                target_specific_list=[]
-                                                               target_specific_list.append(int(each_target[1:].strip()))
+                                                               target_specific_list.append(each_target.strip())
                                                                write_to_targets(command_list1,target_specific_list)      
                                                 if(is_target_specific_modifier==0):
                                                      command_list1=[]
@@ -761,7 +743,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                      for each_target in mod_specific_targets:
                                                          command_list1=target_modifier_dict[each_target]
                                                          target_specific_list=[]
-                                                         target_specific_list.append(each_target[1:]) 
+                                                         target_specific_list.append(each_target.strip()) 
                                                          write_to_targets(command_list1,target_specific_list)
 
 
@@ -871,7 +853,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                      for each_target in mod_specific_targets:
                                                          command_list1=target_modifier_dict[each_target]
                                                          target_specific_list=[]
-                                                         target_specific_list.append(int(each_target[1:].strip()))
+                                                         target_specific_list.append(each_target.strip())
                                                          write_to_targets(command_list1,target_specific_list)
                                                 #write_to_targets(command_list1,targets)
                                                 print("")
@@ -886,7 +868,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 #command_list1=[]                                                
                 targets_str=""
                 for each_targets in targets:
-                     targets_str=targets_str+"R"+str(each_targets)+","
+                     targets_str=targets_str+str(each_targets)+","
                 print("\n"+each_need+" group successfully generated for "+targets_str[:-1]+"  \n")
                                                 
         static_cmd_dict={}
@@ -896,25 +878,25 @@ def write_to_targets(command_list1,targets):
            #print(colored("\n"+each_need+" tag successfully generated now writing to the files\n",'green'))
            static_cmd_dict_splitted=command_list1[0].split(" ")
            append_or_not=0
-           if("R"+str(each_file) in list(router_group_dict.keys())):
-                   list_of_tags=router_group_dict["R"+str(each_file)]
+           if(str(each_file) in list(router_group_dict.keys())):
+                   list_of_tags=router_group_dict[str(each_file)]
                    for each_list_of_tags in list_of_tags:
                            if not(each_list_of_tags==static_cmd_dict_splitted[2]):
                                   append_or_not=1
            if(append_or_not==1):
-                         router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+                         router_group_dict[str(each_file)].append(static_cmd_dict_splitted[2])
            else:
-                   router_group_dict["R"+str(each_file)].append(static_cmd_dict_splitted[2])
+                   router_group_dict[str(each_file)].append(static_cmd_dict_splitted[2])
            print("now writing to the file")
            if(each_file in total_targets):
-                   with open("R"+str(each_file)+"_config.set", 'a') as outfile: 
+                   with open(str(each_file)+"_config.set", 'a') as outfile: 
                            for each_comm in command_list1:
                                   #outfile.write(each_comm+"\n")
                                   outfile.write(re.sub(' +',' ',each_comm)+"\n")
                            #print(colored("\n"+each_need+" tag successfully writen to the "+"R"+str(each_file)+"file  \n",'green'))
            else:
                    total_targets.append(each_file)
-                   with open("R"+str(each_file)+"_config.set", 'w') as outfile: 
+                   with open(str(each_file)+"_config.set", 'w') as outfile: 
                            for each_comm in command_list1:
                                   #outfile.write(each_comm+"\n")
                                   outfile.write(re.sub(' +',' ',each_comm)+"\n")
@@ -1003,9 +985,9 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            ranges_list=mix_range_with_letters(ranges)
                            print("\n ranges_list start \n")
                            pprint(ranges_list)
-                           for each_range_item in range(len(ranges_list)):
-                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
-                                       ranges_list[each_range_item]=getname(tmp_str)
+                           #for each_range_item in range(len(ranges_list)):
+                                   #if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                       #ranges_list[each_range_item]=getname(tmp_str)
                            print("\n ranges_list end \n")
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one expand mode \n")
@@ -1053,9 +1035,9 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            print("\nranges_list start\n")
                            pprint(ranges_list)
                            print("\nranges_list end\n")
-                           for each_range_item in range(len(ranges_list)):
-                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
-                                       ranges_list[each_range_item]=getname(tmp_str)
+                           #for each_range_item in range(len(ranges_list)):
+                                   #if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                       #ranges_list[each_range_item]=getname(tmp_str)
  
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one list mode \n")
@@ -1095,9 +1077,10 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-def Config_Generate_using_template_file(filepath):
+def Config_Generate_using_template_file(filepath,global_dict):
          #filepath = "./example/ipclose.yaml"
          #filepath = sys.argv[1]
+         dict1=global_dict
          data = yaml_reader(filepath)
 #if  __name__ == "__main__" :
 #         #filepath = "./example/ipclose.yaml"

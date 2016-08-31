@@ -38,7 +38,7 @@ FILTER_BASED_FORWARDING:
             R1:
                VALUE: *R1_FBF_INTFS
              
-  TARGETS: R0-1
+  TARGETS: R0-1,test1,test2
   list:
     - "routing-options interface-routes rib-group inet fbf-group"
     - "routing-options rib-groups fbf-group import-rib inet.0"
