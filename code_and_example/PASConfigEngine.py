@@ -1089,16 +1089,16 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-#def Config_Generate_using_template_file(filepath,global_dict):
-#         #filepath = "./example/ipclose.yaml"
-#         #filepath = sys.argv[1]
-#         dict1=global_dict
-#         pprint(Handles.pas_handle)
-#         data = yaml_reader(filepath)
-if  __name__ == "__main__" :
+def Config_Generate_using_template_file(filepath,global_dict):
          #filepath = "./example/ipclose.yaml"
-         filepath = sys.argv[1]
+         #filepath = sys.argv[1]
+         dict1=global_dict
+         pprint(Handles.pas_handle)
          data = yaml_reader(filepath)
+#if  __name__ == "__main__" :
+#         #filepath = "./example/ipclose.yaml"
+#         filepath = sys.argv[1]
+#         data = yaml_reader(filepath)
 		
 		
 		

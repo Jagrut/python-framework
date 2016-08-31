@@ -1,0 +1,98 @@
+--- 
+ AE_CONFIG:
+  TARGETS: device0,device1
+  LIST_HOLDER: 
+    - "chassis aggregated-devices ethernet device-count 5"
+    - "interfaces {{intf}} aggregated-ether-options lacp active"
+    - "interfaces {{intf}} aggregated-ether-options lacp periodic fast"
+    - mod_intf: 
+        VALUE: ae0-1
+  TARGET_device0:  
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+                                 "mod_(ae,intf)": 
+                                        ae0: device0_IF_intf24_0-1
+                                        ae1: device0_IF_intf24_2-3
+  TARGET_device1: 
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+                                 "mod_(ae,intf)": 
+                                        ae0: device1_IF_intf6_0-1
+                                        ae1: device1_IF_intf6_2-3
+                                        
+ IRB_CONFIG:       
+  TARGETS: device0,device1  
+  LIST_HOLDER:
+      - "vlans PAS-{{id}} vlan-id {{id}}"
+      - "vlans PAS-{{id}} l3-interface irb.{{id}}"
+      - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24" :
+      - mod_ipaddr: 
+                device0:
+                   STEP: "0.0.1.0"
+                   VALUE: "11.0.1.1"
+                device1:   
+                   STEP: "0.0.1.0"
+                   VALUE: "11.0.1.2"
+      - mod_id: 
+          VALUE: "1-10"  
+         
+ LOOPBACK_CONFIG:
+   TARGET_device0:
+    - "interfaces lo0 unit 0 family inet address 1.1.1.1/32"
+    - "interfaces lo0 unit 0 family iso address 08.0002.0010.0100.0001.00"
+   TARGET_device1:
+    - "interfaces lo0 unit 0 family inet address 2.2.2.2/32"
+    - "interfaces lo0 unit 0 family iso address 08.0002.0020.0200.0002.00"     
+ 
+ INTERFACE_CONFIG:
+   TARGETS: device0,device1
+   LIST_HOLDER:
+    - "interfaces ae1 unit 0 family ethernet-switching interface-mode trunk"
+    - "interfaces ae1 unit 0 family ethernet-switching vlan members 1-10"
+    - "interfaces ae0 vlan-tagging"
+    
+   TARGET_device0: 
+    - "interfaces xe-0/0/30:0 unit 0 family inet address 11.0.1.1/24"
+    - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
+    - "interfaces ae0 unit {{ifl}} family iso"    
+    - mod_ifl:
+           VALUE: 1-10 
+    - mod_ipAddr : 
+           STEP: "0.0.1.0"
+           VALUE: "10.0.1.1"
+   TARGET_device1: 
+    - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
+    - "interfaces ae0 unit {{ifl}} family iso"    
+    - mod_ifl:
+           VALUE: 1-10 
+    - mod_ipAddr : 
+           STEP: "0.0.1.0"
+           VALUE: "10.0.1.2"
+
+ ISIS_CONFIG: 
+  GRPID: ISIS_CONFIG
+  TARGETS: device0,device1
+  LIST_HOLDER: 
+    - "protocols isis" :
+       - "interface lo0.0"
+       - "overload timeout 1800"
+       - "reference-bandwidth 10000000000"
+       - "interface ae0.{{ifl}}" :
+               - "level 2" : 
+                        - "priority 100"
+                        - "hello-interval 3"
+                        - "hold-time 9"
+               - mod_ifl: 
+                    VALUE: 1-10
+ OSPF_CONFIG: 
+  GRPID: PAS_OSPF
+  TARGETS: device0,device1
+  LIST_HOLDER:
+        - "protocols ospf area 0.0.0.0" : 
+                         - "interface lo0.0 passive" 
+                         - "interface irb.{{ifl}}" :
+                              - "hello-interval 1"
+                              - "dead-interval 4"                       
+                              - mod_ifl: 
+                                  VALUE: 1-10
+  TARGET_device1:
+        - "protocols ospf area 0.0.0.0" :
+            - "interface xe-0/0/30:0.0"
