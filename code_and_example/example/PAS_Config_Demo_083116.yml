@@ -50,7 +50,7 @@
     - "interfaces ae0 vlan-tagging"
     
    TARGET_device0: 
-    - "interfaces xe-0/0/30:0 unit 0 family inet address 11.0.1.1/24"
+    - "interfaces xe-0/0/30:0 unit 0 family inet address 12.0.1.1/24"
     - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
     - "interfaces ae0 unit {{ifl}} family iso"    
     - mod_ifl:
