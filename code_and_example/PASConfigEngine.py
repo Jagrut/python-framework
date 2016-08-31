@@ -67,14 +67,14 @@ def concate_hash(command_list,hash_to_expand,path):
        hash_keys=hash_to_expand.keys()
        for each_hash_key in hash_keys:
            if(isinstance(hash_to_expand[each_hash_key],dict)):
-              path=path+" "+each_hash_key
-              concatenate_hash(hash_to_expand[each_hash_key],path)
+              #path=path+" "+each_hash_key
+              concate_hash(command_list,hash_to_expand[each_hash_key],path+" "+each_hash_key)
            elif(isinstance(hash_to_expand[each_hash_key],list)):
               tmp_list=hash_to_expand[each_hash_key]
               for each_item in tmp_list:
-                  command_list.append(path+" "+ str(each_hash_key) + " " + str(each_item) )
+                  command_list.append((path+" "+ str(each_hash_key) + " " + str(each_item)).strip() )
            else:
-              command_list.append(path+" "+str(each_hash_key)+" "+str(hash_to_expand[each_hash_key]))
+              command_list.append((path+" "+str(each_hash_key)+" "+str(hash_to_expand[each_hash_key])).strip())
     return command_list
    
 def configdeletegenerator(str1,str2):
@@ -351,6 +351,9 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
                                         where_is_list(data[iter_needylist_keys],recursive_list,each_need,command_list1)
 def PAS_STATIC_CMDS(Data,Targets,tag_name) :
         NoOfTargets=len(Targets)
+        print("\nin PAS_STATIC_CMDS start\n")
+        pprint(Data)
+        print("\nin PAS_STATIC_CMDS end\n")
         while(NoOfTargets!=0) :
                 file="R"+str(Targets[(NoOfTargets-1)])+"_config.set"
                 if(Targets[(NoOfTargets-1)] in total_targets):
@@ -405,6 +408,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
         hierarchical=0
         hash_value_list=[]
         went_in_to_generate_cmd=0
+        is_target_specific_modifier=0
+        target_modifier_dict={}
+        target_specific_dict={}
         if(isinstance(data[needylist_key],list)):
                 needylist_key_len=len(data[needylist_key])
                 for each_and_every_cmd in range(needylist_key_len):
@@ -550,23 +556,70 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         print("\nmodifier data end\n")
                                                                         print("\nmodifier keys start\n")
                                                                         target_specific_list=[]
-                                                                        is_target_specific_modifier=0
                                                                         modifier_targets=[]
                                                                         target_specific_list=concate_hash(target_specific_list,modifier_data,"")
+                                                                        print("\ntarget_specific_list start\n")
+                                                                        pprint(target_specific_list)
+                                                                        print("\ntarget_specific_list end\n")
+                                                                        
                                                                         for each_target_specific_list in target_specific_list:
-                                                                            splitted_target_or_not=each_target_specific_list.split(' ')
+                                                                            splitted_target_or_not=each_target_specific_list.strip().split(' ')
+                                                                            tmp_bkup=command_list1+[]
                                                                             if(len(splitted_target_or_not)>2):
                                                                                is_target_specific_modifier=1
+                                                                               device_name=splitted_target_or_not[0].strip()
+                                                                               device_name_list=mix_range_with_letters(device_name)
+                                                                               target_specific_dict[splitted_target_or_not[1]]=splitted_target_or_not[2]
+                                                                               print("\ntarget_specific_dict start\n")
+                                                                               pprint(target_specific_dict)
+                                                                               print("\ntarget_specific_dict end\n")
+                                                                               del modifier_data[splitted_target_or_not[0]]
+                                                                               for new_hash_formats in target_specific_list:
+                                                                                   modifier_target_modified=new_hash_formats.split(' ')
+                                                                                   if(len(modifier_target_modified)==2):
+                                                                                     target_specific_dict[modifier_target_modified[0]]=modifier_target_modified[1]
+                                                                               print("\nbefore calling generate cmds target_specific_dict start\n")
+                                                                               pprint(target_specific_dict)
+                                                                               print("\nbefore calling generate cmds target_specific_dict end\n")
+
+                                                                               if not(each_target_specific_list==target_specific_list[len(target_specific_list)-1]): 
+                                                                                      tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i,'last')
+                                                                               else:
+                                                                                      tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i)
+                                                                             
+                                                                               for each_device in device_name_list:
+                                                                                   target_modifier_dict_keys=target_modifier_dict.keys()
+                                                                                   if(each_device in target_modifier_dict_keys):
+                                                                                       tmp_command_list=target_modifier_dict[each_device]
+                                                                                       target_modifier_dict[each_device]=tmp_command_list+tmp_bkup
+                                                                                   else:
+                                                                                       target_modifier_dict[each_device]=tmp_bkup
+                                                                               #command_list1=[]
+                                                                               print("\neach_device target_modifier_dict "+each_device+"\n")
+                                                                               pprint(target_modifier_dict)
+                                                                               print("\neach_device target_modifier_dict "+each_device+"\n")
+                                                                               
                                                                         pprint(modifier_keys)
                                                                         print("\nmodifier keys end\n")
                                                                         print("reading modifier values\n\n")
-                                                                        command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)
+                                                                        if(is_target_specific_modifier==0):
+                                                                            command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)
                                                                         mod_num_list_index=mod_num_list_index+1
                                                         else:
-                                                                for pq in range(len(command_list1)):
-                                                                        command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
-                                                                print("in fffffff not match else\n")
-                                                                pprint(command_list1)
+                                                                if(is_target_specific_modifier==0): 
+                                                                    for pq in range(len(command_list1)):
+                                                                            command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
+                                                                    print("in fffffff not match else\n")
+                                                                    pprint(command_list1)
+                                                                else:
+                                                                    mod_specific_targets=target_modifier_dict.keys()
+                                                                    for each_target in mod_specific_targets:
+                                                                        command_list1=target_modifier_dict[each_target]
+                                                                        for pq in range(len(command_list1)):
+                                                                            command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
+                                                                        target_modifier_dict[each_target]=command_list1
+                                                                        print("in fffffff not match else\n")
+                                                                        pprint(command_list1)
                                                                 #if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list) and i==(len(raw_command_list)-1)):
                                                                 #        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
                                                                 #        hierarchical=1
@@ -574,23 +627,71 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 #target_array=targets.split(",")
                                                 if("LIST_HOLDER" in inside_modifier_keys):
                                                     print("\n recursively vrf list called see this\n")
-                                                    recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
+                                                    if(is_target_specific_modifier==0):
+                                                        recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
+                                                    else:
+                                                        mod_specific_targets=target_modifier_dict.keys()
+                                                        for each_target in mod_specific_targets:
+                                                            command_list1=target_modifier_dict[each_target]
+                                                            target_specific_list=[]
+                                                            target_specific_list.append(each_target[1:])
+                                                            recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,target_specific_list)
+
                                                     hierarchical=1
                                                     #continue 
                                                 if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
                                                     print("\n hierarchical vrf lst called see this\n")
-                                                    recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                    if(is_target_specific_modifier==0):
+                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                    else:
+                                                        mod_specific_targets=target_modifier_dict.keys()
+                                                        for each_target in mod_specific_targets:
+                                                            command_list1=target_modifier_dict[each_target]
+                                                            target_specific_list=[]
+                                                            target_specific_list.append(each_target[1:])
+                                                            recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,target_specific_list)
+
+                                                    #recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
                                                     hierarchical=1
                                                     #continue
  
                                                 if(hierarchical==0):
                                                       print(colored("\n"+each_need+" tag successfully generated now writing to the files  \n",'green'))
-                                                      write_to_targets(command_list1,targets)      
-                                                command_list1=[]                                                
+                                                      if(is_target_specific_modifier==0):
+                                                           write_to_targets(command_list1,targets)
+                                                      else:
+                                                           mod_specific_targets=target_modifier_dict.keys()
+                                                           for each_target in mod_specific_targets:
+                                                               print("\neach_target "+each_target+"\n")
+                                                               pprint(target_modifier_dict)
+                                                               print("\neach_target "+each_target+"end\n")
+                                                               
+                                                               command_list1=target_modifier_dict[each_target]
+                                                               target_specific_list=[]
+                                                               target_specific_list.append(int(each_target[1:].strip()))
+                                                               write_to_targets(command_list1,target_specific_list)      
+                                                if(is_target_specific_modifier==0):
+                                                     command_list1=[]
+                                                else:
+                                                     mod_specific_targets=target_modifier_dict.keys()
+                                                     for each_target in mod_specific_targets:
+                                                         target_modifier_dict[each_target]=[]
+                                                     command_list1=[]
                                                 hierarchical=0
                                         if(each_and_every_cmd_keys[len(each_and_every_cmd_keys)-1]==iterate_keys and len(command_list1)>0 and hierarchical==0 and went_in_to_generate_cmd==0):
                                                 print("in array hierarchy")
-                                                write_to_targets(command_list1,targets)        
+                                                if(is_target_specific_modifier==0):
+                                                     write_to_targets(command_list1,targets)              
+                                                else:
+                                                     mod_specific_targets=target_modifier_dict.keys()
+                                                     for each_target in mod_specific_targets:
+                                                         command_list1=target_modifier_dict[each_target]
+                                                         target_specific_list=[]
+                                                         target_specific_list.append(each_target[1:]) 
+                                                         write_to_targets(command_list1,target_specific_list)
+
+
+                                                #write_to_targets(command_list1,targets)        
                         else:
                                                 print("not a dictionary\n")
                                                 if(isinstance(data[needylist_key][each_and_every_cmd],list)):
@@ -628,20 +729,86 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         pprint(modifier_data)
                                                                         print("\n modifier_data end\n")
                                                                         print("\n modifier_keys start\n")
+                                                                        target_specific_list=[]
+                                                                        modifier_targets=[]
+                                                                        target_specific_list=concate_hash(target_specific_list,modifier_data,"")
+                                                                        print("\nelse target_specific_list start\n")
+                                                                        pprint(target_specific_list)
+                                                                        print("\nelse target_specific_list end\n")
+ 
+                                                                        for each_target_specific_list in target_specific_list:
+                                                                            splitted_target_or_not=each_target_specific_list.strip().split(' ')
+                                                                            if(len(splitted_target_or_not)>2):
+                                                                               is_target_specific_modifier=1
+                                                                               device_name=splitted_target_or_not[0]
+                                                                               device_name_list=mix_range_with_letters(device_name)
+                                                                               target_specific_dict[splitted_target_or_not[1]]=splitted_target_or_not[2]
+                                                                               del modifier_data[splitted_target_or_not[0]]
+                                                                               for new_hash_formats in target_specific_list:
+                                                                                   modifier_target_modified=new_hash_formats.split(' ')
+                                                                                   if(len(modifier_target_modified)==2):
+                                                                                     target_specific_dict[modifier_target_modified[0]]=modifier_target_modified[1]
+                                                                               if not(each_target_specific_list==target_specific_list[len(target_specific_list)-1]):
+                                                                                  command_list1=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),command_list1,mod_num_list_index,mod_num_list,raw_command_list,i,'last')
+                                                                               else:
+                                                                                  command_list1=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)
+                                                                               for each_device in device_name_list:
+                                                                                   target_modifier_dict_keys=target_modifier_dict.keys()
+                                                                                   if(each_device in target_modifier_dict_keys):
+                                                                                       tmp_command_list=target_modifier_dict[each_device]
+                                                                                       target_modifier_dict[each_device]=tmp_command_list+command_list1
+                                                                                   else:
+                                                                                       target_modifier_dict[each_device]=command_list1
+                                                                                   print("\neach_device target_modifier_dict "+each_device+"\n")
+                                                                                   pprint(target_modifier_dict)
+                                                                                   print("\neach_device target_modifier_dict "+each_device+"\n")
                                                                         pprint(modifier_keys)
                                                                         print("\n modifier_keys end\n")
                                                                         print("reading modifier values\n\n")
-                                                                        command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)        
+                                                                        if(is_target_specific_modifier==0):
+                                                                             command_list1=generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)        
                                                                         mod_num_list_index=mod_num_list_index+1
                                                         else:
                                                                 
-                                                                for pq in range(len(command_list1)):
-                                                                        command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "        
-                                                                print("\n command_list start in else not match fffff\n") 
-                                                                pprint(command_list1)
-                                                                print("\n command_list start in else not match fffff\n") 
-                                                write_to_targets(command_list1,targets)
-                                                command_list1=[]                                                
+                                                                #for pq in range(len(command_list1)):
+                                                                #        command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "        
+                                                                #print("\n command_list start in else not match fffff\n") 
+                                                                #pprint(command_list1)
+                                                                #print("\n command_list start in else not match fffff\n")
+                                                                if(is_target_specific_modifier==0):
+                                                                    for pq in range(len(command_list1)):
+                                                                            command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
+                                                                    print("in fffffff not match else\n")
+                                                                    pprint(command_list1)
+                                                                else:
+                                                                    mod_specific_targets=target_modifier_dict.keys()
+                                                                    for each_target in mod_specific_targets:
+                                                                        command_list1=target_modifier_dict[each_target]
+                                                                        for pq in range(len(command_list1)):
+                                                                            command_list1[pq]=command_list1[pq]+" "+raw_command_list[i]+" "
+                                                                        target_modifier_dict[each_target]=command_list1
+                                                                        print("in fffffff not match else\n")
+                                                                        pprint(command_list1)
+                                                if(is_target_specific_modifier==0):
+                                                           write_to_targets(command_list1,targets)
+                                                else:
+                                                     mod_specific_targets=target_modifier_dict.keys()
+                                                     for each_target in mod_specific_targets:
+                                                         command_list1=target_modifier_dict[each_target]
+                                                         target_specific_list=[]
+                                                         target_specific_list.append(int(each_target[1:].strip()))
+                                                         write_to_targets(command_list1,target_specific_list)
+                                                #write_to_targets(command_list1,targets)
+                                                print("")
+                                                if(is_target_specific_modifier==0):
+                                                     command_list1=[]
+                                                else:
+                                                     mod_specific_targets=target_modifier_dict.keys()
+                                                     for each_target in mod_specific_targets:
+                                                         target_modifier_dict[each_target]=[]
+                                                     command_list1=[]
+
+                                                #command_list1=[]                                                
                 targets_str=""
                 for each_targets in targets:
                      targets_str=targets_str+"R"+str(each_targets)+","
@@ -680,7 +847,7 @@ def write_to_targets(command_list1,targets):
 
 
                 
-def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i):
+def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,command_list1,mod_num_list_index,mod_num_list,raw_command_list,i,optional=None):
 
    if("VALUE" in modifier_keys):
            unindentified=modifier_data["VALUE"]
@@ -718,7 +885,8 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                            else:
                                                 command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i])
                                            command_track=command_track+1
-                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   if(optional==None):
+                                         raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
                                    print("\n command_list start\n")
                                    pprint(command_list1)
                                    print("\n command_list end\n")
@@ -745,7 +913,8 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                                          command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i]) 
                                            list_tracker=list_tracker+initial_len
                                            command_tracker=command_tracker+1
-                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   if(optional==None):
+                                          raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
                                                    
                                            
                                    print("after one2many operation \n\n")
@@ -772,7 +941,8 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                                 command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', ranges_list[each_command], raw_command_list[i])
                                            else:
                                                 command_list1[each_command]=command_list1[each_command]+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   if(optional==None):
+                                        raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
                                    print("\ncommand_list1 start \n")
                                    pprint(command_list1)
                                    print("\ncommand_list1 end \n")
@@ -792,7 +962,8 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                            if(command_tracker==initial_len):
                                                    real_index=real_index+1
                                                    initial_len=initial_len+add_num
-                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   if(optional==None):
+                                          raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
                                    print("\ncommand_list1 start \n")
                                    pprint(command_list1)
                                    print("\ncommand_list1 end \n")
@@ -813,7 +984,8 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                                  command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', ranges_list[each_command], raw_command_list[i])
                                            else:
                                                  command_list1[each_command]=command_list1[each_command]+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', ranges_list[each_command], raw_command_list[i])
-                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   if(optional==None):
+                                        raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
    
                                    print("\ncommand_list1 start \n")
                                    pprint(command_list1)
@@ -834,20 +1006,21 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                            if(command_tracker==initial_len):
                                                    real_index=real_index+1
                                                    initial_len=initial_len+add_num
-                                   raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   if(optional==None):
+                                         raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
                                    print("\ncommand_list1 start \n")
                                    pprint(command_list1)
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-#def Config_Generate_using_template_file(filepath):
+def Config_Generate_using_template_file(filepath):
          #filepath = "./example/ipclose.yaml"
          #filepath = sys.argv[1]
-#         data = yaml_reader(filepath)
-if  __name__ == "__main__" :
-         #filepath = "./example/ipclose.yaml"
-         filepath = sys.argv[1]
          data = yaml_reader(filepath)
+#if  __name__ == "__main__" :
+#         #filepath = "./example/ipclose.yaml"
+#         filepath = sys.argv[1]
+#         data = yaml_reader(filepath)
 		
 		
 		

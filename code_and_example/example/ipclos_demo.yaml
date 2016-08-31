@@ -32,12 +32,12 @@ FILTER_BASED_FORWARDING:
   GRPID: ipclos_fbf
   TARGET_R0: 
     - "interfaces {{x}} unit 0 family inet filter input fbf":  
-        - mod_x: 
-            VALUE: *R0_FBF_INTFS
-  TARGET_R1: 
-    - "interfaces {{x}} unit 0 family inet filter input fbf": 
-        mod_x: 
-          VALUE: *R1_FBF_INTFS
+         mod_x:
+            R0: 
+               VALUE: *R0_FBF_INTFS
+            R1:
+               VALUE: *R1_FBF_INTFS
+             
   TARGETS: R0-1
   list:
     - "routing-options interface-routes rib-group inet fbf-group"
