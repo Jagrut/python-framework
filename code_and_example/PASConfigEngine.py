@@ -9,6 +9,7 @@ from netaddr import *
 from collections import defaultdict
 import six
 from termcolor import colored
+#from .general_class_for_handle import Handles
 router_group_dict=defaultdict(list)
 total_targets=[]
 dict1={}
@@ -497,6 +498,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 print("\n raw_command_list start\n")
                                                 pprint(raw_command_list)
                                                 print("\n raw_command_list end\n")
+                                                inside_modifier_keys=[]
                                                 for i in range(len(raw_command_list)):
                                                         if(re.search(r'.*{{(\w+)}}',raw_command_list[i])):
                                                                 print("matched a number \n\n=="+str(i)+"\n\n")
@@ -506,7 +508,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                 print("\nmod_num_list start\n")
                                                                 pprint(mod_num_list)
                                                                 print("\nmod_num_list end\n")
-                                                                inside_modifier_keys=[]
                                                                 mod_num_list_index=1
                                                                 for each_mod_num_list in mod_num_list:
                                                                         matchobj=re.search(r'.*?(\w+)',each_mod_num_list)
@@ -614,10 +615,15 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         target_specific_list=[]
                                                                         modifier_targets=[]
                                                                         target_specific_list=concate_hash(target_specific_list,modifier_data,"")
+                                                                        #target_specific_list_dummy=target_specific_list+[]
+                                                                        #tmp_device_name=""
+                                                                        #for each_target_dummy in range(target_specific_list):
+                                                                        #    splitted_target_or_not=each_target_dummy.strip().split(' ')
+                                                                            
                                                                         print("\ntarget_specific_list start\n")
                                                                         pprint(target_specific_list)
                                                                         print("\ntarget_specific_list end\n")
-                                                                        
+                                                                        deleted_list=[]
                                                                         for each_target_specific_list in target_specific_list:
                                                                             splitted_target_or_not=each_target_specific_list.strip().split(' ')
                                                                             tmp_bkup=command_list1+[]
@@ -629,11 +635,17 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                print("\ntarget_specific_dict start\n")
                                                                                pprint(target_specific_dict)
                                                                                print("\ntarget_specific_dict end\n")
-                                                                               del modifier_data[splitted_target_or_not[0]]
+                                                                               if not(splitted_target_or_not[0] in deleted_list):
+                                                                                     del modifier_data[splitted_target_or_not[0]]
+                                                                                     deleted_list.append(splitted_target_or_not[0])
                                                                                for new_hash_formats in target_specific_list:
                                                                                    modifier_target_modified=new_hash_formats.split(' ')
                                                                                    if(len(modifier_target_modified)==2):
                                                                                      target_specific_dict[modifier_target_modified[0]]=modifier_target_modified[1]
+                                                                                   elif(splitted_target_or_not[0].strip()==modifier_target_modified[0].strip()):
+                                                                                     target_specific_dict[modifier_target_modified[1]]=modifier_target_modified[2]
+                                                                                     
+
                                                                                print("\nbefore calling generate cmds target_specific_dict start\n")
                                                                                pprint(target_specific_dict)
                                                                                print("\nbefore calling generate cmds target_specific_dict end\n")
@@ -1077,15 +1089,16 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-def Config_Generate_using_template_file(filepath,global_dict):
-         #filepath = "./example/ipclose.yaml"
-         #filepath = sys.argv[1]
-         dict1=global_dict
-         data = yaml_reader(filepath)
-#if  __name__ == "__main__" :
+#def Config_Generate_using_template_file(filepath,global_dict):
 #         #filepath = "./example/ipclose.yaml"
-#         filepath = sys.argv[1]
+#         #filepath = sys.argv[1]
+#         dict1=global_dict
+#         pprint(Handles.pas_handle)
 #         data = yaml_reader(filepath)
+if  __name__ == "__main__" :
+         #filepath = "./example/ipclose.yaml"
+         filepath = sys.argv[1]
+         data = yaml_reader(filepath)
 		
 		
 		
