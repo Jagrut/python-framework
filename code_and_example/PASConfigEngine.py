@@ -985,9 +985,9 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            ranges_list=mix_range_with_letters(ranges)
                            print("\n ranges_list start \n")
                            pprint(ranges_list)
-                           #for each_range_item in range(len(ranges_list)):
-                                   #if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
-                                       #ranges_list[each_range_item]=getname(tmp_str)
+                           for each_range_item in range(len(ranges_list)):
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                       ranges_list[each_range_item]=getname(tmp_str)
                            print("\n ranges_list end \n")
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one expand mode \n")
@@ -1035,9 +1035,9 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            print("\nranges_list start\n")
                            pprint(ranges_list)
                            print("\nranges_list end\n")
-                           #for each_range_item in range(len(ranges_list)):
-                                   #if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
-                                       #ranges_list[each_range_item]=getname(tmp_str)
+                           for each_range_item in range(len(ranges_list)):
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                       ranges_list[each_range_item]=getname(tmp_str)
  
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one list mode \n")
