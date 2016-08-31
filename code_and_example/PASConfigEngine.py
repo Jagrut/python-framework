@@ -35,17 +35,48 @@ def configsetgenerator(str1,str2):
 
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
-      
+     
      for each_tmp_list1 in tmp_list1:
+         old_size=0
+         new_size=0
          tmp_str1=each_tmp_list1.strip()
          tmp_list2=tmp_str1.split("as")
+
+         print("tmp_list2 start")
+         pprint(tmp_list2)
+         print("tmp_list2 end")
          for each_tmp_list2 in tmp_list2:
              expanded_list=mix_range_with_letters(each_tmp_list2.strip())
-             command_list1.append("set "+str2+" "+expanded_list[0])
+             print("expanded_list start")
+             pprint(expanded_list)
+             print("expanded_list end")
+             if(old_size==0 and new_size==0):
+                    old_size=len(command_list1)
+                    command_list1.append("set "+str2+" "+expanded_list[0])
+                    new_size=len(command_list1)
+                    print("old_size=="+str(old_size)+"\n"+"new_size=="+str(new_size)+"\n")
+                    print("0 0")
+                    pprint(command_list1)
+             else:
+                    print("old_size=="+str(old_size)+"\n"+"new_size=="+str(new_size)+"\n")
+                    for each_item in range(old_size,new_size):
+                        command_list1[each_item]=command_list1[each_item]+" "+expanded_list[0]
+                    print("not 0 0")
+                    pprint(command_list1)
+             print("")
              if(len(expanded_list)>1):
-                for each_item in expanded_list:
-                    command_list1.append("set "+str2+" "+each_item)
-                    
+                for each_item in range(1,len(expanded_list)):
+                    if((new_size-old_size)==1):
+                          command_list1.append("set "+str2+" "+expanded_list[each_item])
+                    else:
+                          for each_list_item in range(old_size,new_size):
+                              command_list1[each_list_item]=command_list1[each_list_item]+" "+expanded_list[each_list_item]
+
+                new_size=len(command_list1)
+     pprint(command_list1)
+
+ 
+    # pprint(command_list1)               
              
      file_list="english_config.set"
      groups_list=[]
@@ -101,16 +132,47 @@ def configdeletegenerator(str1,str2):
 
      tmp_list1=str1.split("and")
      command_list1=command_list1*(len(tmp_list1))
+     print("tmp_list1 start")
+     pprint(tmp_list1)
+     print("tmp_list1 end")
      for each_tmp_list1 in tmp_list1:
+         old_size=0
+         new_size=0
          tmp_str1=each_tmp_list1.strip()
          tmp_list2=tmp_str1.split("as")
+
+         print("tmp_list2 start")
+         pprint(tmp_list2)
+         print("tmp_list2 end")
          for each_tmp_list2 in tmp_list2:
              expanded_list=mix_range_with_letters(each_tmp_list2.strip())
-             command_list1.append("delete "+str2+" "+expanded_list[0])
+             print("expanded_list start")
+             pprint(expanded_list)
+             print("expanded_list end")
+             if(old_size==0 and new_size==0):
+                    old_size=len(command_list1)
+                    command_list1.append("delete "+str2+" "+expanded_list[0])
+                    new_size=len(command_list1)
+                    print("old_size=="+str(old_size)+"\n"+"new_size=="+str(new_size)+"\n")
+                    print("0 0")
+                    pprint(command_list1)
+             else:
+                    print("old_size=="+str(old_size)+"\n"+"new_size=="+str(new_size)+"\n")
+                    for each_item in range(old_size,new_size):
+                        command_list1[each_item]=command_list1[each_item]+" "+expanded_list[0]
+                    print("not 0 0")
+                    pprint(command_list1)
+             print("")
              if(len(expanded_list)>1):
-                for each_item in expanded_list:
-                    command_list1.append("delete "+str2+" "+each_item)
-
+                for each_item in range(1,len(expanded_list)):
+                    if((new_size-old_size)==1):
+                          command_list1.append("delete "+str2+" "+expanded_list[each_item])
+                    else:
+                          for each_list_item in range(old_size,new_size):
+                              command_list1[each_list_item]=command_list1[each_list_item]+" "+expanded_list[each_list_item]
+                              
+                new_size=len(command_list1)   
+     pprint(command_list1)
      
      file_list=""
      file_list="english_config.set"
