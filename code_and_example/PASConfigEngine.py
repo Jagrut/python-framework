@@ -12,10 +12,100 @@ from termcolor import colored
 #from .general_class_for_handle import Handles
 router_group_dict=defaultdict(list)
 total_targets=[]
-dict1={}
+dict1={
+  "resources": {
+    "device1": {
+      "interfaces": {
+        "intf6_1": {
+          "pic": "xe-0/0/6:1",
+          "link": "connect2",
+          "name": "xe-0/0/6:1"
+        },
+        "intf6_0": {
+          "pic": "xe-0/0/6:0",
+          "link": "connect1",
+          "name": "xe-0/0/6:0"
+        },
+        "intf6_3": {
+          "pic": "xe-0/0/6:3",
+          "link": "connect4",
+          "name": "xe-0/0/6:3"
+        },
+        "intf6_2": {
+          "pic": "xe-0/0/6:2",
+          "link": "connect3",
+          "name": "xe-0/0/6:2"
+        }
+      },
+      "components": {
+        "primary": {
+          "machine": "static",
+          "name": "bedrock-scale2",
+          "dh": "<jnpr.toby.hldcl.juniper.switching.ex.Qfx object at 0x7ffb6663ed30>",
+          "re0": {
+            "con-ip": "10.221.27.76",
+            "isoaddr": "48.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00",
+            "domain": "englab.juniper.net",
+            "name": "bedrock-scale2",
+            "mgt-ip": "10.204.43.136/20",
+            "mgt-ipv6": "abcd::10:204:43:136",
+            "osname": "JunOS"
+          },
+          "make": "juniper",
+          "os": "JunOS",
+          "model": "qfx5100-24q"
+        }
+      }
+    },
+    "device0": {
+      "interfaces": {
+        "intf24_0": {
+          "pic": "xe-0/0/24:0",
+          "link": "connect1",
+          "name": "xe-0/0/24:0"
+        },
+        "intf24_1": {
+          "pic": "xe-0/0/24:1",
+          "link": "connect2",
+          "name": "xe-0/0/24:1"
+        },
+        "intf24_2": {
+          "pic": "xe-0/0/24:2",
+          "link": "connect3",
+          "name": "xe-0/0/24:2"
+        },
+        "intf24_3": {
+          "pic": "xe-0/0/24:3",
+          "link": "connect4",
+          "name": "xe-0/0/24:3"
+        }
+      },
+      "components": {
+        "primary": {
+          "machine": "static",
+          "name": "blr-pinnacle-scale01",
+          "dh": "<jnpr.toby.hldcl.juniper.switching.ex.Qfx object at 0x7ffb6b250128>",
+          "re0": {
+            "con-ip": "10.221.27.77",
+            "isoaddr": "47.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00",
+            "domain": "englab.juniper.net",
+            "name": "blr-pinnacle-scale01",
+            "mgt-ip": "10.204.33.192/20",
+            "mgt-ipv6": "abcd::10:204:33:192",
+            "osname": "JunOS"
+          },
+          "make": "juniper",
+          "os": "JunOS",
+          "model": "QFX5200-32C-AFO"
+        }
+      }
+    }
+  }
+}
 import time
 import datetime
 def getname(tmp_str):
+    print("\nin getname function j\n")
     ifpart=re.search(r'_IF.*?\_',tmp_str).group(0)
     lookup_list=tmp_str.split(ifpart)
     if(re.search(r'name',ifpart,re.I)):
@@ -559,6 +649,11 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                                 elif(splitted_each_inside_modifier_keys[1][:-1]==num):               
                                                                                                         for each_hash_list in hash_value_list:
                                                                                                                 ranges_list=ranges_list+mix_range_with_letters(each_hash_list)
+                                                                                                for each_range_item in range(len(ranges_list)):
+                                                                                                     print("\n for replacement loop \n")
+                                                                                                     if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
+                                                                                                         ranges_list[each_range_item]=getname(ranges_list[each_range_item].strip())
+
                                                                                                 print("now append the commands\n")
                                                                                                 if (len(command_list1)!=len(ranges_list)):
                                                                                                         command_list1=command_list1*len(ranges_list)
@@ -998,8 +1093,9 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            print("\n ranges_list start \n")
                            pprint(ranges_list)
                            for each_range_item in range(len(ranges_list)):
-                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
-                                       ranges_list[each_range_item]=getname(tmp_str)
+                                   print("for replacement loop")
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
+                                       ranges_list[each_range_item]=getname(ranges_list[each_range_item].strip())
                            print("\n ranges_list end \n")
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one expand mode \n")
@@ -1048,7 +1144,8 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            pprint(ranges_list)
                            print("\nranges_list end\n")
                            for each_range_item in range(len(ranges_list)):
-                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                   print("\n for replacement loop \n")
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
                                        ranges_list[each_range_item]=getname(tmp_str)
  
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
@@ -1089,16 +1186,16 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-def Config_Generate_using_template_file(filepath,global_dict):
-         #filepath = "./example/ipclose.yaml"
-         #filepath = sys.argv[1]
-         dict1=global_dict
-         pprint(Handles.pas_handle)
-         data = yaml_reader(filepath)
-#if  __name__ == "__main__" :
+#def Config_Generate_using_template_file(filepath,global_dict):
 #         #filepath = "./example/ipclose.yaml"
-#         filepath = sys.argv[1]
+#         #filepath = sys.argv[1]
+#         dict1=global_dict
+#         pprint(Handles.pas_handle)
 #         data = yaml_reader(filepath)
+if  __name__ == "__main__" :
+         #filepath = "./example/ipclose.yaml"
+         filepath = sys.argv[1]
+         data = yaml_reader(filepath)
 		
 		
 		
