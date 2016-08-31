@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 3.0 (Python 3.4.3 on linux)" generated="20160901 03:57:01.727">
+<suite source="/home/user1/Downloads/PDT_TOBY/Toby_api/PAS_DEMO.robot" name="PAS DEMO" id="s1">
+<kw type="setup" name="Initialize all requirements">
+<kw name="Initialize" library="init">
+<doc>Toby framework initialize keyword</doc>
+<msg level="INFO" timestamp="20160901 03:57:02.605">initialized: session-id=44792 | server_capabilities=&lt;dict_keyiterator object at 0x7ff1f11b3868&gt;</msg>
+<msg level="INFO" timestamp="20160901 03:57:02.607">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:02.766">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:02.883">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:04.209">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:04.324">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.060">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.172">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.295">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.406">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.541">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.658">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.774">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:05.883">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:06.539">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:06.658">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:06.799">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:06.920">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:08.525">initialized: session-id=67702 | server_capabilities=&lt;dict_keyiterator object at 0x7ff1f11b3e58&gt;</msg>
+<msg level="INFO" timestamp="20160901 03:57:08.526">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:08.666">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:08.774">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:08.897">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.010">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.344">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.436">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.563">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.689">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.823">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:09.961">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:10.073">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:10.196">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:10.517">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:10.622">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:10.739">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:10.850">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:11.565">${t} = {'resources': {'device0': {'interfaces': {'intf24_3': {'pic': 'xe-0/0/24:3', 'link': 'connect4', 'name': 'xe-0/0/24:3'}, 'intf24_1': {'pic': 'xe-0/0/24:1', 'link': 'connect2', 'name': 'xe-0/0/24:1'}, ...</msg>
+<msg level="INFO" timestamp="20160901 03:57:11.566">[2016-09-01 03:57:07] [log():70:host.py] INFO: Trying to connect to 10.204.33.192 using ssh ...
+[2016-09-01 03:57:07] [log():70:host.py] INFO: Connection successful
+[2016-09-01 03:57:11] [log():70:host.py] INFO: Trying to connect to 10.204.43.136 using ssh ...
+[2016-09-01 03:57:11] [log():70:host.py] INFO: Connection successful</msg>
+<status starttime="20160901 03:57:01.966" status="PASS" endtime="20160901 03:57:11.566"></status>
+</kw>
+<kw name="Initialize Connections" library="Load_Routers">
+<arguments>
+<arg>${t}</arg>
+</arguments>
+<msg level="INFO" timestamp="20160901 03:57:12.029">initialized: session-id=45104 | server_capabilities=&lt;dict_keyiterator object at 0x7ff1f1236d68&gt;</msg>
+<msg level="INFO" timestamp="20160901 03:57:12.030">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:12.180">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:12.326">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:12.442">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:12.568">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:13.318">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:13.458">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:13.590">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:14.159">initialized: session-id=67741 | server_capabilities=&lt;dict_keyiterator object at 0x7ff1f11b3278&gt;</msg>
+<msg level="INFO" timestamp="20160901 03:57:14.160">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:14.304">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:14.433">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:14.558">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:14.679">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:15.017">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:15.148">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:15.276">Requesting 'ExecuteRpc'</msg>
+<status starttime="20160901 03:57:11.566" status="PASS" endtime="20160901 03:57:15.400"></status>
+</kw>
+<status starttime="20160901 03:57:01.966" status="PASS" endtime="20160901 03:57:15.400"></status>
+</kw>
+<test name="Verify Base Configuration" id="s1-t1">
+<kw name="Config Generate Using Template File" library="PASConfigEngine">
+<arguments>
+<arg>PAS_Config_Demo.yaml</arg>
+<arg>${t}</arg>
+</arguments>
+<msg level="INFO" timestamp="20160901 03:57:15.503">file successfully generated are device1,device0</msg>
+<status starttime="20160901 03:57:15.403" status="PASS" endtime="20160901 03:57:15.503"></status>
+</kw>
+<kw name="Load Config On Devices" library="Load_Routers">
+<msg level="INFO" timestamp="20160901 03:57:15.506">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:15.694">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:15.806">Loading configuration changes on Device Device(10.204.33.192)
+
+
+
+
+Loading configuration changes on Device Device(10.204.43.136)</msg>
+<status starttime="20160901 03:57:15.505" status="PASS" endtime="20160901 03:57:15.806"></status>
+</kw>
+<kw name="Config Commit On Devices" library="Load_Routers">
+<msg level="INFO" timestamp="20160901 03:57:15.808">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:17.821">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:57:19.062">Trying to Commit the configurations on DUT's [Device(10.204.33.192), Device(10.204.43.136)]
+
+
+Configuration is Committed Successfully on Device Device(10.204.33.192)
+Configuration is Committed Successfully on Device Device(10.204.43.136)</msg>
+<status starttime="20160901 03:57:15.807" status="PASS" endtime="20160901 03:57:19.062"></status>
+</kw>
+<kw name="Sleep" library="BuiltIn">
+<doc>Pauses the test executed for the given time.</doc>
+<arguments>
+<arg>1m</arg>
+<arg>reason=Base Config to come up</arg>
+</arguments>
+<msg level="INFO" timestamp="20160901 03:58:19.063">Slept 1 minute</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.064">Base Config to come up</msg>
+<status starttime="20160901 03:57:19.062" status="PASS" endtime="20160901 03:58:19.064"></status>
+</kw>
+<kw name="verify checks under template file PAS_verify_demo.yaml">
+<kw name="Verify Checks Under Template" library="PASVerifyEngine">
+<arguments>
+<arg>${t}</arg>
+<arg>${config_file}</arg>
+</arguments>
+<assign>
+<var>${status}</var>
+</assign>
+<msg level="INFO" timestamp="20160901 03:58:19.139">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.200">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.319">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.462">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.583">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.745">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.820">&lt;class 'jnpr.toby.hldcl.juniper.switching.ex.Qfx'&gt;
+Executing Testcases ON  device0
+=================================================
+	 Entering TO  ISIS_adjacency
+-------------------------------------------
+cmd =  show isis adjacency 
+
+ L1_Adj_Count
+  ----------------------
+	EXPECTED VALUE : 10
+	OBTAINED VALUE :  10
+	OPERATOR :  count
+	RESULT :  True
+	 Entering TO  ospf_interface_check
+-------------------------------------------
+cmd =  show ospf interface irb.1 detail 
+
+ ospf-topology-metric
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+ interface-type
+  ----------------------
+	EXPECTED VALUE : LAN
+	OBTAINED VALUE :  LAN
+	OPERATOR :  equal
+	RESULT :  True
+ hello-interval
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+cmd =  show ospf interface irb.2 detail 
+
+ ospf-topology-metric
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+ interface-type
+  ----------------------
+	EXPECTED VALUE : LAN
+	OBTAINED VALUE :  LAN
+	OPERATOR :  equal
+	RESULT :  True
+ hello-interval
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+cmd =  show ospf interface irb.3 detail 
+
+ ospf-topology-metric
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+ interface-type
+  ----------------------
+	EXPECTED VALUE : LAN
+	OBTAINED VALUE :  LAN
+	OPERATOR :  equal
+	RESULT :  True
+ hello-interval
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+cmd =  show ospf interface irb.4 detail 
+
+ ospf-topology-metric
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+ interface-type
+  ----------------------
+	EXPECTED VALUE : LAN
+	OBTAINED VALUE :  LAN
+	OPERATOR :  equal
+	RESULT :  True
+ hello-interval
+  ----------------------
+	EXPECTED VALUE : 1
+	OBTAINED VALUE :  1
+	OPERATOR :  equal
+	RESULT :  True
+	 Entering TO  OSPF_neighbor
+-------------------------------------------
+cmd =  show ospf neighbor 
+
+ full_neighbor_count
+  ----------------------
+	EXPECTED VALUE : 10
+	OBTAINED VALUE :  10
+	OPERATOR :  count
+	RESULT :  True</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.820">${status} = True</msg>
+<status starttime="20160901 03:58:19.067" status="PASS" endtime="20160901 03:58:19.820"></status>
+</kw>
+<kw name="Should Be True" library="BuiltIn">
+<doc>Fails if the given condition is not true.</doc>
+<arguments>
+<arg>'${status}' == 'True'</arg>
+</arguments>
+<status starttime="20160901 03:58:19.820" status="PASS" endtime="20160901 03:58:19.827"></status>
+</kw>
+<status starttime="20160901 03:58:19.065" status="PASS" endtime="20160901 03:58:19.827"></status>
+</kw>
+<doc>PDT base profile loading and verifing protocols states</doc>
+<tags>
+<tag>Configuration</tag>
+</tags>
+<status critical="yes" starttime="20160901 03:57:15.401" status="PASS" endtime="20160901 03:58:19.827"></status>
+</test>
+<test name="Check OSPF Neighborship after changing Hello and Dead interval" id="s1-t2">
+<kw name="configure hello-interval as 20 and dead-interval as 80 under protocols ospf area 0.0.0.0 interface irb.1 on device0,device1">
+<kw name="Configsetgenerator" library="PASConfigEngine">
+<arguments>
+<arg>${attsvals}</arg>
+<arg>${stanza}</arg>
+</arguments>
+<assign>
+<var>${filename}</var>
+</assign>
+<msg level="INFO" timestamp="20160901 03:58:19.832">${filename} = english_config.set</msg>
+<status starttime="20160901 03:58:19.830" status="PASS" endtime="20160901 03:58:19.832"></status>
+</kw>
+<kw name="Load Config Cmd On Devices" library="Load_Routers">
+<arguments>
+<arg>${filename}</arg>
+</arguments>
+<msg level="INFO" timestamp="20160901 03:58:19.832">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.902">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:19.970">Loading configuration changes on Device Device(10.204.33.192)
+
+
+Configuring Below command on  Device(10.204.33.192)
+
+
+Loading configuration changes on Device Device(10.204.43.136)
+
+
+Configuring Below command on  Device(10.204.43.136)</msg>
+<status starttime="20160901 03:58:19.832" status="PASS" endtime="20160901 03:58:19.970"></status>
+</kw>
+<kw name="Config Commit On Devices" library="Load_Routers">
+<msg level="INFO" timestamp="20160901 03:58:19.971">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:20.933">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:21.640">Trying to Commit the configurations on DUT's [Device(10.204.33.192), Device(10.204.43.136)]
+
+
+Configuration is Committed Successfully on Device Device(10.204.33.192)
+Configuration is Committed Successfully on Device Device(10.204.43.136)</msg>
+<status starttime="20160901 03:58:19.970" status="PASS" endtime="20160901 03:58:21.640"></status>
+</kw>
+<status starttime="20160901 03:58:19.830" status="PASS" endtime="20160901 03:58:21.641"></status>
+</kw>
+<kw name="verify hello-interval equal 20 and dead-interval equal 80 on interface irb.1 using template ospf_interface under OSPF_JUNOS_TMPL.yaml on device0">
+<kw name="Parse From Cmdline" library="PASVerifyEngine">
+<arguments>
+<arg>${attsVals}</arg>
+<arg>${tmpl}</arg>
+<arg>${router}</arg>
+<arg>${file}</arg>
+<arg>${t}</arg>
+</arguments>
+<assign>
+<var>${status}</var>
+</assign>
+<msg level="INFO" timestamp="20160901 03:58:21.700">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:21.738">&lt;class 'jnpr.toby.hldcl.juniper.switching.ex.Qfx'&gt;
+Executing Testcases ON  device0
+=================================================
+	 Entering TO  ospf_interface
+-------------------------------------------
+cmd =  show ospf interface irb.1 detail 
+
+ hello-interval
+  ----------------------
+	EXPECTED VALUE : 20
+	OBTAINED VALUE :  20
+	OPERATOR :  equal
+	RESULT :  True
+ dead-interval
+  ----------------------
+	EXPECTED VALUE : 80
+	OBTAINED VALUE :  80
+	OPERATOR :  equal
+	RESULT :  True</msg>
+<msg level="INFO" timestamp="20160901 03:58:21.738">${status} = True</msg>
+<status starttime="20160901 03:58:21.643" status="PASS" endtime="20160901 03:58:21.738"></status>
+</kw>
+<kw name="Should Be True" library="BuiltIn">
+<doc>Fails if the given condition is not true.</doc>
+<arguments>
+<arg>'${status}' == 'True'</arg>
+</arguments>
+<status starttime="20160901 03:58:21.738" status="PASS" endtime="20160901 03:58:21.739"></status>
+</kw>
+<status starttime="20160901 03:58:21.642" status="PASS" endtime="20160901 03:58:21.739"></status>
+</kw>
+<kw name="verify L1_Adj_Count count 10 and L1_Adj_Count count 10 on interface irb.1 using template ISIS_adjacency under Verify_ISIS.yaml on device0">
+<kw name="Parse From Cmdline" library="PASVerifyEngine">
+<arguments>
+<arg>${attsVals}</arg>
+<arg>${tmpl}</arg>
+<arg>${router}</arg>
+<arg>${file}</arg>
+<arg>${t}</arg>
+</arguments>
+<assign>
+<var>${status}</var>
+</assign>
+<msg level="INFO" timestamp="20160901 03:58:21.746">Requesting 'ExecuteRpc'</msg>
+<msg level="INFO" timestamp="20160901 03:58:21.866">&lt;class 'jnpr.toby.hldcl.juniper.switching.ex.Qfx'&gt;
+Executing Testcases ON  device0
+=================================================
+	 Entering TO  ISIS_adjacency
+-------------------------------------------
+cmd =  show isis adjacency 
+
+ L1_Adj_Count
+  ----------------------
+	EXPECTED VALUE : 10
+	OBTAINED VALUE :  10
+	OPERATOR :  count
+	RESULT :  True</msg>
+<msg level="INFO" timestamp="20160901 03:58:21.866">${status} = True</msg>
+<status starttime="20160901 03:58:21.739" status="PASS" endtime="20160901 03:58:21.866"></status>
+</kw>
+<kw name="Should Be True" library="BuiltIn">
+<doc>Fails if the given condition is not true.</doc>
+<arguments>
+<arg>'${status}' == 'True'</arg>
+</arguments>
+<status starttime="20160901 03:58:21.867" status="PASS" endtime="20160901 03:58:21.868"></status>
+</kw>
+<status starttime="20160901 03:58:21.739" status="PASS" endtime="20160901 03:58:21.869"></status>
+</kw>
+<doc>Changing Hello and Dead Interval</doc>
+<tags>
+<tag>ospf</tag>
+</tags>
+<status critical="yes" starttime="20160901 03:58:19.828" status="PASS" endtime="20160901 03:58:21.869"></status>
+</test>
+<status starttime="20160901 03:57:01.728" status="PASS" endtime="20160901 03:58:21.870"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="0" pass="2">Critical Tests</stat>
+<stat fail="0" pass="2">All Tests</stat>
+</total>
+<tag>
+<stat fail="0" pass="1">Configuration</stat>
+<stat fail="0" pass="1">ospf</stat>
+</tag>
+<suite>
+<stat fail="0" pass="2" name="PAS DEMO" id="s1">PAS DEMO</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

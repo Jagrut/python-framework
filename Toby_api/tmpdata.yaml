@@ -1,0 +1,2 @@
+{PAS_VERIFY: {USE_TMPL: [Verify_ISIS.yaml], device0: {ISIS_adjacency: {L1_Adj_Count: {
+          operator: count, value: '10'}}}}}

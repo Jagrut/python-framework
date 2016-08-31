@@ -1,0 +1,15 @@
+PAS_VERIFY_TMPL:
+    ISIS_adjacency:
+        cmd: show isis adjacency
+        
+        L1_Adj_Count:
+            xpath: /isis-adjacency-information/isis-adjacency[level=1 and adjacency-state="Up"]
+            operator: count
+            value: 20
+        L2_Adj_Count:
+            xpath: /isis-adjacency-information/isis-adjacency[level=2 and adjacency-state="Up"]
+            operator: count
+        all_are_up:
+            xpath: /isis-adjacency-information/isis-adjacency/adjacency-state
+            operator: equal
+            value: “Up”

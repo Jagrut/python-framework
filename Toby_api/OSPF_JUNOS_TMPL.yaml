@@ -1,0 +1,29 @@
+PAS_VERIFY_TMPL:
+
+    OSPF_neighbor:
+        cmd: "show ospf neighbor"
+        full_neighbor_count:
+           xpath: /ospf-neighbor-information/ ospf-neighbor[ospf-neighbor-state="Full"]
+           operator: count
+        2way_neighbor_count:
+           xpath: /ospf-neighbor-information/ ospf-neighbor[ospf-neighbor-state="2Way"]
+           operator: count
+        down_neighbor_count:
+           xpath: /ospf-neighbor-information/ ospf-neighbor[ospf-neighbor-state="Down"]
+           operator: count
+        down_neighbor_count:
+           xpath: /ospf-neighbor-information/ ospf-neighbor[ospf-neighbor-state="Down"]
+           operator: count
+        init_neighbor_count:
+           xpath: /ospf-neighbor-information/ ospf-neighbor[ospf-neighbor-state="Init"]
+           operator: count
+    ospf_interface:               
+            cmd: show ospf interface {{interface}} detail 
+            xpath: /ospf-interface-information/ospf-interface
+            hello-interval: 
+                    operator: equal
+                    value: 0
+            dead-interval:
+                    operator: equal
+                    value: 0 
+

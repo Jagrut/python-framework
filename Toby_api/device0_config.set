@@ -1,0 +1,151 @@
+set groups LOOPBACK_CONFIG interfaces lo0 unit 0 family inet address 1.1.1.1/32 
+set groups LOOPBACK_CONFIG interfaces lo0 unit 0 family iso address 08.0002.0010.0100.0001.00 
+set groups AE_CONFIG chassis aggregated-devices ethernet device-count 5 
+set groups AE_CONFIG interfaces ae0 aggregated-ether-options lacp active 
+set groups AE_CONFIG interfaces ae1 aggregated-ether-options lacp active 
+set groups AE_CONFIG interfaces ae0 aggregated-ether-options lacp periodic fast 
+set groups AE_CONFIG interfaces ae1 aggregated-ether-options lacp periodic fast 
+set groups AE_CONFIG interfaces xe-0/0/24:0 ether-options 802.3ad ae0
+set groups AE_CONFIG interfaces xe-0/0/24:1 ether-options 802.3ad ae0
+set groups AE_CONFIG interfaces xe-0/0/24:2 ether-options 802.3ad ae1
+set groups AE_CONFIG interfaces xe-0/0/24:3 ether-options 802.3ad ae1
+set groups INTERFACE_CONFIG interfaces ae1 unit 0 family ethernet-switching interface-mode trunk 
+set groups INTERFACE_CONFIG interfaces ae1 unit 0 family ethernet-switching vlan members 1-10 
+set groups INTERFACE_CONFIG interfaces ae0 vlan-tagging 
+set groups INTERFACE_CONFIG interfaces xe-0/0/30:0 unit 0 family inet address 12.0.1.1/24 
+set groups INTERFACE_CONFIG interfaces ae0 unit 1 vlan-id 1 family inet address 10.0.1.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 2 vlan-id 2 family inet address 10.0.2.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 3 vlan-id 3 family inet address 10.0.3.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 4 vlan-id 4 family inet address 10.0.4.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 5 vlan-id 5 family inet address 10.0.5.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 6 vlan-id 6 family inet address 10.0.6.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 7 vlan-id 7 family inet address 10.0.7.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 8 vlan-id 8 family inet address 10.0.8.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 9 vlan-id 9 family inet address 10.0.9.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 10 vlan-id 10 family inet address 10.0.10.1/24
+set groups INTERFACE_CONFIG interfaces ae0 unit 1 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 2 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 3 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 4 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 5 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 6 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 7 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 8 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 9 family iso 
+set groups INTERFACE_CONFIG interfaces ae0 unit 10 family iso 
+set groups ISIS_CONFIG protocols isis interface lo0.0 
+set groups ISIS_CONFIG protocols isis overload timeout 1800 
+set groups ISIS_CONFIG protocols isis reference-bandwidth 10000000000 
+set groups ISIS_CONFIG protocols isis interface ae0.1 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.2 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.3 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.4 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.5 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.6 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.7 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.8 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.9 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.10 level 2 priority 100 
+set groups ISIS_CONFIG protocols isis interface ae0.1 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.2 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.3 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.4 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.5 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.6 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.7 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.8 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.9 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.10 level 2 hello-interval 3 
+set groups ISIS_CONFIG protocols isis interface ae0.1 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.2 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.3 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.4 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.5 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.6 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.7 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.8 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.9 level 2 hold-time 9 
+set groups ISIS_CONFIG protocols isis interface ae0.10 level 2 hold-time 9 
+set groups IRB_CONFIG vlans PAS-1 vlan-id 1
+set groups IRB_CONFIG vlans PAS-2 vlan-id 2
+set groups IRB_CONFIG vlans PAS-3 vlan-id 3
+set groups IRB_CONFIG vlans PAS-4 vlan-id 4
+set groups IRB_CONFIG vlans PAS-5 vlan-id 5
+set groups IRB_CONFIG vlans PAS-6 vlan-id 6
+set groups IRB_CONFIG vlans PAS-7 vlan-id 7
+set groups IRB_CONFIG vlans PAS-8 vlan-id 8
+set groups IRB_CONFIG vlans PAS-9 vlan-id 9
+set groups IRB_CONFIG vlans PAS-10 vlan-id 10
+set groups IRB_CONFIG vlans PAS-1 l3-interface irb.1
+set groups IRB_CONFIG vlans PAS-2 l3-interface irb.2
+set groups IRB_CONFIG vlans PAS-3 l3-interface irb.3
+set groups IRB_CONFIG vlans PAS-4 l3-interface irb.4
+set groups IRB_CONFIG vlans PAS-5 l3-interface irb.5
+set groups IRB_CONFIG vlans PAS-6 l3-interface irb.6
+set groups IRB_CONFIG vlans PAS-7 l3-interface irb.7
+set groups IRB_CONFIG vlans PAS-8 l3-interface irb.8
+set groups IRB_CONFIG vlans PAS-9 l3-interface irb.9
+set groups IRB_CONFIG vlans PAS-10 l3-interface irb.10
+set groups IRB_CONFIG interfaces irb unit 1 family inet address 11.0.1.1/24
+set groups IRB_CONFIG interfaces irb unit 2 family inet address 11.0.2.1/24
+set groups IRB_CONFIG interfaces irb unit 3 family inet address 11.0.3.1/24
+set groups IRB_CONFIG interfaces irb unit 4 family inet address 11.0.4.1/24
+set groups IRB_CONFIG interfaces irb unit 5 family inet address 11.0.5.1/24
+set groups IRB_CONFIG interfaces irb unit 6 family inet address 11.0.6.1/24
+set groups IRB_CONFIG interfaces irb unit 7 family inet address 11.0.7.1/24
+set groups IRB_CONFIG interfaces irb unit 8 family inet address 11.0.8.1/24
+set groups IRB_CONFIG interfaces irb unit 9 family inet address 11.0.9.1/24
+set groups IRB_CONFIG interfaces irb unit 10 family inet address 11.0.10.1/24
+set groups IRB_CONFIG interfaces irb unit 1 family inet address 11.0.1.1/24
+set groups IRB_CONFIG interfaces irb unit 2 family inet address 11.0.2.1/24
+set groups IRB_CONFIG interfaces irb unit 3 family inet address 11.0.3.1/24
+set groups IRB_CONFIG interfaces irb unit 4 family inet address 11.0.4.1/24
+set groups IRB_CONFIG interfaces irb unit 5 family inet address 11.0.5.1/24
+set groups IRB_CONFIG interfaces irb unit 6 family inet address 11.0.6.1/24
+set groups IRB_CONFIG interfaces irb unit 7 family inet address 11.0.7.1/24
+set groups IRB_CONFIG interfaces irb unit 8 family inet address 11.0.8.1/24
+set groups IRB_CONFIG interfaces irb unit 9 family inet address 11.0.9.1/24
+set groups IRB_CONFIG interfaces irb unit 10 family inet address 11.0.10.1/24
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface lo0.0 passive 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.1 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.2 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.3 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.4 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.5 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.6 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.7 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.8 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.9 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.10 hello-interval 1 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.1 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.2 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.3 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.4 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.5 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.6 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.7 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.8 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.9 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.10 dead-interval 4 
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.1
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.2
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.3
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.4
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.5
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.6
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.7
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.8
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.9
+set groups PAS_OSPF protocols ospf area 0.0.0.0 interface irb.10
+
+set apply-groups LOOPBACK_CONFIG 
+
+set apply-groups AE_CONFIG 
+
+set apply-groups IRB_CONFIG 
+
+set apply-groups PAS_OSPF 
+
+set apply-groups INTERFACE_CONFIG 
+
+set apply-groups ISIS_CONFIG 

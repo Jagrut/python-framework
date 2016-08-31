@@ -1,0 +1,48 @@
+*** Settings ***
+Library   jnpr/toby/init/init.py
+Library   jnpr/toby/hldcl/device.py
+Library	  Load_Routers.py
+Library	  PASConfigEngine.py
+Library	  nextpasverify.py
+Suite Setup    Initialize all requirements
+
+*** Variables ***
+
+
+
+*** Test Cases ***
+Verify Base Configuration
+	[Documentation]		PDT base profile loading and verifing protocols states
+	[Tags]			Configuration
+	Config Generate using template file	PAS_Config_Demo.yaml	${t}	
+	load config on devices
+	Config commit on devices
+	sleep	1m	reason=Base Config to come up
+	verify checks under template file PAS_verify_demo.yaml
+
+Check OSPF Neighborship after changing Hello and Dead interval
+	[Documentation]		Changing Hello and Dead Interval
+	[Tags]			ospf
+	configure hello-interval as 20 and dead-interval as 80 under protocols ospf area 0.0.0.0 interface irb.1 on device0,device1
+    	verify L1_Adj_Count count 10 and L1_Adj_Count count 10 on interface irb.1 using template ISIS_adjacency under test_file1 on device0
+
+*** Keywords ***
+
+Initialize all requirements
+	Initialize
+	Initialize connections	 ${t}
+
+
+verify checks under template file ${config_file}
+	${status} =  verify checks under template	${t}	${config_file}
+	Should Be True	'${status}' == 'True'
+
+configure ${attsVals} under ${stanza} on ${routers}
+	${filename}		configsetgenerator		${attsvals}		${stanza}
+	load_config_cmd_on_devices		${filename}
+    	config commit on devices
+
+verify ${attsVals} using template ${tmpl} under ${file} on ${router}
+	${status}	parse from cmdline	${attsVals}	${tmpl}     ${router}	   ${file}     ${t}
+	Should Be True	'${status}' == 'True'
+	

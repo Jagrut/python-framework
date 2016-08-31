@@ -1,0 +1,29 @@
+PAS_VERIFY:
+
+    USE_TMPL: [ISIS_JUNOS_TMPL.yaml, OSPF_JUNOS_TMPL.yaml]
+
+    device0:
+        ospf_interface_check:              
+            cmd: show ospf interface {{interface}} detail            # reference ospf xml output file
+            mod_interface: { value: [irb.1,irb.2,irb.3,irb.4] }
+            xpath: /ospf-interface-information/ospf-interface
+            mode: cli
+            TAG: [sanity]
+            hello-interval:   # any node name as per xml output
+                    value: 1  # even operators can be used at this level
+                    operator: equal
+            interface-type :
+                    value: lan
+                    operator: equal
+            ospf-interface-topology :
+                    ospf-topology-metric :
+                            operator: equal
+                            value : 1
+        OSPF_neighbor:
+            TAG: [ospf]
+            full_neighbor_count:
+                    value : 9
+        ISIS_adjacency:
+           TAG: [isis]
+           L1_Adj_Count:
+                    value: 10

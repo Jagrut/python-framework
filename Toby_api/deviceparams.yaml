@@ -1,0 +1,24 @@
+t:
+  resources:
+    device0:
+      components:
+        primary:
+          machine: static
+          make: juniper
+          model: QFX5200-32C-AFO
+          name: 10.204.33.184
+          os: JunOS
+          re0:
+            con-ip: 10.221.19.169
+            domain: englab.juniper.net
+            isoaddr: 47.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00
+            mgt-ip: 10.204.33.184/20
+            mgt-ipv6: abcd::10:204:33:184
+            name: blr-pdt-pinnacle02
+            osname: JunOS
+      interfaces:
+        intf1:
+          link: connect1
+          name: xe-0/0/0:0
+          pic: xe-0/0/0:0
+

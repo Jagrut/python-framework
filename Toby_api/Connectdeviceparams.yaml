@@ -1,0 +1,71 @@
+t:
+  resources:
+    device0:
+      components:
+        primary:
+          machine: static
+          make: juniper
+          model: QFX5200-32C-AFO
+          name: 10.204.33.192
+          os: JunOS
+          re0:
+            con-ip: 10.221.27.77
+            domain: englab.juniper.net
+            isoaddr: 47.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00
+            mgt-ip: 10.204.33.192/20
+            mgt-ipv6: abcd::10:204:33:192
+            name: blr-pinnacle-scale01
+            osname: JunOS
+      interfaces:
+        intf24_0:
+          link: connect1
+          name: xe-0/0/24:0
+          pic: xe-0/0/24:0
+        intf24_1:
+          link: connect2
+          name: xe-0/0/24:1
+          pic: xe-0/0/24:1
+        intf24_2:
+          link: connect3
+          name: xe-0/0/24:2
+          pic: xe-0/0/24:2
+        intf24_3:
+          link: connect4
+          name: xe-0/0/24:3
+          pic: xe-0/0/24:3
+
+    device1:
+      components:
+        primary:
+          machine: static
+          make: juniper
+          model: qfx5100-24q
+          name: 10.204.43.136
+          os: JunOS
+          re0:
+            con-ip: 10.221.27.76
+            domain: englab.juniper.net
+            isoaddr: 48.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00
+            mgt-ip: 10.204.43.136/20
+            mgt-ipv6: abcd::10:204:43:136
+            name: bedrock-scale2
+            osname: JunOS
+      interfaces:
+        intf6_0:
+          link: connect1
+          name: xe-0/0/6:0
+          pic: xe-0/0/6:0
+        intf6_1:
+          link: connect1
+          name: xe-0/0/6:1
+          pic: xe-0/0/6:1
+        intf6_2:
+          link: connect1
+          name: xe-0/0/6:2
+          pic: xe-0/0/6:2
+        intf6_3:
+          link: connect1
+          name: xe-0/0/6:3
+          pic: xe-0/0/6:3
+
+
