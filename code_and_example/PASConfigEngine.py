@@ -13,6 +13,18 @@ router_group_dict=defaultdict(list)
 total_targets=[]
 import time
 import datetime
+def getname(tmp_str):
+    ifpart=re.search(r'_IF.*?\_',tmp_str).group(0)
+    lookup_list=tmp_str.split(ifpart)
+    if(re.search(r'name',ifpart,re.I)):
+        return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['name']
+    elif(re.search(r'pic',ifpart,re.I)):
+        return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['pic']
+    elif(re.search(r'link',ifpart,re.I)):
+        return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['link']
+    else:
+        return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['name']
+
 def configsetgenerator(str1,str2):
      command_list1=[]
      if(isinstance(str1,dict)):
@@ -991,6 +1003,9 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            ranges_list=mix_range_with_letters(ranges)
                            print("\n ranges_list start \n")
                            pprint(ranges_list)
+                           for each_range_item in range(len(ranges_list)):
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                       ranges_list[each_range_item]=getname(tmp_str)
                            print("\n ranges_list end \n")
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one expand mode \n")
@@ -1038,6 +1053,10 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            print("\nranges_list start\n")
                            pprint(ranges_list)
                            print("\nranges_list end\n")
+                           for each_range_item in range(len(ranges_list)):
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item])):
+                                       ranges_list[each_range_item]=getname(tmp_str)
+ 
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one list mode \n")
                                    if(len(ranges_list)!=len(command_list1)):
