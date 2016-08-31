@@ -738,6 +738,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
  
                                                                         for each_target_specific_list in target_specific_list:
                                                                             splitted_target_or_not=each_target_specific_list.strip().split(' ')
+                                                                            tmp_bkup=command_list1+[]
                                                                             if(len(splitted_target_or_not)>2):
                                                                                is_target_specific_modifier=1
                                                                                device_name=splitted_target_or_not[0]
@@ -749,16 +750,16 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                    if(len(modifier_target_modified)==2):
                                                                                      target_specific_dict[modifier_target_modified[0]]=modifier_target_modified[1]
                                                                                if not(each_target_specific_list==target_specific_list[len(target_specific_list)-1]):
-                                                                                  command_list1=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),command_list1,mod_num_list_index,mod_num_list,raw_command_list,i,'last')
+                                                                                  tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i,'last')
                                                                                else:
-                                                                                  command_list1=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),command_list1,mod_num_list_index,mod_num_list,raw_command_list,i)
+                                                                                  tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i)
                                                                                for each_device in device_name_list:
                                                                                    target_modifier_dict_keys=target_modifier_dict.keys()
                                                                                    if(each_device in target_modifier_dict_keys):
                                                                                        tmp_command_list=target_modifier_dict[each_device]
-                                                                                       target_modifier_dict[each_device]=tmp_command_list+command_list1
+                                                                                       target_modifier_dict[each_device]=tmp_command_list+tmp_bkup
                                                                                    else:
-                                                                                       target_modifier_dict[each_device]=command_list1
+                                                                                       target_modifier_dict[each_device]=tmp_bkup
                                                                                    print("\neach_device target_modifier_dict "+each_device+"\n")
                                                                                    pprint(target_modifier_dict)
                                                                                    print("\neach_device target_modifier_dict "+each_device+"\n")
