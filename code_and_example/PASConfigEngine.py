@@ -12,96 +12,7 @@ from termcolor import colored
 #from .general_class_for_handle import Handles
 router_group_dict=defaultdict(list)
 total_targets=[]
-dict1={
-  "resources": {
-    "device1": {
-      "interfaces": {
-        "intf6_1": {
-          "pic": "xe-0/0/6:1",
-          "link": "connect2",
-          "name": "xe-0/0/6:1"
-        },
-        "intf6_0": {
-          "pic": "xe-0/0/6:0",
-          "link": "connect1",
-          "name": "xe-0/0/6:0"
-        },
-        "intf6_3": {
-          "pic": "xe-0/0/6:3",
-          "link": "connect4",
-          "name": "xe-0/0/6:3"
-        },
-        "intf6_2": {
-          "pic": "xe-0/0/6:2",
-          "link": "connect3",
-          "name": "xe-0/0/6:2"
-        }
-      },
-      "components": {
-        "primary": {
-          "machine": "static",
-          "name": "bedrock-scale2",
-          "dh": "<jnpr.toby.hldcl.juniper.switching.ex.Qfx object at 0x7ffb6663ed30>",
-          "re0": {
-            "con-ip": "10.221.27.76",
-            "isoaddr": "48.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00",
-            "domain": "englab.juniper.net",
-            "name": "bedrock-scale2",
-            "mgt-ip": "10.204.43.136/20",
-            "mgt-ipv6": "abcd::10:204:43:136",
-            "osname": "JunOS"
-          },
-          "make": "juniper",
-          "os": "JunOS",
-          "model": "qfx5100-24q"
-        }
-      }
-    },
-    "device0": {
-      "interfaces": {
-        "intf24_0": {
-          "pic": "xe-0/0/24:0",
-          "link": "connect1",
-          "name": "xe-0/0/24:0"
-        },
-        "intf24_1": {
-          "pic": "xe-0/0/24:1",
-          "link": "connect2",
-          "name": "xe-0/0/24:1"
-        },
-        "intf24_2": {
-          "pic": "xe-0/0/24:2",
-          "link": "connect3",
-          "name": "xe-0/0/24:2"
-        },
-        "intf24_3": {
-          "pic": "xe-0/0/24:3",
-          "link": "connect4",
-          "name": "xe-0/0/24:3"
-        }
-      },
-      "components": {
-        "primary": {
-          "machine": "static",
-          "name": "blr-pinnacle-scale01",
-          "dh": "<jnpr.toby.hldcl.juniper.switching.ex.Qfx object at 0x7ffb6b250128>",
-          "re0": {
-            "con-ip": "10.221.27.77",
-            "isoaddr": "47.0005.80ff.f800.0000.0108.0001.0102.5507.6168.00",
-            "domain": "englab.juniper.net",
-            "name": "blr-pinnacle-scale01",
-            "mgt-ip": "10.204.33.192/20",
-            "mgt-ipv6": "abcd::10:204:33:192",
-            "osname": "JunOS"
-          },
-          "make": "juniper",
-          "os": "JunOS",
-          "model": "QFX5200-32C-AFO"
-        }
-      }
-    }
-  }
-}
+dict1={} 
 import time
 import datetime
 def getname(tmp_str):
@@ -1186,16 +1097,16 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    print("\ncommand_list1 end \n")
    return command_list1
 
-#def Config_Generate_using_template_file(filepath,global_dict):
-#         #filepath = "./example/ipclose.yaml"
-#         #filepath = sys.argv[1]
-#         dict1=global_dict
-#         pprint(Handles.pas_handle)
-#         data = yaml_reader(filepath)
-if  __name__ == "__main__" :
+def Config_Generate_using_template_file(filepath,global_dict):
          #filepath = "./example/ipclose.yaml"
-         filepath = sys.argv[1]
+         #filepath = sys.argv[1]
+         dict1=global_dict
+         pprint(Handles.pas_handle)
          data = yaml_reader(filepath)
+#if  __name__ == "__main__" :
+#         #filepath = "./example/ipclose.yaml"
+#         filepath = sys.argv[1]
+#         data = yaml_reader(filepath)
 		
 		
 		
