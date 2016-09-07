@@ -91,8 +91,8 @@
                          - "interface irb.{{ifl}}" :
                               - "hello-interval 1"
                               - "dead-interval 4"                       
-                              - mod_ifl: 
-                                  VALUE: 1-10
+        - mod_ifl: 
+               VALUE: 1-10
   TARGET_device1:
         - "protocols ospf area 0.0.0.0" :
             - "interface xe-0/0/30:0.0"
