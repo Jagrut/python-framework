@@ -527,6 +527,9 @@ def mix_range_with_letters(ranges):
 def mix_range_with_letters_argument_list(ranges):
         ranges_list=[]
         for each_token_range_list in ranges:
+                removed_if_required=re.search(r'-[a-zA-Z]+',each_token_range_list)
+                if(removed_if_required):
+                   each_token_range_list=each_token_range_list[:removed_if_required.start()+1]+each_token_range_list[removed_if_required.start()+1:removed_if_required.end()].replace(each_token_range_list[removed_if_required.start()+1:removed_if_required.end()],"")+each_token_range_list[removed_if_required.end():]
                 m = re.search("\d+\-\d+", each_token_range_list)
                 print("match condition m\n\n")
                 pprint(m)
