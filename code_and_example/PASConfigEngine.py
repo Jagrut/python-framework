@@ -18,6 +18,18 @@ import time
 import datetime
 import os
 import threading
+jaas_mode = False
+if "jaas".upper() in map(lambda x:x.upper(), os.environ.keys()):
+    for key in os.environ.keys():
+        if key.upper() == "jaas".upper():
+            jaas_mode = True if os.environ[key] == '1' else False
+            break
+
+if jaas_mode:
+    from jnpr.toby.hldcl.perl.lib.JaaS import *
+
+from jnpr.toby.hldcl.device import *
+
 def PAS_Initialize(fname):
     t = {}
     jass = {}
@@ -58,6 +70,26 @@ def PAS_Initialize(fname):
 
     return t
 
+def _connect_device(dev):
+    """
+            Connect to device
+            Connect engine creates connection object and refills it back to testbed object.
+            It also starts JaaS if the JAAS env is set to 1.
+
+            :param dev:
+                *MANDATORY* mandatory Device object
+            :return:  Testbed object with connection handles populated
+    """
+    try:
+        if not jaas_mode:
+            dev['dh'] = Device(host=dev['name'], os=dev['os'], connect_mode="ssh")
+        else:
+            dev['dh'] = Device(host=dev['name'], os=dev['os'], connect_mode="ssh", no_connect=True)
+
+    except Exception as exp:
+        raise Exception('Could not create Device object for device {0}: {1}' .format(dev['name'], str(exp)))
+
+
 def getname(tmp_str):
     print("\nin getname function j\n")
     ifpart=re.search(r'_IF.*?\_',tmp_str).group(0)
@@ -72,16 +104,22 @@ def getname(tmp_str):
     else:
         return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['name']
 
-def initialize_config_engine(handle=None,log_location=None):
+def initialize_config_engine(handle=None):
     global dict1
-    if not(handle==None):
-       dict1=handle
     global log_location_path
-    if(log_location==None):
-       log_location_path=os.popen("pwd").read()[:-1]
+    handle_keys=[]
+    if not(handle==None):
+       handle_keys=handle.keys()
+       if("t_handle" in handle_keys):
+           dict1=handle["t_handle"]
+       else:
+           print("\nt_handle key is not in the handle aborting script\n")
+           sys.exit(46)
+    if("path" in handle_keys):
+       log_location_path=handle["path"]
     else:
-       log_location_path=log_location
-
+       log_location_path=os.popen("pwd").read()[:-1]
+    
 def PAS_Config_Generator(str1,str2):
      command_list1=[]
      timestamp=datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
@@ -650,10 +688,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                                                                                 elif(splitted_each_inside_modifier_keys[1][:-1]==num):               
                                                                                                         for each_hash_list in hash_value_list:
                                                                                                                 ranges_list=ranges_list+mix_range_with_letters(each_hash_list)
-                                                                                                #for each_range_item in range(len(ranges_list)):
-                                                                                                #     print("\n for replacement loop \n")
-                                                                                                #     if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
-                                                                                                #         ranges_list[each_range_item]=getname(ranges_list[each_range_item].strip())
+                                                                                                for each_range_item in range(len(ranges_list)):
+                                                                                                     print("\n for replacement loop \n")
+                                                                                                     if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
+                                                                                                         ranges_list[each_range_item]=getname(ranges_list[each_range_item].strip())
 
                                                                                                 print("now append the commands\n")
                                                                                                 if (len(command_list1)!=len(ranges_list)):
@@ -1039,10 +1077,10 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                 ranges_list=mix_range_with_letters(ranges)
                            print("\n ranges_list start \n")
                            pprint(ranges_list)
-                           #for each_range_item in range(len(ranges_list)):
-                           #        print("for replacement loop")
-                           #        if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
-                           #            ranges_list[each_range_item]=getname(ranges_list[each_range_item].strip())
+                           for each_range_item in range(len(ranges_list)):
+                                   print("for replacement loop")
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
+                                       ranges_list[each_range_item]=getname(ranges_list[each_range_item].strip())
                            print("\n ranges_list end \n")
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one expand mode \n")
@@ -1094,10 +1132,10 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                            print("\nranges_list start\n")
                            pprint(ranges_list)
                            print("\nranges_list end\n")
-                           #for each_range_item in range(len(ranges_list)):
-                           #        print("\n for replacement loop \n")
-                           #        if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
-                           #            ranges_list[each_range_item]=getname(tmp_str)
+                           for each_range_item in range(len(ranges_list)):
+                                   print("\n for replacement loop \n")
+                                   if(re.search(r'_IF.*?\_',ranges_list[each_range_item].strip())):
+                                       ranges_list[each_range_item]=getname(tmp_str)
  
                            if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
                                    print("\n inside value one2one list mode \n")
@@ -1219,18 +1257,23 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
 
    return command_list1
 
-#def Config_Generate_using_template_file(filepath):
-#         #global dict1
-#         #dict1=global_dict
-#         #pprint(dict1)
-#         #pprint(Handles.pas_handle)
-#         data = yaml_reader(filepath)
-#         return total_targets
-if  __name__ == "__main__" :
-         #filepath = "./example/ipclose.yaml"
-         filepath = sys.argv[1]
-         initialize_config_engine(None,None)
+def Config_Generate_using_template_file(filepath):
+         #global dict1
+         #dict1=global_dict
+         #pprint(dict1)
+         #pprint(Handles.pas_handle)
          data = yaml_reader(filepath)
+         return total_targets
+#if  __name__ == "__main__" :
+#         #filepath = "./example/ipclose.yaml"
+#         print("\nin main namespace\n")
+#         filepath = sys.argv[1]
+#         print("\nfilepath=="+filepath+"\n")
+#         wrapper_dict={}
+#         wrapper_dict["t_handle"]=PAS_Initialize(sys.argv[2])
+#         print("\nhandle ends here\n")
+#         initialize_config_engine(wrapper_dict)
+#         data = yaml_reader(filepath)
 		
 		
 		
