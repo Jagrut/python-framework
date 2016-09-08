@@ -143,7 +143,7 @@ def getname(tmp_str):
     else:
         return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['name']
 
-def initialize_config_engine(handle=None):
+def initialize_config_engine(**handle):
     global dict1
     global log_location_path
     handle_keys=[]
