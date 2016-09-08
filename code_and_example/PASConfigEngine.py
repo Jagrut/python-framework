@@ -30,6 +30,45 @@ if jaas_mode:
 
 from jnpr.toby.hldcl.device import *
 
+def config_commit_on_devices(Targets):
+    list_of_Targets = mix_range_with_letters(Targets)
+    #l_devices = str_devices.split(',')
+    #list_of_devices = [x.lower() for x in l_devices]
+    #rtr_keys = list(dict1['resources'].keys())
+    #router_keys = [x.lower() for x in rtr_keys]
+    #lst = ','.join(set(list_of_devices).difference(router_keys))
+    #if (lst):
+    #    raise Exception('Devices are not available:', lst)
+    for router in list_of_Targets:
+        dev = dict1['resources'][router.lower()]['components']['primary']['dh']
+        result = dev.commit()
+        if result == True:
+            print ('Configuration committed successfully on Device', router)
+        else:
+            raise Exception('Unable to commit Configuration on Device', router)
+
+def load_config_on_devices(Targets):
+    list_of_Targets = mix_range_with_letters(Targets)
+    list_of_fnames = total_targets 
+    rtr_keys = list(dict1['resources'].keys())
+    router_keys = [x.lower() for x in rtr_keys]
+    print("load config on devices\n")
+    pprint(dict1)
+    print("dict1 ended")
+    for router in list_of_Targets:
+        dev = dict1['resources'][router.lower()]['components']['primary']['dh']
+        for each_file in list_of_fnames:
+            if router.lower() in each_file.lower():
+                file_name = log_location_path +"/"+ each_file + "_config.set"
+                print("\nin load config on devices file_name "+file_name+"\n")
+                #import pdb; pdb.set_trace()
+                result = dev.load_config(local_file=file_name, format="set")
+                if result == True:
+                    print ('Configuration loaded successfully on Device', router)
+                else:
+                    raise Exception('Unable to load Configuration on Device', router)
+
+
 def PAS_Initialize(fname):
     t = {}
     jass = {}
@@ -1263,6 +1302,9 @@ def Config_Generate_using_template_file(filepath):
          #pprint(dict1)
          #pprint(Handles.pas_handle)
          data = yaml_reader(filepath)
+         print("\ntotal_tragets start\n")
+         pprint(total_targets)
+         print("\ntotal_targets end\n")
          return total_targets
 #if  __name__ == "__main__" :
 #         #filepath = "./example/ipclose.yaml"
@@ -1274,7 +1316,16 @@ def Config_Generate_using_template_file(filepath):
 #         print("\nhandle ends here\n")
 #         initialize_config_engine(wrapper_dict)
 #         data = yaml_reader(filepath)
-		
-		
-		
+#         print("\ntotal_tragets start\n")
+#         pprint(total_targets)
+#         print("\ntotal_targets end\n")
+#         print("\nrouter group dict start\n")
+#         pprint(router_group_dict)
+#         print("\nrouter group dict end\n")
+#         devices_list=router_group_dict.keys()
+#         print("join devices_list start")
+#         devices_str=','.join(devices_list)
+#         load_config_on_devices(devices_str)
+#         config_commit_on_devices(devices_str)         
+	
 #configsetgenerator('hello-interval as 20 and dead-interval as 80', 'group OSPF_CONFIG protocols ospf area 0.0.0.0')
