@@ -40,7 +40,7 @@ def config_commit_on_devices(Targets):
     #if (lst):
     #    raise Exception('Devices are not available:', lst)
     for router in list_of_Targets:
-        dev = dict1['resources'][router.lower()]['components']['primary']['dh']
+        dev = dict1['resources'][router.lower()]['system']['primary']['dh']
         result = dev.commit()
         if result == True:
             print ('Configuration committed successfully on Device', router)
@@ -56,7 +56,7 @@ def load_config_on_devices(Targets):
     pprint(dict1)
     print("dict1 ended")
     for router in list_of_Targets:
-        dev = dict1['resources'][router.lower()]['components']['primary']['dh']
+        dev = dict1['resources'][router.lower()]['system']['primary']['dh']
         for each_file in list_of_fnames:
             if router.lower() in each_file.lower():
                 file_name = log_location_path +"/"+ each_file + "_config.set"
@@ -102,8 +102,8 @@ def PAS_Initialize(fname):
 
     if 'resources' in t.keys():
         for device in t['resources']:
-            for comp in t['resources'][device]['components']:
-                _connect_device(t['resources'][device]['components'][comp],)
+            for comp in t['resources'][device]['system']:
+                _connect_device(t['resources'][device]['system'][comp],)
     else:
         raise Exception('No resources object in t object!')
 
