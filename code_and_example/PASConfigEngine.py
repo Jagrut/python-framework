@@ -147,7 +147,7 @@ def initialize_config_engine(**handle):
     global dict1
     global log_location_path
     handle_keys=[]
-    if not(handle==None):
+    if handle is not None:
        handle_keys=handle.keys()
        if("t_handle" in handle_keys):
            dict1=handle["t_handle"]
@@ -155,7 +155,10 @@ def initialize_config_engine(**handle):
            print("\nt_handle key is not in the handle aborting script\n")
            sys.exit(46)
     if("path" in handle_keys):
-       log_location_path=handle["path"]
+       if(handle["path"][-1]=="/"):
+            log_location_path=handle["path"][:-1]
+       else:
+            log_location_path=handle["path"]
     else:
        log_location_path=os.popen("pwd").read()[:-1]
     
@@ -496,7 +499,7 @@ def yaml_reader(filepath):
                 tmp_list=mix_range_with_letters(data[each_need]["TARGETS"])
                 for each_outer_needylist_keys in needylist_keys:
                         if not (re.search(r"\s*target\s*",each_outer_needylist_keys,re.IGNORECASE)):
-                                recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list)
+                                recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list,[],[])
                                 needylist_keys.remove(each_outer_needylist_keys)        
                 needylist_keys.remove("TARGETS")
         where_is_list(data[each_need],needylist_keys,each_need,command_list1)
@@ -526,7 +529,7 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
                 if(isinstance(data[iter_needylist_keys],dict)):
                         recursive_list=list(data[iter_needylist_keys].keys())
                         if ("LIST_HOLDER" in recursive_list):
-                                recursive_modifier(data[iter_needylist_keys],each_need,"LIST_HOLDER",tmp_list)
+                                recursive_modifier(data[iter_needylist_keys],each_need,"LIST_HOLDER",tmp_list,[],[])
                                 recursive_list.remove("LIST_HOLDER")
 
                 if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
@@ -536,7 +539,7 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
 
                         if(isinstance(data[iter_needylist_keys],list)):
                                 print("\ncalling recursive_modifier from inside where_is_list")
-                                recursive_modifier(data,each_need,iter_needylist_keys,command_list1,tmp_list)
+                                recursive_modifier(data,each_need,iter_needylist_keys,command_list1,tmp_list,[],[])
                         else:
                                 if(len(recursive_list)>=1):
                                         print("\nrecursive call to where_is_list\n")
@@ -623,8 +626,8 @@ def mix_range_with_letters_argument_list(ranges):
         pprint(ranges_list)
         return ranges_list
 
-def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static_cmd_dict={}):
-        #static_cmd_dict={}
+def recursive_modifier(data,each_need,needylist_key,command_list1,targets,mod_scope_track,mod_letters_list):
+        static_cmd_dict={}
         tmp_str=list(command_list1)
         #command_list1=[]
         cmt_cnt=0
@@ -643,8 +646,12 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                 for iterate_keys in each_and_every_cmd_keys:
                                         if(re.search(r'.*mod_(\w)',iterate_keys)):
                                                 matchobj= re.search(r'.*mod_(\w+)',iterate_keys)
-                                                static_cmd_dict[matchobj.group(1)]=each_and_every_cmd
-                                                                                        
+                                                modifier_letters=matchobj.group(1)
+                                                mod_letters_list.append(modifier_letters)
+                                                static_cmd_dict[modifier_letters]=data[needylist_key][each_and_every_cmd]['mod_'+str(modifier_letters)]
+                                                mod_scope_track.append(static_cmd_dict)
+                                                static_cmd_dict={}
+                                        
                 print("\n static_cmd_dict start \n")
                 pprint(static_cmd_dict)
                 print("\n static_cmd_dict end \n")        
@@ -747,9 +754,13 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                                                                         if('mod_'+str(num)  in inside_modifier_keys):
                                                                                                 modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys]['mod_'+str(num)]
                                                                                                 modifier_keys=list(modifier_data.keys())
-                                                                                        elif(str(num) in list(static_cmd_dict.keys())):
-                                                                                                modifier_data=data[needylist_key][int(static_cmd_dict[num])]['mod_'+str(num)]
-                                                                                                modifier_keys=list(modifier_data.keys())
+                                                                                        elif(str(num) in mod_letters_list):
+                                                                                                 #modifier_data=data[needylist_key][int(static_cmd_dict[num])]['mod_     '+str(num)]
+                                                                                                 for each_mod_scope in reversed(mod_scope_track):
+                                                                                                     if(str(num) in each_mod_scope.keys()):
+                                                                                                          modifier_data=each_mod_scope[str(num)]
+                                                                                                          modifier_keys=list(modifier_data.keys())
+
                                                                                         else:
                                                                                                 print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                                 sys.exit(50)
@@ -775,9 +786,12 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                                                                 
                                                                                                          
                                                                         else:
-                                                                                if(str(num) in list(static_cmd_dict.keys())):
-                                                                                        modifier_data=data[needylist_key][int(static_cmd_dict[num])]["mod_"+str(num)]
-                                                                                        modifier_keys=list(modifier_data.keys())
+                                                                                if(str(num) in mod_letters_list):
+                                                                                        for each_mod_scope in reversed(mod_scope_track):
+                                                                                            if(str(num) in each_mod_scope.keys()):
+                                                                                                 modifier_data=each_mod_scope[str(num)]
+                                                                                                 modifier_keys=list(modifier_data.keys())
+
                                                                                 else:
                                                                                         print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                         sys.exit(50)
@@ -869,28 +883,28 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                                 if("LIST_HOLDER" in inside_modifier_keys):
                                                     print("\n recursively vrf list called see this\n")
                                                     if(is_target_specific_modifier==0):
-                                                        recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets,static_cmd_dict)
+                                                        recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets,mod_scope_track,mod_letters_list)
                                                     else:
                                                         mod_specific_targets=target_modifier_dict.keys()
                                                         for each_target in mod_specific_targets:
                                                             command_list1=target_modifier_dict[each_target]
                                                             target_specific_list=[]
                                                             target_specific_list.append(each_target[1:])
-                                                            recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,target_specific_list,static_cmd_dict)
+                                                            recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,target_specific_list,mod_scope_track,mod_letters_list)
 
                                                     hierarchical=1
                                                     #continue 
                                                 if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
                                                     print("\n hierarchical vrf lst called see this\n")
                                                     if(is_target_specific_modifier==0):
-                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets,static_cmd_dict)
+                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets,mod_scope_track,mod_letters_list)
                                                     else:
                                                         mod_specific_targets=target_modifier_dict.keys()
                                                         for each_target in mod_specific_targets:
                                                             command_list1=target_modifier_dict[each_target]
                                                             target_specific_list=[]
                                                             target_specific_list.append(each_target[1:])
-                                                            recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,target_specific_list,static_cmd_dict)
+                                                            recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,target_specific_list,static_cmd_dict,mod_scope_track,mod_letters_list)
 
                                                     #recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
                                                     hierarchical=1
@@ -961,7 +975,7 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                                                         print("\ninside each_mod_num_list for loop match object"+matchobj.group(1)+"\n")
                                                                         modifier_data={}
                                                                         modifier_keys=[]
-                                                                        if(str(num) in list(static_cmd_dict.keys())):
+                                                                        if(str(num) in mod_letters_list):
                                                                                 print("\nneedylist key debug point start "+needylist_key+"\n")
                                                                                 print("\ndata start\n")
                                                                                 pprint(data)
@@ -969,8 +983,11 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets,static
                                                                                 print("\nstatic_cmd_dict start\n")
                                                                                 pprint(static_cmd_dict)
                                                                                 print("\nstatic_cmd_dict end\n"+ "num=="+str(num))
-                                                                                modifier_data=data[needylist_key][static_cmd_dict[num]]["mod_"+str(num)]
-                                                                                modifier_keys=list(modifier_data.keys())
+                                                                                for each_mod_scope in reversed(mod_scope_track):
+                                                                                    if(str(num) in each_mod_scope.keys()):
+                                                                                             modifier_data=each_mod_scope[str(num)]
+                                                                                             modifier_keys=list(modifier_data.keys())
+
                                                                         else:
                                                                                 print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                 sys.exit(50)
@@ -1314,7 +1331,7 @@ def Config_Generate_using_template_file(filepath):
 #         wrapper_dict={}
 #         wrapper_dict["t_handle"]=PAS_Initialize(sys.argv[2])
 #         print("\nhandle ends here\n")
-#         initialize_config_engine(wrapper_dict)
+#         initialize_config_engine(**wrapper_dict)
 #         data = yaml_reader(filepath)
 #         print("\ntotal_tragets start\n")
 #         pprint(total_targets)
