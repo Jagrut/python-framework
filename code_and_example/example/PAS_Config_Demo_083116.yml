@@ -80,8 +80,8 @@
                         - "priority 100"
                         - "hello-interval 3"
                         - "hold-time 9"
-               - mod_ifl: 
-                    VALUE: 1-10
+    - mod_ifl: 
+         VALUE: 1-10
  OSPF_CONFIG: 
   GRPID: PAS_OSPF
   TARGETS: device0,device1

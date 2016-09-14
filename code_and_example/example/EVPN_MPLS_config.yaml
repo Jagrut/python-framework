@@ -1,0 +1,1357 @@
+--- 
+ R0_ISIS_INTF_LIST: &R0_ISIS_INTF_LIST "R0_R5_IF_1-4"
+ R1_ISIS_INTF_LIST: &R1_ISIS_INTF_LIST "ae10,ae20,ae30"
+ R2_ISIS_INTF_LIST: &R2_ISIS_INTF_LIST "ae0-3"
+ R0_FBF_INTF_LIST: &R0_FBF_INTFS "ae20,ae30"
+ R0_FBF_INTF_LIST: &R1_FBF_INTFS "ae30,ae40"
+
+
+ EVI_2001-3000:
+  TARGET_R0-1:                                                         
+    - "routing-instances EVI-{{id}}":
+         - "instance-type evpn"
+         - "vlan-id {{id}} interface ae14.{{id}}"
+         - "vlan-id {{id}} interface ae44.{{id}}"
+         - "vrf-target target:5001:{{id}}"
+         - "protocols evpn extended-vlan-list all"
+         - "vlan-id {{id}} l3-interface irb.{{id}}"
+         - mod_id:
+            VALUE: 2001-3000
+    - "interfaces ae14 flexible-vlan-tagging"
+    - "interfaces ae14 encapsulation flexible-ethernet-services"
+    - "interfaces ae14.{{id}} encapsulation vlan-bridge" 
+    - "interfaces ae14.{{id}} vlan-id {{id}}"
+
+    - "interfaces ae44 flexible-vlan-tagging"
+    - "interfaces ae44 encapsulation flexible-ethernet-services"
+    - "interfaces ae44.{{id}} encapsulation vlan-bridge" 
+    - "interfaces ae44.{{id}} vlan-id {{id}}"
+
+    - mod_id:
+       VALUE: 2001-3000
+
+  TARGET_R0:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.1:{{id}}"
+    - mod_id:
+       VALUE: 2001-3000
+
+  TARGET_R1:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.2:{{id}}"
+    - mod_id:
+       VALUE: 2001-3000
+
+
+
+ EVI_3001-4000:
+  TARGETS: R0,R1                                                                   
+  LIST_HOLDER: 
+   - "routing-instances EVI-{{id}}":
+         - "instance-type evpn"
+         - "vlan-id {{id}}" 
+         - "interface ae15.100"
+         - "interface ae45.100"
+         - "vrf-target target:5001:{{id}}"
+         - "protocols evpn extended-vlan-list all"
+#        - "vlan-id {{id}} l3-interface irb.{{id}}"
+         - mod_id:
+            VALUE: 3001-4000
+   - "interfaces ae15 flexible-vlan-tagging"
+   - "interfaces ae15 encapsulation flexible-ethernet-services"
+   - "interfaces ae15 unit 100 family ethernet-switching interface-mode trunk"
+   - "interfaces ae15 unit 100 family ethernet-switching vlan members 3001-4000"
+   - "interfaces ae45 flexible-vlan-tagging"
+   - "interfaces ae45 encapsulation flexible-ethernet-services"
+   - "interfaces ae45 unit 100 family ethernet-switching interface-mode trunk"
+   - "interfaces ae45 unit 100 family ethernet-switching vlan members 3001-4000"
+
+   - mod_id:
+       VALUE: 3001-4000
+
+  TARGET_R0:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.1:{{id}}"
+    - mod_id:
+       VALUE: 3001-4000
+
+  TARGET_R1:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.2:{{id}}"
+    - mod_id:
+       VALUE: 3001-4000
+    
+
+ EVPN_MPLS_VS1:                                            
+  TARGETS: R0,R1                                                                  
+  LIST_HOLDER:  
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"   
+    - "interfaces ae30 flexible-vlan-tagging"
+    - "interfaces ae30 encapsulation flexible-ethernet-services"                                                      
+    - "interfaces ae0 unit 100 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 100 family ethernet-switching vlan members vlan-{{id1}}"      
+    - "interfaces ae30 unit 100 family ethernet-switching interface-mode trunk"          
+    - "interfaces ae30 unit 100 family ethernet-switching vlan members vlan-{{id1}}"     
+    - "routing-instances EVPN_VS1_1-1000 instance-type virtual-switch"           
+    - "routing-instances EVPN_VS1_1-1000 vrf-target target:5001:2"               
+    - "routing-instances EVPN_VS1_1-1000 protocols evpn extended-vlan-list 1-1000"
+ 
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id1}} interface ae0.100"     
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id1}} interface ae30.100" 
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                                
+    - "interfaces ae1 flexible-vlan-tagging"
+    - "interfaces ae1 encapsulation flexible-ethernet-services"   
+    - "interfaces ae31 flexible-vlan-tagging"
+    - "interfaces ae31 encapsulation flexible-ethernet-services"                                                      
+    - "interfaces ae1 unit 100 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae1 unit 100 family ethernet-switching vlan members vlan-{{id2}}"      
+    - "interfaces ae31 unit 100 family ethernet-switching interface-mode trunk"          
+    - "interfaces ae31 unit 100 family ethernet-switching vlan members vlan-{{id2}}"   
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id2}} vlan-id {{id2}}"     
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id2}} interface ae1.100"     
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id2}} interface ae31.100"
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id2}} l3-interface irb.{{id2}}"    
+                                                                                
+    - "interfaces ae2 flexible-vlan-tagging"
+    - "interfaces ae2 encapsulation flexible-ethernet-services"   
+    - "interfaces ae32 flexible-vlan-tagging"
+    - "interfaces ae32 encapsulation flexible-ethernet-services"                                                      
+    - "interfaces ae2 unit 100 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae2 unit 100 family ethernet-switching vlan members vlan-{{id3}}"      
+    - "interfaces ae32 unit 100 family ethernet-switching interface-mode trunk"          
+    - "interfaces ae32 unit 100 family ethernet-switching vlan members vlan-{{id3}}"   
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id3}} vlan-id {{id3}}"     
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id3}} interface ae2.100"     
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id3}} interface ae32.100" 
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id3}} l3-interface irb.{{id3}}"   
+                                                                                
+    - "interfaces ae3 flexible-vlan-tagging"
+    - "interfaces ae3 encapsulation flexible-ethernet-services"   
+    - "interfaces ae33 flexible-vlan-tagging"
+    - "interfaces ae33 encapsulation flexible-ethernet-services"                                                      
+    - "interfaces ae3 unit 100 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae3 unit 100 family ethernet-switching vlan members vlan-{{id4}}"      
+    - "interfaces ae33 unit 100 family ethernet-switching interface-mode trunk"          
+    - "interfaces ae33 unit 100 family ethernet-switching vlan members vlan-{{id4}}"   
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id4}} vlan-id {{id4}}"    
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id4}} interface ae3.100"     
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id4}} interface ae33.100" 
+    - "routing-instances EVPN_VS1_1-1000 vlans vlan-{{id4}} l3-interface irb.{{id4}}"   
+                                                                                
+    - mod_id1:            
+        VALUE: 1-250                                                            
+    - mod_id2:                                                                  
+        VALUE: 251-500                                                          
+    - mod_id3:                                                                  
+        VALUE: 501-750                                                          
+    - mod_id4:                                                                  
+        VALUE: 751-1000      
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1-1000 route-distinguisher 20.0.0.1:1" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1-1000 route-distinguisher 20.0.0.2:1" 
+                                                 
+                                                                                
+ EVPN_MPLS_VS2:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae4 flexible-vlan-tagging"
+    - "interfaces ae4 encapsulation flexible-ethernet-services"
+    - "interfaces ae4.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae4.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae34 flexible-vlan-tagging"
+    - "interfaces ae34 encapsulation flexible-ethernet-services"
+    - "interfaces ae34.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae34.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS2_1001-1400 instance-type virtual-switch"
+    - "routing-instances EVPN_VS2_1001-1400 vrf-target target:5001:2"
+    - "routing-instances EVPN_VS2_1001-1400 protocols evpn extended-vlan-list 1001-1400"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id1}} interface ae4.{{id1}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id1}} interface ae34.{{id1}}"
+    - "routing-instances EVPN_VS1_1001-1400 vlans vlan-{{id1}} l3-interface irb.{{id1}}"
+
+    - "interfaces ae5 flexible-vlan-tagging"
+    - "interfaces ae5 encapsulation flexible-ethernet-services"
+    - "interfaces ae5.{{id2}} encapsulation vlan-bridge" 
+    - "interfaces ae5.{{id2}} vlan-id {{id2}}"
+    - "interfaces ae35 flexible-vlan-tagging"
+    - "interfaces ae35 encapsulation flexible-ethernet-services"
+    - "interfaces ae35.{{id2}} encapsulation vlan-bridge" 
+    - "interfaces ae35.{{id2}} vlan-id {{id2}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id2}} vlan-id {{id2}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id2}} interface ae5.{{id2}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id2}} interface ae35.{{id2}}"
+    - "routing-instances EVPN_VS1_1001-1400 vlans vlan-{{id2}} l3-interface irb.{{id2}}"
+
+    - "interfaces ae6 flexible-vlan-tagging"
+    - "interfaces ae6 encapsulation flexible-ethernet-services"
+    - "interfaces ae6.{{id3}} encapsulation vlan-bridge" 
+    - "interfaces ae6.{{id3}} vlan-id {{id3}}"
+    - "interfaces ae36 flexible-vlan-tagging"
+    - "interfaces ae36 encapsulation flexible-ethernet-services"
+    - "interfaces ae36.{{id3}} encapsulation vlan-bridge" 
+    - "interfaces ae36.{{id3}} vlan-id {{id3}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id3}} vlan-id {{id3}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id3}} interface ae6.{{id3}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id3}} interface ae36.{{id3}}"
+    - "routing-instances EVPN_VS1_1001-1400 vlans vlan-{{id3}} l3-interface irb.{{id3}}"
+
+    - "interfaces ae7 flexible-vlan-tagging"
+    - "interfaces ae7 encapsulation flexible-ethernet-services"
+    - "interfaces ae7.{{id4}} encapsulation vlan-bridge" 
+    - "interfaces ae7.{{id4}} vlan-id {{id4}"
+    - "interfaces ae37 flexible-vlan-tagging"
+    - "interfaces ae37 encapsulation flexible-ethernet-services"
+    - "interfaces ae37.{{id4}} encapsulation vlan-bridge" 
+    - "interfaces ae37.{{id4}} vlan-id {{id4}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id4}} vlan-id {{id4}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id4}} interface ae7.{{id4}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id4}} interface ae37.{{id4}}"
+    - "routing-instances EVPN_VS2_1001-1400 vlans vlan-{{id4}} l3-interface irb.{{id4}}"
+
+    - mod_id1:
+        VALUE: 1001-1100
+    - mod_id2:
+        VALUE: 1101-1200
+    - mod_id3:
+        VALUE: 1201-1300
+    - mod_id4:
+        VALUE: 1301-1400
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1001-1400 route-distinguisher 20.0.0.1:2" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1001-1400 route-distinguisher 20.0.0.2:2" 
+                                                 
+                                                                   
+
+ EVPN_MPLS_VS3:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae8 flexible-vlan-tagging"
+    - "interfaces ae8 encapsulation flexible-ethernet-services"
+    - "interfaces ae8.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae8.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae38 flexible-vlan-tagging"
+    - "interfaces ae38 encapsulation flexible-ethernet-services"
+    - "interfaces ae38.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae38.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS3_1401-1500" :
+            - "instance-type virtual-switch" 
+            - "vrf-target target:5001:3"
+            - "protocols evpn extended-vlan-list 1401-1500"
+            - "vlans vlan-{{id1}} vlan-id {{id1}}"
+            - "vlans vlan-{{id1}} interface ae8.{{id1}}"
+            - "vlans vlan-{{id1}} interface ae38.{{id1}}"
+            - "vlan-{{id1}} l3-interface irb.{{id1}}"
+
+            - mod_id1:
+               VALUE: 1401-1500
+
+    - mod_id1:
+        VALUE: 1401-1500
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1401-1500 route-distinguisher 20.0.0.1:3" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1401-1500 route-distinguisher 20.0.0.2:3" 
+                                                 
+                                                                   
+
+ EVPN_MPLS_VS4:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae9 flexible-vlan-tagging"
+    - "interfaces ae9 encapsulation flexible-ethernet-services"
+    - "interfaces ae9.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae9.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae39 flexible-vlan-tagging"
+    - "interfaces ae39 encapsulation flexible-ethernet-services"
+    - "interfaces ae39.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae39.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS4_1501-1600" :
+             - "instance-type virtual-switch"
+             - "vrf-target target:5001:4"
+             - "protocols evpn extended-vlan-list 1501-1600"
+             - "vlans vlan-{{id1}} vlan-id {{id1}}"
+             - "vlans vlan-{{id1}} interface ae9.{{id1}}"
+             - "vlans vlan-{{id1}} interface ae39.{{id1}}"
+#    - "routing-instances EVPN_VS4_1501-1600 vlans vlan-{{id1}} l3-interface irb.{{id1}}"
+
+             - mod_id1:
+                VALUE: 1501-1600
+    - mod_id1:
+        VALUE: 1501-1600
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1501-1600 route-distinguisher 20.0.0.1:4" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1501-1600 route-distinguisher 20.0.0.2:4" 
+                
+
+ EVPN_MPLS_VS5:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae10 flexible-vlan-tagging"
+    - "interfaces ae10 encapsulation flexible-ethernet-services"
+    - "interfaces ae10.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae10.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae40 flexible-vlan-tagging"
+    - "interfaces ae40 encapsulation flexible-ethernet-services"
+    - "interfaces ae40.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae40.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS5_1601-1700" : 
+             - "instance-type virtual-switch" 
+             - "vrf-target target:5001:5"
+             - "protocols evpn extended-vlan-list 1601-1700"
+             - "vlans vlan-{{id1}} vlan-id {{id1}}"
+             - "vlans vlan-{{id1}} interface ae10.{{id1}}"
+             - "vlans vlan-{{id1}} interface ae40.{{id1}}"
+#    - "routing-instances EVPN_VS5_1201-1400 vlans vlan-{{id1}} l3-interface irb.{{id1}}"
+             - mod_id1:
+                VALUE: 1601-1700
+
+    - mod_id1:
+        VALUE: 1601-1700
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1601-1700 route-distinguisher 20.0.0.1:5" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1601-1700 route-distinguisher 20.0.0.2:5" 
+                
+
+ EVPN_MPLS_VS6:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae11 flexible-vlan-tagging"
+    - "interfaces ae11 encapsulation flexible-ethernet-services"
+    - "interfaces ae11.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae11.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae41 flexible-vlan-tagging"
+    - "interfaces ae41 encapsulation flexible-ethernet-services"
+    - "interfaces ae41.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae41.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS6_1701-1800" :
+            - "instance-type virtual-switch"
+            - "vrf-target target:5001:6"
+            - "protocols evpn extended-vlan-list 1701-1800"
+            - "vlans vlan-{{id1}} vlan-id {{id1}}"
+            - "vlans vlan-{{id1}} interface ae11.{{id1}}"
+            - "vlans vlan-{{id1}} interface ae41.{{id1}}"
+#    - "routing-instances EVPN_VS6_1401-1600 vlans vlan-{{id1}} l3-interface irb.{{id1}}"
+
+            - mod_id1:
+                VALUE: 1701-1800
+    - mod_id1:
+        VALUE: 1701-1800
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1701-1800 route-distinguisher 20.0.0.1:6" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1701-1800 route-distinguisher 20.0.0.2:6" 
+                
+
+ EVPN_MPLS_VS7:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae12 flexible-vlan-tagging"
+    - "interfaces ae12 encapsulation flexible-ethernet-services"
+    - "interfaces ae12.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae12.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae42 flexible-vlan-tagging"
+    - "interfaces ae42 encapsulation flexible-ethernet-services"
+    - "interfaces ae42.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae42.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS7_1801-1900" :
+            - "instance-type virtual-switch"
+            - "vrf-target target:5001:7"
+            - "protocols evpn extended-vlan-list 1801-1900"
+            - "vlans vlan-{{id1}} vlan-id {{id1}}"
+            - "vlans vlan-{{id1}} interface ae12.{{id1}}"
+            - "vlans vlan-{{id1}} interface ae42.{{id1}}"
+#    - "routing-instances EVPN_VS7_1801-1900 vlans vlan-{{id1}} l3-interface irb.{{id1}}"
+            - mod_id1:
+               VALUE: 1801-1900
+
+    - mod_id1:
+        VALUE: 1801-1900
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1801-1900 route-distinguisher 20.0.0.1:7" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1801-1900 route-distinguisher 20.0.0.2:7" 
+                
+
+
+ EVPN_MPLS_VS8:
+  TARGETS: R0,R1
+  LIST_HOLDER:
+    - "interfaces ae13 flexible-vlan-tagging"
+    - "interfaces ae13 encapsulation flexible-ethernet-services"
+    - "interfaces ae13.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae13.{{id1}} vlan-id {{id1}}"
+    - "interfaces ae43 flexible-vlan-tagging"
+    - "interfaces ae43 encapsulation flexible-ethernet-services"
+    - "interfaces ae43.{{id1}} encapsulation vlan-bridge" 
+    - "interfaces ae43.{{id1}} vlan-id {{id1}}"
+    - "routing-instances EVPN_VS8_1901-2000" :
+           - "instance-type virtual-switch"
+           - "vrf-target target:5001:8"
+           - "protocols evpn extended-vlan-list 1901-2000"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae13.{{id1}}"
+           - "vlans vlan-{{id1}} interface ae43.{{id1}}"
+#    - "routing-instances EVPN_VS8_1801-1900 vlans vlan-{{id1}} l3-interface irb.{{id1}}"
+           - mod_id1:
+              VALUE: 1901-2000
+    - mod_id1:
+        VALUE: 1901-2000
+
+  TARGET_R0:
+    - "routing-instances EVPN_VS1_1901-2000 route-distinguisher 20.0.0.1:8" 
+
+  TARGET_R1:
+    - "routing-instances EVPN_VS1_1901-2000 route-distinguisher 20.0.0.2:8" 
+
+
+ EVI_2001-3000-S2:
+  TARGETS: R2,R3 
+  LIST_HOLDER:                                                                                                                           
+    - "routing-instances EVI-{{id}}":
+         - "instance-type evpn"
+         - "vlan-id {{id}}" 
+         - "interface ae1.100"
+         - "vrf-target target:5001:{{id}}"
+         - "protocols evpn"
+         - "vlan-id {{id}} l3-interface irb.{{id}}"
+
+         - mod_id:
+            VALUE: 2001-3000
+
+    - "interfaces ae1 flexible-vlan-tagging"
+    - "interfaces ae1 encapsulation flexible-ethernet-services"
+    - "interfaces ae1 unit 100 family ethernet-switching interface-mode trunk"
+    - "interfaces ae1 unit 100 family ethernet-switching vlan members 2001-3000"
+
+    - mod_id:
+       VALUE: 2001-3000
+
+  TARGET_R2:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.3:{{id}}"
+    - mod_id:
+       VALUE: 2001-3000
+
+  TARGET_R3:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.4:{{id}}"
+    - mod_id:
+       VALUE: 2001-3000
+
+
+
+ EVI_3001-4000-S2:
+  TARGETS: R2,R3 
+  LIST_HOLDER:                                                                  
+   - "routing-instances EVI-{{id}}":
+         - "instance-type evpn"
+         - "vlan-id {{id}}" 
+         - "interface ae1.200"
+         - "vrf-target target:5001:{{id}}"
+         - "protocols evpn"
+#         - "vlan-id {{id}} l3-interface irb.{{id}}"
+         - mod_id:
+            VALUE: 3001-4000
+   - "interfaces ae1 flexible-vlan-tagging"
+   - "interfaces ae1 encapsulation flexible-ethernet-services"
+   - "interfaces ae1 unit 200 family ethernet-switching interface-mode trunk"
+   - "interfaces ae1 unit 200 family ethernet-switching vlan members 3001-4000"
+
+   - mod_id:
+       VALUE: 3001-4000
+
+  TARGET_R2:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.3:{{id}}"
+    - mod_id:
+       VALUE: 3001-4000
+
+  TARGET_R3:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.4:{{id}}"
+    - mod_id:
+       VALUE: 3001-4000
+
+    
+
+ EVPN_MPLS_VS1-S2:                                            
+  TARGETS: R2,R3                                                                  
+  LIST_HOLDER:              
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 1 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 1 family ethernet-switching vlan members 1-1000"      
+    - "routing-instances EVPN_VS1_1-1000":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:1"     
+           - "protocols evpn extended-vlan-list 1-1000"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "interface ae0.1"     
+           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"      
+           - mod_id1:            
+              VALUE: 1-1000    
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1-1000 route-distinguisher 20.0.0.3:1" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1-1000 route-distinguisher 20.0.0.4:1"                                                         
+
+                                                                                
+ EVPN_MPLS_VS2-S2:
+  TARGETS: R2,R3
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 2 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 2 family ethernet-switching vlan members 1001-1400"      
+    - "routing-instances EVPN_VS1_1001-1400" :
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:2"          
+           - "protocols evpn extended-vlan-list 1001-1400"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.2"     
+           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                       
+           - mod_id1:            
+              VALUE: 1001-1400               
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1001-1400 route-distinguisher 20.0.0.3:2" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1001-1400 route-distinguisher 20.0.0.4:2"                                                         
+                                             
+
+                                                 
+                                                                   
+
+ EVPN_MPLS_VS3-S2:
+  TARGETS: R2,R3
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 3 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 3 family ethernet-switching vlan members 1401-1500"      
+    - "routing-instances EVPN_VS1_1401-1500":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:3"     
+           - "protocols evpn extended-vlan-list 1401-1500"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.3"     
+           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"  
+                                                                       
+           - mod_id1:            
+              VALUE: 1401-1500     
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1401-1500 route-distinguisher 20.0.0.3:3" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1401-1500 route-distinguisher 20.0.0.4:3"        
+
+ EVPN_MPLS_VS4-S2:
+  TARGETS: R2,R3
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 4 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 4 family ethernet-switching vlan members 1501-1600"      
+    - "routing-instances EVPN_VS1_1501-1600":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:4"     
+           - "protocols evpn extended-vlan-list 1501-1600"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.4"     
+#           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                                
+                                                                              
+           - mod_id1:            
+              VALUE: 1501-1600   
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1501-1600 route-distinguisher 20.0.0.3:4" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1501-1600 route-distinguisher 20.0.0.4:4"  
+
+
+ EVPN_MPLS_VS5-S2:
+  TARGETS: R2,R3
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 5 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 5 family ethernet-switching vlan members 1601-1700"      
+    - "routing-instances EVPN_VS1_1601-1700":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:5"     
+           - "protocols evpn extended-vlan-list 1601-1700"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.5"     
+#           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                                
+                                                                              
+           - mod_id1:            
+              VALUE: 1601-1700   
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1601-1700 route-distinguisher 20.0.0.3:5" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1601-1700 route-distinguisher 20.0.0.4:5"  
+
+ EVPN_MPLS_VS6-S2:
+  TARGETS: R2,R3
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 6 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 6 family ethernet-switching vlan members 1701-1800"      
+    - "routing-instances EVPN_VS1_1701-1800":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:6"     
+           - "protocols evpn extended-vlan-list 1701-1800"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.6"     
+#           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                                
+                                                                              
+           - mod_id1:            
+              VALUE: 1701-1800   
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1701-1800 route-distinguisher 20.0.0.3:6" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1701-1800 route-distinguisher 20.0.0.4:6"  
+
+
+ EVPN_MPLS_VS7-S2:
+  TARGETS: R2,R3
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 7 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 7 family ethernet-switching vlan members 1801-1900"      
+    - "routing-instances EVPN_VS1_1801-1900":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:7"     
+           - "protocols evpn extended-vlan-list 1801-1900"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.7"     
+#           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                                
+                                                                              
+           - mod_id1:            
+              VALUE: 1701-1800   
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1801-1900 route-distinguisher 20.0.0.3:7" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1801-1900 route-distinguisher 20.0.0.4:7" 
+
+
+ EVPN_MPLS_VS8-S2:
+  TARGETS: R2
+  LIST_HOLDER:
+    - "interfaces ae0 flexible-vlan-tagging"
+    - "interfaces ae0 encapsulation flexible-ethernet-services"                                           
+    - "interfaces ae0 unit 8 family ethernet-switching interface-mode trunk"           
+    - "interfaces ae0 unit 8 family ethernet-switching vlan members 1901-2000"      
+    - "routing-instances EVPN_VS1_1901-2000":
+           - "instance-type virtual-switch"           
+           - "vrf-target target:5001:8"     
+           - "protocols evpn extended-vlan-list 1901-2000"
+           - "vlans vlan-{{id1}} vlan-id {{id1}}"
+           - "vlans vlan-{{id1}} interface ae0.8"     
+#           - "vlans vlan-{{id1}} l3-interface irb.{{id1}}"   
+                                                                                
+                                                                              
+           - mod_id1:            
+              VALUE: 1901-2000   
+
+  TARGET_R2:
+    - "routing-instances EVPN_VS1_1901-2000 route-distinguisher 20.0.0.3:8" 
+
+  TARGET_R3:
+    - "routing-instances EVPN_VS1_1901-2000 route-distinguisher 20.0.0.4:8" 
+
+
+ AE_INTF_CONFIG_PE_S1:
+  TARGETS: R0,R1
+  LIST_HOLDER :
+    - "chassis aggregated-devices ethernet device-count 100"
+    - "interfaces {{intf}} aggregated-ether-options lacp active"
+    - "interfaces {{intf}} aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} aggregated-ether-options lacp system-id 00:01:00:00:00:{{id}}" 
+    - mod_intf: 
+        VALUE: ae0-13,ae30-43
+    - mod_id:
+        VALUE: 1-14,31-44
+
+  TARGET_R0:  
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+    - mod_ae:
+        VALUE: ae0-13, ae30-43
+    - mod_intf: 
+        VALUE: ge-1/1/0, ge-1/3/0, ge-1/1/1, ge-1/3/1, ge-1/1/2, ge-1/3/2, ge-1/1/3, ge-1/3/3, ge-1/1/4, ge-1/3/4, ge-1/1/5, ge-1/3/5, ge-1/3/6, ge-1/3/7, ge-1/3/8, ge-1/3/9, ge-1/0/2, ge-1/0/3, ge-1/0/4, ge-1/0/5, ge-1/0/6, ge-1/0/7, ge-1/0/8, ge-1/0/9, ge-1/1/6, ge-1/1/7, ge-1/1/8, ge-1/1/9
+
+  TARGET_R1: 
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+    - mod_ae:
+        VALUE: ae0-13, ae30-43
+    - mod_intf: 
+        VALUE: ge-0/3/6, ge-0/3/7, ge-0/0/6, ge-0/0/7, ge-0/0/8, ge-0/0/9, ge-0/1/0, ge-0/1/1, ge-0/1/2, ge-0/1/3, ge-0/1/4, ge-0/1/5, ge-0/1/6, ge-0/1/7, ge-0/0/0, ge-0/3/8, ge-0/1/8, ge-0/1/9, ge-0/2/6, ge-0/2/7, ge-0/2/8, ge-0/2/9, ge-0/3/0, ge-0/3/1, ge-0/3/2, ge-0/3/3, ge-0/3/4, ge-0/3/5
+
+
+ AE_INTF_CONFIG_PE_S2:
+  TARGETS: R0,R1
+  LIST_HOLDER :
+    - "chassis aggregated-devices ethernet device-count 100"
+    - "interfaces {{intf}} aggregated-ether-options lacp active"
+    - "interfaces {{intf}} aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} aggregated-ether-options lacp system-id 00:02:00:00:00:{{id}}" 
+    - mod_intf: 
+        VALUE: ae0-1
+    - mod_id:
+        VALUE: 1-2
+
+  TARGET_R0:  
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+    - mod_ae:
+        VALUE: ae0-1
+    - mod_intf: 
+        VALUE: ge-1/1/0, ge-1/3/0
+
+  TARGET_R1: 
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+    - mod_ae:
+        VALUE: ae0-1
+    - mod_intf: 
+        VALUE: ge-0/3/6, ge-0/3/7
+
+
+  
+ AE_INTF_CONFIG_CORE:
+  TARGET_R0:
+    - "interfaces ae74 ggregated-ether-options lacp active"
+    - "interfaces ae74 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} ether-options 802.3ad ae74" : 
+
+    - mod_intf:
+        VALUE: ge-1/0/0,ge-1/0/1
+
+  TARGET_R1:
+    - "interfaces ae85 ggregated-ether-options lacp active"
+    - "interfaces ae85 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} ether-options 802.3ad ae85" : 
+
+    - mod_intf:
+        VALUE: xe-1/0/2,xe-1/0/3
+
+  TARGET_R2:
+    - "interfaces ae95 ggregated-ether-options lacp active"
+    - "interfaces ae95 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} ether-options 802.3ad ae95" : 
+
+    - mod_intf:
+        VALUE: x,y
+
+  TARGET_R4:
+    - "interfaces ae74 ggregated-ether-options lacp active"
+    - "interfaces ae74 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} ether-options 802.3ad ae74" 
+    - "interfaces ae45 ggregated-ether-options lacp active"
+    - "interfaces ae45 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf1}} ether-options 802.3ad ae45" 
+
+
+    - mod_intf:
+        VALUE: ge-0/0/0,ge-0/0/1
+    - mod_intf1:
+        VALUE: xe-0/0/44,xe-0/2/45
+
+
+  TARGET_R5:
+    - "interfaces ae85 ggregated-ether-options lacp active"
+    - "interfaces ae85 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf}} ether-options 802.3ad ae85" 
+    - "interfaces ae95 ggregated-ether-options lacp active"
+    - "interfaces ae95 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf1}} ether-options 802.3ad ae95" 
+    - "interfaces ae45 ggregated-ether-options lacp active"
+    - "interfaces ae45 aggregated-ether-options lacp periodic fast"
+    - "interfaces {{intf2}} ether-options 802.3ad ae45" 
+ 
+    
+
+    - mod_intf:
+        VALUE: xe-0/0/0,xe-0/0/1
+    - mod_intf1:
+        VALUE: x,y
+    - mod_intf2:
+        VALUE: xe-0/0/2,xe-0/0/3
+
+
+
+ EVPN_MPLS_IRB-1-1000:
+  TARGET_R0:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+       #- "interfaces irb unit {{id}} family inet address {{ipaddr6}}/80 virtual-gateway-address {{ipaddr61}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.251"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.250"
+       - mod_id:
+          VALUE: 1-1500
+#       - mod_ipaddr6: 
+#          STEP: "0:0:0:0:1:0"
+#          VALUE: "fd00:cafe:babe:aa01:0000::1"
+#       - mod_ipaddr61: 
+#          STEP: "0:0:0:0:1:0"
+#          VALUE: "fd00:cafe:babe:aa01:0000::100"
+
+  
+  TARGET_R1:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.252"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.250"
+       - mod_id:
+          VALUE: 1-1500
+
+  TARGET_R2:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.253"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.250"
+       - mod_id:
+          VALUE: 1-1500
+
+  TARGET_R3:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.254"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.0.1.250"
+       - mod_id:
+          VALUE: 1-1500
+
+
+
+ EVPN_MPLS_IRB-2001-3000:
+  TARGET_R0:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.251"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.250"
+       - mod_id:
+          VALUE: 2001-3000
+  
+  TARGET_R1:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.252"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.250"
+       - mod_id:
+          VALUE: 2001-3000
+
+  TARGET_R2:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.253"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.250"
+       - mod_id:
+          VALUE: 2001-3000
+
+  TARGET_R3:
+       - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24 virtual-gateway-address {{ipaddr1}}"
+
+       - mod_ipaddr: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.254"
+       - mod_ipaddr1: 
+          STEP: "0.0.1.0"
+          VALUE: "50.7.209.250"
+       - mod_id:
+          VALUE: 2001-3000
+
+
+
+
+ EVPN_MPLS_VS1_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS1_1-1000_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:1"
+            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1-1000
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS1_1-1000_VRF route-distinguisher 20.0.0.1:1001"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS1_1-1000_VRF route-distinguisher 20.0.0.2:1001"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS1_1-1000_VRF route-distinguisher 20.0.0.3:1001"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS1_1-1000_VRF route-distinguisher 20.0.0.4:1001"
+
+
+ EVPN_MPLS_VS2_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS2_1001-1400_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:2"
+            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1001-1400
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS2_1002-1400_VRF route-distinguisher 20.0.0.1:1002"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS2_1002-1400_VRF route-distinguisher 20.0.0.2:1002"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS2_1002-1400_VRF route-distinguisher 20.0.0.3:1002"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS2_1002-1400_VRF route-distinguisher 20.0.0.4:1002"
+
+
+ EVPN_MPLS_VS3_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS3_1401-1500_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:3"
+            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1401-1500
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS3_1401-1500_VRF route-distinguisher 20.0.0.1:1003"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS3_1401-1500_VRF route-distinguisher 20.0.0.2:1003"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS3_1401-1500_VRF route-distinguisher 20.0.0.3:1003"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS3_1401-1500_VRF route-distinguisher 20.0.0.4:1003"
+
+
+ EVPN_MPLS_VS4_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS4_1501-1600_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:4"
+            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1501-1600
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS4_1501-1600_VRF route-distinguisher 20.0.0.1:1004"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS4_1501-1600_VRF route-distinguisher 20.0.0.2:1004"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS4_1501-1600_VRF route-distinguisher 20.0.0.3:1004"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS4_1501-1600_VRF route-distinguisher 20.0.0.4:1004"
+
+
+ EVPN_MPLS_VS5_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS5_1601-1700_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:5"
+#            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1601-1700
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS5_1601-1700_VRF route-distinguisher 20.0.0.1:1005"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS5_1601-1700_VRF route-distinguisher 20.0.0.2:1005"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS5_1601-1700_VRF route-distinguisher 20.0.0.3:1005"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS5_1601-1700_VRF route-distinguisher 20.0.0.4:1005"
+
+
+ EVPN_MPLS_VS6_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS6_1701-1800_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:6"
+#            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1701-1800
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS6_1701-1800_VRF route-distinguisher 20.0.0.1:1006"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS6_1701-1800_VRF route-distinguisher 20.0.0.2:1006"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS6_1701-1800_VRF route-distinguisher 20.0.0.3:1006"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS6_1701-1800_VRF route-distinguisher 20.0.0.4:1006"
+
+ EVPN_MPLS_VS7_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS7_1801-1900_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:7"
+#            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1801-1900
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS7_1801-1900_VRF route-distinguisher 20.0.0.1:1007"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS7_1801-1900_VRF route-distinguisher 20.0.0.2:1007"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS7_1801-1900_VRF route-distinguisher 20.0.0.3:1007"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS7_1801-1900_VRF route-distinguisher 20.0.0.4:1007"
+
+
+ EVPN_MPLS_VS8_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_VS7_1901-2000_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:8"
+#            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 1901-2000
+
+   TARGET_R0:
+     - "routing-instances EVPN_VS8_1901-2000_VRF route-distinguisher 20.0.0.1:1008"
+
+   TARGET_R1:
+     - "routing-instances EVPN_VS8_1901-2000_VRF route-distinguisher 20.0.0.2:1008"
+
+   TARGET_R2:
+     - "routing-instances EVPN_VS8_1901-2000_VRF route-distinguisher 20.0.0.3:1008"
+
+   TARGET_R3:
+     - "routing-instances EVPN_VS8_1901-2000_VRF route-distinguisher 20.0.0.4:1008"
+
+
+
+
+ EVPN_MPLS_EVI1_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_EVI1_2001-3000_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:9"
+            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 2001-3000
+
+   TARGET_R0:
+     - "routing-instances EVPN_EVI_2001-3000_VRF route-distinguisher 20.0.0.1:1009"
+
+   TARGET_R1:
+     - "routing-instances EVPN_EVI_2001-3000_VRF route-distinguisher 20.0.0.2:1009"
+
+   TARGET_R2:
+     - "routing-instances EVPN_EVI_2001-3000_VRF route-distinguisher 20.0.0.3:1009"
+
+   TARGET_R3:
+     - "routing-instances EVPN_EVI_2001-3000_VRF route-distinguisher 20.0.0.4:1009"
+
+
+ EVPN_MPLS_EVI2_VRF:
+   TARGETS: R0,R1,R2,R3
+   LIST_HOLDER:
+     - "routing-instances EVPN_EVI1_3001-4000_VRF" :
+            - "instance-type vrf"
+            - "vrf-target target:1001:10"
+#            - "interface irb.{{id}}"
+            - mod_id: 
+               VALUE: 3001-4000
+
+   TARGET_R0:
+     - "routing-instances EVPN_EVI_3001-4000_VRF route-distinguisher 20.0.0.1:1010"
+
+   TARGET_R1:
+     - "routing-instances EVPN_EVI_3001-4000_VRF route-distinguisher 20.0.0.2:1010"
+
+   TARGET_R2:
+     - "routing-instances EVPN_EVI_3001-4000_VRF route-distinguisher 20.0.0.3:1010"
+
+   TARGET_R3:
+     - "routing-instances EVPN_EVI_3001-4000_VRF route-distinguisher 20.0.0.4:1010"
+
+
+  
+ 
+ EVPN_LOOPBACK_CONFIG:
+   TARGET_R0:
+   LIST_HOLDER:
+    - "interfaces lo0 unit 0 family inet address 20.0.0.1/32"
+
+   TARGET_R1:
+    - "interfaces lo0 unit 0 family inet address 20.0.0.2/32"
+
+   TARGET_R2:
+    - "interfaces lo0 unit 0 family inet address 20.0.0.3/32"
+
+ EVPN_OSPF_CONFIG:
+   TARGETS: R0,R1,R2
+   LIST_HOLDER:
+     - "protocols ospf area 0.0.0.0 interface interface all"
+     - "protocols ospf area 0.0.0.0 interface interface fxp0.0 disable"
+
+   TARGET_R4:
+     - "protocols ospf area 0.0.0.0 interface interface all"
+     - "protocols ospf area 0.0.0.0 interface interface em0 disable"
+
+   TARGET_R5:
+     - "protocols ospf area 0.0.0.0 interface interface all"
+     - "protocols ospf area 0.0.0.0 interface interface em0 disable"
+
+
+
+ EVPN_BGP_CONFIG:
+   TARGET_R0: 
+        - "protocols bgp group ibgp_mesh":
+            - "type internal"
+            - "local-address 20.0.0.1"
+            - "neighbor 20.0.0.2"
+            - "neighbor 20.0.0.3"
+            - "family evpn signaling"
+            - "family inet-vpn"
+            - "multipath"
+                
+   TARGET_R1: 
+        - "protocols bgp group ibgp_mesh":
+            - "type internal"            
+            - "local-address 20.0.0.2"
+            - "neighbor 20.0.0.1"
+            - "neighbor 20.0.0.3"
+            - "family evpn signaling"
+            - "family inet-vpn"
+            - "multipath"
+
+   TARGET_R2: 
+        - "protocols bgp group ibgp_mesh":
+            - "type internal"
+            - "local-address 20.0.0.3"
+            - "neighbor 20.0.0.1"
+            - "neighbor 20.0.0.2"
+            - "family evpn signaling"
+            - "family inet-vpn"
+            - "multipath"
+                
+
+ EVPN_LDP_CONFIG:
+  TARGETS: R0,R1,R2,R4,R5
+  LIST_HOLDER:
+       - "protocols ldp interface lo0.0"
+
+  TARGET_R0: 
+      - "protocols ldp interface ae74.0"
+  TARGET_R1: 
+      - "protocols ldp interface ae85.0"
+  TARGET_R2: 
+      - "protocols ldp interface ae95.0"
+  TARGET_R4: 
+      - "protocols ldp interface ae74.0"
+      - "protocols ldp interface ae45.0"
+  TARGET_R5: 
+      - "protocols ldp interface ae85.0"
+      - "protocols ldp interface ae95.0"
+      - "protocols ldp interface ae45.0"
+
+
+
+ EVPN_MPLS_PROTO_CONFIG:
+  TARGETS: R0,R1,R2,R4,R5
+  LIST_HOLDER:
+       - "protocols mpls interface lo0.0"
+
+  TARGET_R0: 
+      - "protocols mpls interface ae74.0"
+  TARGET_R1: 
+      - "protocols mpls interface ae85.0"
+  TARGET_R2: 
+      - "protocols mpls interface ae95.0"
+  TARGET_R4: 
+      - "protocols mpls interface ae74.0"
+      - "protocols mpls interface ae45.0"
+  TARGET_R5: 
+      - "protocols mpls interface ae85.0"
+      - "protocols mpls interface ae95.0"
+      - "protocols mpls interface ae45.0"
+
+
+     
+
+ AE_CONFIG:
+  TARGETS: R0,R1
+  LIST_HOLDER: 
+    - "chassis aggregated-devices ethernet device-count 5"
+    - "interfaces {{intf}} aggregated-ether-options lacp active"
+    - "interfaces {{intf}} aggregated-ether-options lacp periodic fast"
+    - mod_intf: 
+        VALUE: ae0-1
+  TARGET_R0:  
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+                                 "mod_(ae,intf)": 
+                                        ae0: et-0/0/24,et-0/0/25
+                                        ae1: et-0/0/26,et-0/0/27
+  TARGET_R1: 
+    - "interfaces {{intf}} ether-options 802.3ad {{ae}}" : 
+                                 "mod_(ae,intf)": 
+                                        ae0: et-0/0/0,et-0/0/1
+                                        ae1: et-0/0/2,et-0/0/3
+                                        
+ IRB_CONFIG:       
+  TARGET_R0:  
+      - "vlans PAS-{{id}} vlan-id {{id}}"
+      - "vlans PAS-{{id}} l3-interface irb.{{id}}"
+      - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24" :
+            mod_ipaddr: 
+                 STEP: "0.0.1.0"
+                 VALUE: "11.0.1.1"
+      - mod_id: 
+          VALUE: "1-10"  
+  TARGET_R1:  
+      - "vlans PAS-{{id}} vlan-id {{id}}"
+      - "vlans PAS-{{id}} l3-interface irb.{{id}}"
+      - "interfaces irb unit {{id}} family inet address {{ipaddr}}/24" :
+            mod_ipaddr: 
+                 STEP: "0.0.1.0"
+                 VALUE: "11.0.1.2"
+      - mod_id: 
+          VALUE: "1-10"
+         
+ LOOPBACK_CONFIG:
+   TARGET_R0:
+    - "interfaces lo0 unit 0 family inet address 1.1.1.1/32"
+    - "interfaces lo0 unit 0 family iso address 08.0002.0010.0100.0001.00"
+   TARGET_R1:
+    - "interfaces lo0 unit 0 family inet address 2.2.2.2/32"
+    - "interfaces lo0 unit 0 family iso address 08.0002.0020.0200.0002.00"     
+ 
+ INTERFACE_CONFIG:
+   TARGETS: R0,R1
+   LIST_HOLDER:
+    - "interfaces ae1 unit 0 family ethernet-switching interface-mode trunk"
+    - "interfaces ae1 unit 0 family ethernet-switching vlan members 1-10"
+    - "interfaces ae0 vlan-tagging"
+    
+   TARGET_R0: 
+    - "interfaces xe-0/0/30:0 unit 0 family inet address 11.0.1.1/24"
+    - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
+    - "interfaces ae0 unit {{ifl}} family iso"    
+    - mod_ifl:
+           VALUE: 1-10 
+    - mod_ipAddr : 
+           STEP: "0.0.1.0"
+           VALUE: "10.0.1.1"
+   TARGET_R1: 
+    - "interfaces ae0 unit {{ifl}} vlan-id {{ifl}} family inet address {{ipAddr}}/24" 
+    - "interfaces ae0 unit {{ifl}} family iso"    
+    - mod_ifl:
+           VALUE: 1-10 
+    - mod_ipAddr : 
+           STEP: "0.0.1.0"
+           VALUE: "10.0.1.2"
+
+ ISIS_CONFIG: 
+  GRPID: ISIS_CONFIG
+  TARGETS: R0,R1
+  LIST_HOLDER: 
+    - "protocols isis" :
+       - "interface lo0.0"
+       - "overload timeout 1800"
+       - "reference-bandwidth 10000000000"
+       - "interface ae0.{{ifl}}":
+               - "level 2 priority 100":
+               - "level 2 hello-interval 3"
+               - "level 2 hold-time 9"
+       - mod_ifl: 
+              VALUE: 1-10
+ OSPF_CONFIG: 
+  GRPID: PAS_OSPF
+  TARGETS: R0,R1
+  LIST_HOLDER:
+        - "protocols ospf area 0.0.0.0 interface lo0.0 passive" :  
+        - "protocols ospf area 0.0.0.0 interface irb.{{ifl}}" :
+                        - "hello-interval 1"
+                        - "dead-interval 4"                       
+        - mod_ifl: 
+               VALUE: 1-10
+  TARGET_R1:
+        - "protocols ospf area 0.0.0.0" :
+            - "interface xe-0/0/30:0.0"

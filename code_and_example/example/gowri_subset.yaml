@@ -1,0 +1,40 @@
+---
+ R0_ISIS_INTF_LIST: &R0_ISIS_INTF_LIST "R0_R5_IF_1-4"
+ R1_ISIS_INTF_LIST: &R1_ISIS_INTF_LIST "ae10,ae20,ae30"
+ R2_ISIS_INTF_LIST: &R2_ISIS_INTF_LIST "ae0-3"
+ R0_FBF_INTF_LIST: &R0_FBF_INTFS "ae20,ae30"
+ R0_FBF_INTF_LIST: &R1_FBF_INTFS "ae30,ae40"
+
+
+ EVI_2001-3000:
+  LIST_HOLDER:
+    - "routing-instances EVI-{{id}}":
+         - "instance-type evpn"
+         - "vlan-id {{id}} interface ae14.{{id}}"
+         - "vlan-id {{id}} interface ae44.{{id}}"
+         - "vrf-target target:5001:{{id}}"
+         - "protocols evpn extended-vlan-list all"
+         - "vlan-id {{id}} l3-interface irb.{{id}}"
+    - "interfaces ae14 flexible-vlan-tagging"
+    - "interfaces ae14 encapsulation flexible-ethernet-services"
+    - "interfaces ae14.{{id}} encapsulation vlan-bridge"
+    - "interfaces ae14.{{id}} vlan-id {{id}}"
+
+    - "interfaces ae44 flexible-vlan-tagging"
+    - "interfaces ae44 encapsulation flexible-ethernet-services"
+    - "interfaces ae44.{{id}} encapsulation vlan-bridge"
+    - "interfaces ae44.{{id}} vlan-id {{id}}"
+
+    - mod_id:
+       VALUE: 2001-3000
+  TARGETS: R0,R1
+  TARGET_R0:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.1:{{id}}"
+    - mod_id:
+       VALUE: 2001-3000
+
+  TARGET_R1:
+    - "routing-instances EVI-{{id}} route-distinguisher 20.0.0.2:{{id}}"
+    - mod_id:
+       VALUE: 2001-3000
+
