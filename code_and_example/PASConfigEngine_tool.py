@@ -12,11 +12,149 @@ import six
 #from .general_class_for_handle import Handles
 router_group_dict=defaultdict(list)
 total_targets=[]
+english_config_file=""
 dict1={}
+success_msg=set()
 log_location_path="" 
 import time
 import datetime
 import os
+import threading
+jaas_mode = False
+if "jaas".upper() in map(lambda x:x.upper(), os.environ.keys()):
+    for key in os.environ.keys():
+        if key.upper() == "jaas".upper():
+            jaas_mode = True if os.environ[key] == '1' else False
+            break
+
+if jaas_mode:
+    from jnpr.toby.hldcl.perl.lib.JaaS import *
+
+from jnpr.toby.hldcl.device import *
+
+def config_commit_on_devices(Targets):
+    list_of_Targets = mix_range_with_letters(Targets)
+    #l_devices = str_devices.split(',')
+    #list_of_devices = [x.lower() for x in l_devices]
+    #rtr_keys = list(dict1['resources'].keys())
+    #router_keys = [x.lower() for x in rtr_keys]
+    #lst = ','.join(set(list_of_devices).difference(router_keys))
+    #if (lst):
+    #    raise Exception('Devices are not available:', lst)
+    for router in list_of_Targets:
+        dev = dict1['resources'][router.lower()]['system']['primary']['dh']
+        result = dev.commit()
+        if result == True :
+            print ('Configuration committed successfully on Device', router)
+        else:
+            raise Exception('Unable to commit Configuration on Device', router)
+
+def load_config_cmd_on_devices(Targets):
+    list_of_Targets = mix_range_with_letters(Targets)
+    
+    fname = english_config_file
+    #str_devices = kwargs.pop('targets')
+    #l_devices = str_devices.split(',')
+    #list_of_devices = [x.lower() for x in l_devices]
+    #rtr_keys = list(dict1['resources'].keys())
+    #router_keys = [x.lower() for x in rtr_keys]
+    #lst = ','.join(set(list_of_devices).difference(router_keys))
+    #if (lst):
+    #    raise Exception('Devices are not available:', lst)
+    for router in list_of_Targets:
+        #print ("\n")
+        #print ("Configuring Below commands on ", router)
+        dev = dict1['resources'][router.lower()]['system']['primary']['dh']
+        file_name = log_location_path + "/"+ fname
+        with open(file_name, 'r') as f:
+            f_list = f.readlines()
+            for each_line in f_list:
+                if each_line.strip():
+                    #print (each_line.strip())
+                    dev.config(command_list=[each_line.strip()])
+
+def load_config_on_devices(Targets):
+    list_of_Targets = mix_range_with_letters(Targets)
+    list_of_fnames = total_targets 
+    rtr_keys = list(dict1['resources'].keys())
+    router_keys = [x.lower() for x in rtr_keys]
+    #print("load config on devices\n")
+    #p#print(dict1)
+    #print("dict1 ended")
+    for router in list_of_Targets:
+        dev = dict1['resources'][router.lower()]['system']['primary']['dh']
+        for each_file in list_of_fnames:
+            if router.lower() in each_file.lower():
+                file_name = log_location_path +"/"+ each_file + "_config.set"
+                #print("\nin load config on devices file_name "+file_name+"\n")
+                #import pdb; pdb.set_trace()
+                result = dev.load_config(local_file=file_name, format="set")
+                if result == True:
+                    print ('Configuration loaded successfully on Device', router)
+                else:
+                    raise Exception('Unable to load Configuration on Device', router)
+
+
+def PAS_Initialize(fname):
+    t = {}
+    jass = {}
+
+    file_name = fname
+
+    try:
+        conf_data = yaml.load(open(file_name))
+    except Exception as e:
+        raise Exception("Error loading file " + file_name + " :" + str(e))
+
+    if 't' not in conf_data:
+        raise Exception("No mandatory 't' object in file "+file_name)
+
+    t = conf_data['t']
+    if 'jaas' in conf_data:
+        jaas['plite'] = conf_data['jaas']['plite']
+        jaas['params'] = conf_data['jaas']['params']
+    elif jaas_mode:
+        raise Exception("'plite' and 'params' file paths are mandatory for JAAS mode to work")
+
+    # Initialize the JaaS...
+    if jaas_mode:
+        try:
+            JaaS.start_jaas_service()
+        except Exception as exp:
+            raise Exception('Problem starting JaaS:' + str(exp))
+
+        if not JaaS.test_init(jaas['plite'], jaas['params']):
+            raise Exception('Could not initialize Jaas ')
+
+    if 'resources' in t.keys():
+        for device in t['resources']:
+            for comp in t['resources'][device]['system']:
+                _connect_device(t['resources'][device]['system'][comp],)
+    else:
+        raise Exception('No resources object in t object!')
+
+    return t
+
+def _connect_device(dev):
+    """
+            Connect to device
+            Connect engine creates connection object and refills it back to testbed object.
+            It also starts JaaS if the JAAS env is set to 1.
+
+            :param dev:
+                *MANDATORY* mandatory Device object
+            :return:  Testbed object with connection handles populated
+    """
+    try:
+        if not jaas_mode:
+            dev['dh'] = Device(host=dev['name'], os=dev['os'], connect_mode="ssh")
+        else:
+            dev['dh'] = Device(host=dev['name'], os=dev['os'], connect_mode="ssh", no_connect=True)
+
+    except Exception as exp:
+        raise Exception('Could not create Device object for device {0}: {1}' .format(dev['name'], str(exp)))
+
+
 def getname(tmp_str):
     #print("\nin getname function j\n")
     ifpart=re.search(r'_IF.*?\_',tmp_str).group(0)
@@ -29,19 +167,29 @@ def getname(tmp_str):
     elif(re.search(r'link',ifpart,re.I)):
         return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['link']
     else:
-        return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['name']
+        return dict1['resources'][lookup_list[0]]["interfaces"][lookup_list[1]]['pic']
 
-def initialize_config_engine(handle=None,log_location=None):
+def initialize_config_engine(**handle):
     global dict1
-    if not(handle==None):
-       dict1=handle
     global log_location_path
-    if(log_location==None):
-       log_location_path=os.popen("pwd").read()[:-1]
-    else:
-       log_location_path=log_location
-
+    handle_keys=[]
+    #if handle is not None:
+    #   handle_keys=handle.keys()
+    #   if("t_handle" in handle_keys):
+    #       dict1=handle["t_handle"]
+    #   else:
+    #       #print("\nt_handle key is not in the handle aborting script\n")
+    #       sys.exit(46)
+    #if("path" in handle_keys):
+    #   if(handle["path"][-1]=="/"):
+    #        log_location_path=handle["path"][:-1]
+    #   else:
+    #        log_location_path=handle["path"]
+    #else:
+    log_location_path=os.popen("pwd").read()[:-1]
+    
 def PAS_Config_Generator(str1,str2):
+     global english_config_file
      command_list1=[]
      timestamp=datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
      if(isinstance(str1,dict)):
@@ -60,6 +208,7 @@ def PAS_Config_Generator(str1,str2):
          with open(log_location_path+"/"+file_list+"_"+timestamp+"_config.set",'a') as outfile:
                             for each_comm in groups_list:
                                    outfile.write("\nset apply-groups "+each_comm+"\n")
+         english_config_file=file_list+"_"+timestamp+"_config.set"
          return file_list+"_"+timestamp+"_config.set"
 
      tmp_list1=str1.split("and")
@@ -120,7 +269,8 @@ def PAS_Config_Generator(str1,str2):
      with open(log_location_path+"/"+file_list+"_"+timestamp+"_config.set",'a') as outfile:
                         for each_comm in groups_list:
                                outfile.write("\nset apply-groups "+each_comm+"\n")
-     return file_list+"_"+timestamp+"_config.set"    
+     english_config_file=file_list+"_"+timestamp+"_config.set"
+     return english_config_file    
 
 def concate_hash(command_list,hash_to_expand,path):
     if(isinstance(hash_to_expand,dict)):
@@ -138,6 +288,7 @@ def concate_hash(command_list,hash_to_expand,path):
     return command_list
    
 def PAS_Delete_Generator(str1,str2):
+     global english_config_file
      command_list1=[]
      timestamp=datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S')
      if(isinstance(str1,dict)):
@@ -156,7 +307,8 @@ def PAS_Delete_Generator(str1,str2):
          #with open(file_list,'a') as outfile:
          #                   for each_comm in groups_list:
          #                          outfile.write("\nset apply-groups "+each_comm+"\n")
-         return file_list+"_"+timestamp+"_config.set"
+         english_config_file=file_list+"_"+timestamp+"_config.set"
+         return english_config_file
 
 
 
@@ -208,7 +360,8 @@ def PAS_Delete_Generator(str1,str2):
      with open(log_location_path+"/"+file_list+"_"+timestamp+"_config.set",'w') as outfile:
                         for each_comm in command_list1:
                                outfile.write(re.sub(' +',' ',each_comm)+"\n")
-     return file_list+"_"+timestamp+"_config.set"
+     english_config_file=file_list+"_"+timestamp+"_config.set"
+     return english_config_file
 
 def generate_ip(ip_addr,ip_step,ip_count):
         ip_addr_list=[]
@@ -217,7 +370,7 @@ def generate_ip(ip_addr,ip_step,ip_count):
         network_host=ip_addr.split('/')
         if(ip_step=='x'):
                 if(len(network_host)==1):
-                        #print("You haven't define step either mask aborting scipt\n\n")
+                        print("You haven't define step either mask aborting scipt\n\n")
                         sys.exit(1)
                 else:
                         network_host[0]=network_host[0]+"/0"
@@ -266,98 +419,60 @@ def yaml_reader(filepath):
     #print("needy list start \n")
     #p#print(needylist)
     #print("needy list end \n")
-    static_cmd_dict={}
+    static_cmd_dict={}    
     if ("PAS_CONFIGS" in list1):
-        pas_config_tags=list(data["PAS_CONFIGS"].keys())
-        for each_pas_config_tag in pas_config_tags:
-                command_set=data["PAS_CONFIGS"][each_pas_config_tag]
-                if(isinstance(command_set,dict)):
-                        #print("\ncommand set keys start\n")
-                        #p#print(command_set)
-                        if("GRPID" in list(command_set.keys())):
-                                static_cmd_dict[each_pas_config_tag]="set groups "+command_set["GRPID"]
-                                del command_set['GRPID']
-                        else:
-                                static_cmd_dict[each_pas_config_tag]="set groups "+each_pas_config_tag
-                        tag_keys=list(command_set.keys())
-                        for each_tag_key in tag_keys:
-                                if isinstance(command_set[each_tag_key],list):
-                                        #static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
-                                        if not(command_set[each_tag_key]=="LIST_HOLDER"):
-                                        	static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" "+each_tag_key
-                                        tmp_static_cmd_str=static_cmd_dict[each_pas_config_tag]
-                                        static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+" " + command_set[each_tag_key][0]+"\n"
-                                        for command_set_itr in range(1,len(command_set[each_tag_key])):
-                                                static_cmd_dict[each_pas_config_tag]=static_cmd_dict[each_pas_config_tag]+tmp_static_cmd_str+" " + command_set[each_tag_key][command_set_itr]+"\n"
-        #print("before static cmd dict\n\n")
-        #p#print(static_cmd_dict)
-        #print("after static cmd dict\n\n")
-        #print(colored("\nPAS_config tag successfully generated now writing to the file\n",'green'))
-        if("PAS_CONFIG_MAPS" in list1):
-                maps_device=data["PAS_CONFIG_MAPS"]
-                map_list=list(maps_device.keys())
-                tmp_list=[]
-                for each_map_device in map_list:
-                        tmp_list=mix_range_with_letters(each_map_device)
-
+          if("PAS_CONFIG_MAPS" in list1):
+                #print("\nin mapping conditions success\n")
+                pas_config_tags=list(data["PAS_CONFIGS"].keys())
+                for each_pas_config_tag in pas_config_tags:
+                    #print("\neach_pas_config_tag"+each_pas_config_tag+"\n")
+                    str_tmp=""
+                    command_list1=[]
+                    is_dict=0
+                    if(isinstance(data["PAS_CONFIGS"][each_pas_config_tag],dict)):
+                         is_dict=1
+                         command_set=data["PAS_CONFIGS"][each_pas_config_tag]
+                         command_set_keys=list(command_set.keys())
+                         if "GRPID" in command_set_keys:
+                             str_tmp="set groups "+command_set["GRPID"]+" "
+                             command_set_keys.remove("GRPID")
+                         else:
+                             str_tmp="set groups "+each_pas_config_tag+" "
+                    else:
+                         str_tmp="set groups "+each_pas_config_tag+" "
+                    command_list1.append(str_tmp)
+                    maps_device=data["PAS_CONFIG_MAPS"]
+                    map_list=list(maps_device.keys())
+                    tmp_list=[]
+                    for each_map_device in map_list:
                         if(isinstance(maps_device[each_map_device],list)):
-                                
-                                for write_data in range(len(maps_device[each_map_device])) :
-                                        static_cmd_dict_splitted=static_cmd_dict[maps_device[each_map_device][write_data]].split(" ")
-                                        for every_device in tmp_list:
-                                                append_or_not=0
-                                                if(str(every_device) in list(router_group_dict.keys())):
-                                                        list_of_tags=router_group_dict[str(every_device)]
-                                                        for each_list_of_tags in list_of_tags:
-                                                                if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-                                                                        append_or_not=1
-                                                        if(append_or_not==1):
-                                                                router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
-                                                                static_cmd_dict[maps_device[each_map_device][write_data]]=static_cmd_dict[maps_device[each_map_device][write_data]]+"\nset apply-groups "+ static_cmd_dict_splitted[2]
-                                                else:
-                                                        router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
-                                                        static_cmd_dict[maps_device[each_map_device][write_data]]=static_cmd_dict[maps_device[each_map_device][write_data]]+"\nset apply-groups "+ static_cmd_dict_splitted[2]
-                                        PAS_STATIC_CMDS(static_cmd_dict[maps_device[each_map_device][write_data]],tmp_list,maps_device[each_map_device][write_data])
-                                        targets_str=""
-                                        for each_targets in tmp_list:
-                                             targets_str=targets_str+str(each_targets)+","
-                                        #print("\n"+maps_device[each_map_device][write_data]+" group successfully generated for "+targets_str+"  \n") 
+                            for write_data in range(len(maps_device[each_map_device])) :
+                                if(maps_device[each_map_device][write_data]==each_pas_config_tag):
+                                    tmp_list=tmp_list+mix_range_with_letters(each_map_device)
                         else:
-                                targets_str=""
-                                map_devices_list=str(maps_device[each_map_device]).split(",")
-                                for write_data in range(len(map_devices_list)) :
-                                        static_cmd_dict_splitted=static_cmd_dict[map_devices_list[write_data]].split(" ")
-                                        for every_device in tmp_list:
-                                                append_or_not=0
-                                                if(str(every_device) in list(router_group_dict.keys())):
-                                                        list_of_tags=router_group_dict[str(every_device)]
-                                                        for each_list_of_tags in list_of_tags:
-                                                                if not(each_list_of_tags==static_cmd_dict_splitted[2]):
-                                                                        append_or_not=1                                                                
-                                                if(append_or_not==1):
-                                                        router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
-                                                else:
-                                                        router_group_dict[str(every_device)].append(static_cmd_dict_splitted[2])
-                                        PAS_STATIC_CMDS(static_cmd_dict[map_devices_list[write_data]],tmp_list,map_devices_list[write_data])
-                                        targets_str=""
-                                        #print("tag name \n"+map_devices_list[write_data]+"\n")
-                                        #print("targets_str=="+targets_str+"\n")
-                                        for each_targets in tmp_list:
-                                             targets_str=targets_str+str(each_targets)+","
-                                        #print("targets_str middle=="+targets_str+"\n")
-                                        #print("\n"+map_devices_list[write_data]+" group successfully generated for "+targets_str[:-1]+"  \n") 
-                                        targets_str=""
-                                        #print("at the end targets_str===")
-                                        #print("targets_str=="+targets_str+"\n")
-                        tmp_list=[]               
-                                        
- 
-        else:
-                #print("you have defined PAS_CONFIG KEY but forgot to create PAS_CONFIG_MAPS keys aborting script\n\n")                        
+                            mapped_taged_list=maps_device[each_map_device].split(",")
+                            for write_data in mapped_taged_list :
+                                if(write_data==each_pas_config_tag):
+                                    tmp_list=tmp_list+mix_range_with_letters(each_map_device)
+
+                    #print("\nbefore operations tmp_list1\n")
+                    #p#print(tmp_list)
+                    #print("\nafter operations tmp_list1\n")
+                    tmp_list=list(set(tmp_list))
+                    #print("\nbefore operations tmp_list1\n")
+                    #p#print(tmp_list)
+                    #print("\nafter operations tmp_list1\n")
+                    #for each_outer_needylist_keys in command_set_keys: 
+                    if not(is_dict):
+                       recursive_modifier(data["PAS_CONFIGS"],each_pas_config_tag,each_pas_config_tag,command_list1,tmp_list,[],[])
+                    else:
+                       recursive_modifier(data["PAS_CONFIGS"][each_pas_config_tag],each_pas_config_tag,command_set_keys[0],command_list1,tmp_list,[],[])
+
+
+          else:
+                print("you have defined PAS_CONFIG KEY but forgot to create PAS_CONFIG_MAPS keys aborting script\n\n")                        
                 sys.exit(23) 
-    #print("\nrouter_group_dict start\n")
-    #p#print(router_group_dict)
-    #print("\nrouter gorup_dict end\n")
+ 
     for each_need in needylist:
         #print("\n inside main for loop start\n")
         command_list1=[]
@@ -378,7 +493,7 @@ def yaml_reader(filepath):
                 tmp_list=mix_range_with_letters(data[each_need]["TARGETS"])
                 for each_outer_needylist_keys in needylist_keys:
                         if not (re.search(r"\s*target\s*",each_outer_needylist_keys,re.IGNORECASE)):
-                                recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list)
+                                recursive_modifier(data[each_need],each_need,each_outer_needylist_keys,command_list1,tmp_list,[],[])
                                 needylist_keys.remove(each_outer_needylist_keys)        
                 needylist_keys.remove("TARGETS")
         where_is_list(data[each_need],needylist_keys,each_need,command_list1)
@@ -399,7 +514,7 @@ def yaml_reader(filepath):
          group_list_to_append.remove('')
     for each_targets in group_list_to_append:
          targets_str=targets_str+str(each_targets)+","
-    #print("\n file successfully generated are "+targets_str[:-1]+"  \n")
+    print("\n file successfully generated are "+targets_str[:-1]+"  \n")
     return data
 def where_is_list(data,needylist_keys,each_need,command_list1):
         #print("\ninside where_is_list \n")
@@ -408,7 +523,7 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
                 if(isinstance(data[iter_needylist_keys],dict)):
                         recursive_list=list(data[iter_needylist_keys].keys())
                         if ("LIST_HOLDER" in recursive_list):
-                                recursive_modifier(data[iter_needylist_keys],each_need,"LIST_HOLDER",tmp_list)
+                                recursive_modifier(data[iter_needylist_keys],each_need,"LIST_HOLDER",tmp_list,[],[])
                                 recursive_list.remove("LIST_HOLDER")
 
                 if (re.search(r"\s*target\s*",iter_needylist_keys,re.IGNORECASE)):
@@ -418,7 +533,7 @@ def where_is_list(data,needylist_keys,each_need,command_list1):
 
                         if(isinstance(data[iter_needylist_keys],list)):
                                 #print("\ncalling recursive_modifier from inside where_is_list")
-                                recursive_modifier(data,each_need,iter_needylist_keys,command_list1,tmp_list)
+                                recursive_modifier(data,each_need,iter_needylist_keys,command_list1,tmp_list,[],[])
                         else:
                                 if(len(recursive_list)>=1):
                                         #print("\nrecursive call to where_is_list\n")
@@ -449,7 +564,7 @@ def PAS_STATIC_CMDS(Data,Targets,tag_name) :
                         text_file.close()
                 #text_file.write(Data)
                 #text_file.close()
-                #print(colored("\n"+tag_name+" successfully written to the"+"R"+str(Targets[(NoOfTargets-1)])+" file\n",'green')) 
+                #print("\n"+tag_name+" successfully written to the"+"R"+str(Targets[(NoOfTargets-1)])+" file\n") 
                 NoOfTargets-=1
 
 
@@ -483,9 +598,29 @@ def mix_range_with_letters(ranges):
                      ranges_list=ranges_list+tmp_list
         #p#print(ranges_list)
         return ranges_list
+def mix_range_with_letters_argument_list(ranges):
+        ranges_list=[]
+        for each_token_range_list in ranges:
+                removed_if_required=re.search(r'-[a-zA-Z]+',each_token_range_list)
+                if(removed_if_required):
+                   each_token_range_list=each_token_range_list[:removed_if_required.start()+1]+each_token_range_list[removed_if_required.start()+1:removed_if_required.end()].replace(each_token_range_list[removed_if_required.start()+1:removed_if_required.end()],"")+each_token_range_list[removed_if_required.end():]
+                m = re.search("\d+\-\d+", each_token_range_list)
+                #print("match condition m\n\n")
+                #p#print(m)
+                if(m):
+                     actual_range=m.group(0)
+                     initial_range_len=len(ranges_list)
+                     ranges_list=ranges_list+mixrange(actual_range)
+                     for each_range_item in range(initial_range_len,len(ranges_list)):
+                             ranges_list[each_range_item]=each_token_range_list[:m.start()]+str(ranges_list[each_range_item])+each_token_range_list[m.end():]
+                else:
+                     tmp_list=[]
+                     tmp_list.append(each_token_range_list)
+                     ranges_list=ranges_list+tmp_list
+        #p#print(ranges_list)
+        return ranges_list
 
-
-def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
+def recursive_modifier(data,each_need,needylist_key,command_list1,targets,mod_scope_track,mod_letters_list):
         static_cmd_dict={}
         tmp_str=list(command_list1)
         #command_list1=[]
@@ -505,11 +640,18 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                 for iterate_keys in each_and_every_cmd_keys:
                                         if(re.search(r'.*mod_(\w)',iterate_keys)):
                                                 matchobj= re.search(r'.*mod_(\w+)',iterate_keys)
-                                                static_cmd_dict[matchobj.group(1)]=each_and_every_cmd
-                                                                                        
-                #print("\n static_cmd_dict start \n")
-                #p#print(static_cmd_dict)
-                #print("\n static_cmd_dict end \n")        
+                                                modifier_letters=matchobj.group(1)
+                                                mod_letters_list.append(modifier_letters)
+                                                static_cmd_dict[modifier_letters]=data[needylist_key][each_and_every_cmd]['mod_'+str(modifier_letters)]
+                                                mod_scope_track.append(static_cmd_dict)
+                                                static_cmd_dict={}
+                                        
+                #print("\n mod_scope_track start \n")
+                #p#print(mod_scope_track)
+                #print("\n mod_scope_track end \n")        
+                #print("\n mod_letters_list start \n")
+                #p#print(mod_letters_list)
+                #print("\n mod_letters_list end \n")
                 for each_and_every_cmd in range(needylist_key_len):
                         command_list1=list(tmp_str)
                         #print("\nchecking dictionary or list start\n\n")
@@ -519,10 +661,11 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                 #print("\n it's a dictionary \n")
                                 each_and_every_cmd_keys=list(data[needylist_key][each_and_every_cmd].keys())
                                 for iterate_keys in each_and_every_cmd_keys:
+                                        went_in_to_generate_cmd=1
                                         if not(re.search(r'.*mod_(\w)',iterate_keys) or re.search(r'.*mod_\((\w)',iterate_keys)):
                                                 raw_command=iterate_keys
                                                 #print("\nraw_command===="+raw_command+"\n")
-                                                went_in_to_generate_cmd=1
+                                                #went_in_to_generate_cmd=1
                                                 raw_command_list=raw_command.split(' ')
                                                 #print("\n raw_command_list start\n")
                                                 #p#print(raw_command_list)
@@ -608,11 +751,15 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                         if('mod_'+str(num)  in inside_modifier_keys):
                                                                                                 modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys]['mod_'+str(num)]
                                                                                                 modifier_keys=list(modifier_data.keys())
-                                                                                        elif(str(num) in list(static_cmd_dict.keys())):
-                                                                                                modifier_data=data[needylist_key][int(static_cmd_dict[num])]['mod_'+str(num)]
-                                                                                                modifier_keys=list(modifier_data.keys())
+                                                                                        elif(str(num) in mod_letters_list):
+                                                                                                 #modifier_data=data[needylist_key][int(static_cmd_dict[num])]['mod_     '+str(num)]
+                                                                                                 for each_mod_scope in reversed(mod_scope_track):
+                                                                                                     if(str(num) in each_mod_scope.keys()):
+                                                                                                          modifier_data=each_mod_scope[str(num)]
+                                                                                                          modifier_keys=list(modifier_data.keys())
+
                                                                                         else:
-                                                                                                #print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
+                                                                                                print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                                 sys.exit(50)
                                                                        
                                                                         elif(isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
@@ -633,14 +780,23 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                         modifier_data=data[needylist_key][each_and_every_cmd][iterate_keys][each_item]['mod_'+str(num)]
                                                                                         modifier_keys=list(modifier_data.keys())
                                                                                 
-                                                                                
+                                                                            if(not modifier_data):
+                                                                                if(str(num) in mod_letters_list):
+                                                                                        for each_mod_scope in reversed(mod_scope_track):
+                                                                                            if(str(num) in each_mod_scope.keys()):
+                                                                                                 modifier_data=each_mod_scope[str(num)]
+                                                                                                 modifier_keys=list(modifier_data.keys())
+   
                                                                                                          
                                                                         else:
-                                                                                if(str(num) in list(static_cmd_dict.keys())):
-                                                                                        modifier_data=data[needylist_key][int(static_cmd_dict[num])]["mod_"+str(num)]
-                                                                                        modifier_keys=list(modifier_data.keys())
+                                                                                if(str(num) in mod_letters_list):
+                                                                                        for each_mod_scope in reversed(mod_scope_track):
+                                                                                            if(str(num) in each_mod_scope.keys()):
+                                                                                                 modifier_data=each_mod_scope[str(num)]
+                                                                                                 modifier_keys=list(modifier_data.keys())
+
                                                                                 else:
-                                                                                        #print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
+                                                                                        print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                         sys.exit(50)
                                                                         #print("\nmodifier data start\n")
                                                                         #p#print(modifier_data)
@@ -671,7 +827,6 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                #print("\ntarget_specific_dict end\n")
                                                                                if not(splitted_target_or_not[0] in deleted_list):
                                                                                      del modifier_data[splitted_target_or_not[0]]
-                                                                                     deleted_list.append(splitted_target_or_not[0])
                                                                                for new_hash_formats in target_specific_list:
                                                                                    modifier_target_modified=new_hash_formats.split(' ')
                                                                                    if(len(modifier_target_modified)==2):
@@ -683,23 +838,24 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                                #print("\nbefore calling generate cmds target_specific_dict start\n")
                                                                                #p#print(target_specific_dict)
                                                                                #print("\nbefore calling generate cmds target_specific_dict end\n")
-
-                                                                               if not(each_target_specific_list==target_specific_list[len(target_specific_list)-1]): 
-                                                                                      tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i,'last')
-                                                                               else:
-                                                                                      tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i)
+                                                                               if not(splitted_target_or_not[0] in deleted_list):
+                                                                                     if not(each_target_specific_list==target_specific_list[len(target_specific_list)-1]): 
+                                                                                            tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i,'last')
+                                                                                     else:
+                                                                                            tmp_bkup=generatecmds_from_modifier_data_and_value(target_specific_dict,list(target_specific_dict.keys()),tmp_bkup,mod_num_list_index,mod_num_list,raw_command_list,i)
                                                                              
-                                                                               for each_device in device_name_list:
-                                                                                   target_modifier_dict_keys=target_modifier_dict.keys()
-                                                                                   if(each_device in target_modifier_dict_keys):
-                                                                                       tmp_command_list=target_modifier_dict[each_device]
-                                                                                       target_modifier_dict[each_device]=tmp_command_list+tmp_bkup
-                                                                                   else:
-                                                                                       target_modifier_dict[each_device]=tmp_bkup
-                                                                               #command_list1=[]
-                                                                               #print("\neach_device target_modifier_dict "+each_device+"\n")
-                                                                               #p#print(target_modifier_dict)
-                                                                               #print("\neach_device target_modifier_dict "+each_device+"\n")
+                                                                                     for each_device in device_name_list:
+                                                                                         target_modifier_dict_keys=target_modifier_dict.keys()
+                                                                                         if(each_device in target_modifier_dict_keys):
+                                                                                             tmp_command_list=target_modifier_dict[each_device]
+                                                                                             target_modifier_dict[each_device]=tmp_command_list+tmp_bkup
+                                                                                         else:
+                                                                                             target_modifier_dict[each_device]=tmp_bkup
+                                                                                     #command_list1=[]
+                                                                                     #print("\neach_device target_modifier_dict "+each_device+"\n")
+                                                                                     #p#print(target_modifier_dict)
+                                                                                     #print("\neach_device target_modifier_dict "+each_device+"\n")
+                                                                                     deleted_list.append(splitted_target_or_not[0])
                                                                                
                                                                         #p#print(modifier_keys)
                                                                         #print("\nmodifier keys end\n")
@@ -730,37 +886,39 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 if("LIST_HOLDER" in inside_modifier_keys):
                                                     #print("\n recursively vrf list called see this\n")
                                                     if(is_target_specific_modifier==0):
-                                                        recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets)
+                                                        recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,targets,mod_scope_track,mod_letters_list)
                                                     else:
                                                         mod_specific_targets=target_modifier_dict.keys()
                                                         for each_target in mod_specific_targets:
                                                             command_list1=target_modifier_dict[each_target]
                                                             target_specific_list=[]
                                                             target_specific_list.append(each_target[1:])
-                                                            recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,target_specific_list)
+                                                            recursive_modifier(data[needylist_key][each_and_every_cmd][iterate_keys],each_need,"LIST_HOLDER",command_list1,target_specific_list,mod_scope_track,mod_letters_list)
 
                                                     hierarchical=1
                                                     #continue 
                                                 if(len(each_and_every_cmd_keys)==1 and isinstance(data[needylist_key][each_and_every_cmd][iterate_keys],list)):
                                                     #print("\n hierarchical vrf lst called see this\n")
                                                     if(is_target_specific_modifier==0):
-                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
+                                                        recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets,mod_scope_track,mod_letters_list)
                                                     else:
                                                         mod_specific_targets=target_modifier_dict.keys()
                                                         for each_target in mod_specific_targets:
                                                             command_list1=target_modifier_dict[each_target]
                                                             target_specific_list=[]
                                                             target_specific_list.append(each_target[1:])
-                                                            recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,target_specific_list)
+                                                            recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,target_specific_list,static_cmd_dict,mod_scope_track,mod_letters_list)
 
                                                     #recursive_modifier(data[needylist_key][each_and_every_cmd],each_need,iterate_keys,command_list1,targets)
                                                     hierarchical=1
                                                     #continue
  
                                                 if(hierarchical==0):
-                                                      #print(colored("\n"+each_need+" tag successfully generated now writing to the files  \n",'green'))
+                                                      #print("\n"+each_need+" tag successfully generated now writing to the files  \n")
                                                       if(is_target_specific_modifier==0):
                                                            write_to_targets(command_list1,targets)
+                                                           #if(each_and_every_cmd==(needylist_key_len-1)):
+                                                           #   #print("\n tag "+each_need+" successfully generated for "+','.join(targets)+"  \n")
                                                       else:
                                                            mod_specific_targets=target_modifier_dict.keys()
                                                            for each_target in mod_specific_targets:
@@ -772,6 +930,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                target_specific_list=[]
                                                                target_specific_list.append(each_target.strip())
                                                                write_to_targets(command_list1,target_specific_list)      
+                                                               #if(each_and_every_cmd==(needylist_key_len-1)):
+                                                               #   #print("\n tag "+each_need+" successfully generated for "+','.join(target_specific_list)+"  \n")
                                                 if(is_target_specific_modifier==0):
                                                      command_list1=[]
                                                 else:
@@ -784,15 +944,18 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 #print("in array hierarchy")
                                                 if(is_target_specific_modifier==0):
                                                      write_to_targets(command_list1,targets)              
+                                                     #if(each_and_every_cmd==(needylist_key_len-1)):
+                                                     #   #print("\n tag "+each_need+" successfully generated for "+','.join(targets)+"  \n")
                                                 else:
                                                      mod_specific_targets=target_modifier_dict.keys()
                                                      for each_target in mod_specific_targets:
                                                          command_list1=target_modifier_dict[each_target]
                                                          target_specific_list=[]
                                                          target_specific_list.append(each_target.strip()) 
-                                                         write_to_targets(command_list1,target_specific_list)
-
-
+                                                         write_to_targets(command_list1,target_specific_list) 
+                                                         #if(each_and_every_cmd==(needylist_key_len-1)):
+                                                         #   #print("\n tag "+each_need+" successfully generated for "+','.join(target_specific_list)+"  \n")
+                              
                                                 #write_to_targets(command_list1,targets)        
                         else:
                                                 #print("not a dictionary\n")
@@ -805,8 +968,9 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                 #print("\nraw_command=="+raw_command+"\n")
                                                 raw_command_list=raw_command.split(' ')
                                                 for i in range(len(raw_command_list)):
+                                                        went_in_to_generate_cmd=1
                                                         if(re.search(r'.*{{(\w+)}}',raw_command_list[i])):
-                                                                went_in_to_generate_cmd=1
+                                                                #went_in_to_generate_cmd=1
                                                                 #print("matched a number \n\n=="+str(i)+"\n\n")
                                                                 p=re.compile(r'.*?{{(\w+)}}')
                                                                 mod_num_list=p.findall(raw_command_list[i])
@@ -821,11 +985,21 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         #print("\ninside each_mod_num_list for loop match object"+matchobj.group(1)+"\n")
                                                                         modifier_data={}
                                                                         modifier_keys=[]
-                                                                        if(str(num) in list(static_cmd_dict.keys())):
-                                                                                modifier_data=data[needylist_key][int(static_cmd_dict[num])]["mod_"+num]
-                                                                                modifier_keys=list(modifier_data.keys())
+                                                                        if(str(num) in mod_letters_list):
+                                                                                #print("\nneedylist key debug point start "+needylist_key+"\n")
+                                                                                #print("\ndata start\n")
+                                                                                #p#print(data)
+                                                                                #print("\ndata end\n")
+                                                                                #print("\nstatic_cmd_dict start\n")
+                                                                                #p#print(static_cmd_dict)
+                                                                                #print("\nstatic_cmd_dict end\n"+ "num=="+str(num))
+                                                                                for each_mod_scope in reversed(mod_scope_track):
+                                                                                    if(str(num) in each_mod_scope.keys()):
+                                                                                             modifier_data=each_mod_scope[str(num)]
+                                                                                             modifier_keys=list(modifier_data.keys())
+
                                                                         else:
-                                                                                #print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
+                                                                                print("modifier key "+num+" is missing in "+each_need +" group aborting script\n\n")
                                                                                 sys.exit(50)
                                                                         #print("\n modifier_data start\n")
                                                                         #p#print(modifier_data)
@@ -894,6 +1068,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                                         #p#print(command_list1)
                                                 if(is_target_specific_modifier==0):
                                                            write_to_targets(command_list1,targets)
+                                                           #if(each_and_every_cmd==(needylist_key_len-1)):
+                                                           #   #print("\n tag "+each_need+" successfully generated for "+','.join(targets)+"  \n")
                                                 else:
                                                      mod_specific_targets=target_modifier_dict.keys()
                                                      for each_target in mod_specific_targets:
@@ -901,6 +1077,8 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                                                          target_specific_list=[]
                                                          target_specific_list.append(each_target.strip())
                                                          write_to_targets(command_list1,target_specific_list)
+                                                         #if(each_and_every_cmd==(needylist_key_len-1)):
+                                                         #   #print("\n tag "+each_need+" successfully generated for "+','.join(target_specific_list)+"  \n")
                                                 #write_to_targets(command_list1,targets)
                                                 #print("")
                                                 if(is_target_specific_modifier==0):
@@ -915,7 +1093,10 @@ def recursive_modifier(data,each_need,needylist_key,command_list1,targets):
                 targets_str=""
                 for each_targets in targets:
                      targets_str=targets_str+str(each_targets)+","
-                #print("\n"+each_need+" group successfully generated for "+targets_str[:-1]+"  \n")
+                suc_msg="\n"+each_need+" group successfully generated for "+targets_str[:-1]+"  \n"
+                if not(suc_msg in success_msg):
+                     print("\n"+each_need+" group successfully generated for "+targets_str[:-1]+"  \n")
+                     success_msg.add("\n"+each_need+" group successfully generated for "+targets_str[:-1]+"  \n")
                                                 
         static_cmd_dict={}
 
@@ -958,81 +1139,15 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
 
    if("VALUE" in modifier_keys):
            unindentified=modifier_data["VALUE"]
-           if(unindentified.find('.')!=-1 or unindentified.find(':')!=-1):
-                    if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
-                            if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
-                                   #print("\n call start in else one2one ipv4 or ipv6 next ip function mapping is one2one== \n\n")
-                                   if (len(command_list1)==1):
-                                           #print("inside if not equal to count 1 \n\n")
-                                           if("COUNT" in modifier_keys):
-                                                   command_list1=command_list1*(int(modifier_data["COUNT"]))
-                                           else:
-                                                   #print("as a first ip modifier key you must define a Count key in a "+each_need+" group aborting script \n")
-                                                   sys.exit(100)
-                                           #print("commmand_list1 len==="+str(len(command_list1))+"\n\n")
-                                   #print("\nafter if\n")
-                                   command_track=0
-                                   ip_addr=modifier_data["VALUE"];
-                                   ip_step='x'
-                                   ip_count=0
-                                   if "STEP" in modifier_keys:
-                                           ip_step=modifier_data["STEP"];
-                                   if "COUNT" in modifier_keys:
-                                           ip_count=int(modifier_data["COUNT"]);
-                                   #print("\ncalling ip addr list method \n")
-                                   ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                   #print("\ncalling ip addr list method end \n")
-                                   ip_count=len(command_list1)
-                                   for address in ip_addr_list:
-                                           if(command_track==ip_count):
-                                                   break
-                                           #print("generated address is=="+address+"\n\n")
-                                           if(mod_num_list_index==len(mod_num_list)):
-                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', address, raw_command_list[i])
-                                           else:
-                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i])
-                                           command_track=command_track+1
-                                   if(optional==None):
-                                         raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
-                                   #print("\n command_list start\n")
-                                   #p#print(command_list1)
-                                   #print("\n command_list end\n")
-                           
-                    else:
-                           if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
-                                   #print("call start in else one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n")
-                                   if not ("COUNT" in modifier_keys):
-                                           #print("in one2many link relation count must defined aborting script \n\n")
-                                           sys.exit(150)
-                                   initial_len=len(command_list1)
-                                   command_tracker=0
-                                   command_list1=command_list1*int(modifier_data["COUNT"])
-                                   list_tracker=0
-                                   ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
-                                   for address in ip_addr_list:
-                                           if(command_tracker==int(modifier_data["COUNT"])):
-                                                   break
-                                           #print("generated address is=="+address+"\n\n")
-                                           for ukl in range(list_tracker,list_tracker+initial_len):
-                                                   if(mod_num_list_index==len(mod_num_list)):
-                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', address, raw_command_list[i]) 
-                                                   else:
-                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i]) 
-                                           list_tracker=list_tracker+initial_len
-                                           command_tracker=command_tracker+1
-                                   if(optional==None):
-                                          raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
-                                                   
-                                           
-                                   #print("after one2many operation \n\n")
-                                   #p#print(command_list1)
-                           
-                   ##one2many has ended here##
-   
-           else:
+  
+           if(isinstance(unindentified,list) or unindentified.find(',')!=-1 or unindentified.find('-')!=-1 ):
                    if( (not("MODE" in modifier_keys)) or modifier_data["MODE"]=='expand'):
                            ranges=modifier_data["VALUE"]
-                           ranges_list=mix_range_with_letters(ranges)
+                           ranges_list=[]
+                           if(isinstance(ranges,list)):
+                                ranges_list=mix_range_with_letters_argument_list
+                           else:
+                                ranges_list=mix_range_with_letters(ranges)
                            #print("\n ranges_list start \n")
                            #p#print(ranges_list)
                            #for each_range_item in range(len(ranges_list)):
@@ -1081,7 +1196,11 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                    
                    else:
                            ranges=modifier_data["VALUE"]
-                           ranges_list=mix_range_with_letters(ranges)
+                           ranges_list=[]
+                           if(isinstance(ranges,list)):
+                                ranges_list=mix_range_with_letters_argument_list
+                           else:
+                                ranges_list=mix_range_with_letters(ranges)
                            
                            #print("\nranges_list start\n")
                            #p#print(ranges_list)
@@ -1127,6 +1246,88 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
                                    #print("\ncommand_list1 start \n")
                                    #p#print(command_list1)
                                    #print("\ncommand_list1 end \n")
+
+           else:
+                    if((not("LINK" in modifier_keys)) or modifier_data["LINK"]=='one2one'):
+                            if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
+                                   #print("\n call start in else one2one ipv4 or ipv6 next ip function mapping is one2one== \n\n")
+                                   if (len(command_list1)==1):
+                                           #print("inside if not equal to count 1 \n\n")
+                                           if("COUNT" in modifier_keys):
+                                                   command_list1=command_list1*(int(modifier_data["COUNT"]))
+                                           else:
+                                                   print("as a first ip modifier key you must define a Count key in a "+each_need+" group aborting script \n")
+                                                   sys.exit(100)
+                                           #print("commmand_list1 len==="+str(len(command_list1))+"\n\n")
+                                   #print("\nafter if\n")
+                                   command_track=0
+                                   ip_addr=modifier_data["VALUE"];
+                                   ip_step='x'
+                                   ip_count=0
+                                   if "STEP" in modifier_keys:
+                                           ip_step=modifier_data["STEP"];
+                                   if "COUNT" in modifier_keys:
+                                           ip_count=int(modifier_data["COUNT"]);
+                                   #print("\ncalling ip addr list method \n")
+                                   ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
+                                   #print("\ncalling ip addr list method end \n")
+                                   ip_count=len(command_list1)
+                                   for address in ip_addr_list:
+                                           if(command_track==ip_count):
+                                                   break
+                                           #print("generated address is=="+address+"\n\n")
+                                           if(mod_num_list_index==len(mod_num_list)):
+                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', address, raw_command_list[i])
+                                           else:
+                                                command_list1[command_track]=command_list1[command_track]+" "+ re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i])
+                                           command_track=command_track+1
+                                   if(optional==None):
+                                         raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                   #print("\n command_list start\n")
+                                   #p#print(command_list1)
+                                   #print("\n command_list end\n")
+                           
+                    else:
+                           if((not("TYPE" in modifier_keys)) or modifier_data["TYPE"]=="ip"):
+                                   #print("call start in else one2many ipv4 or ipv6 next ip function mapping is one2many== \n\n")
+                                   if not ("COUNT" in modifier_keys):
+                                           print("in one2many link relation count must defined aborting script \n\n")
+                                           sys.exit(150)
+                                   initial_len=len(command_list1)
+                                   command_tracker=0
+                                   command_list1=command_list1*int(modifier_data["COUNT"])
+                                   list_tracker=0
+                                   ip_addr=modifier_data["VALUE"]
+                                   ip_step='x'
+                                   ip_count=0
+                                   if "STEP" in modifier_keys:
+                                           ip_step=modifier_data["STEP"];
+                                   if "COUNT" in modifier_keys:
+                                           ip_count=int(modifier_data["COUNT"]);
+ 
+                                   ip_addr_list=generate_ip(ip_addr,ip_step,len(command_list1))
+                                   ip_count=len(command_list1)
+                                   for address in ip_addr_list:
+                                           if(command_tracker==int(modifier_data["COUNT"])):
+                                                   break
+                                           #print("generated address is=="+address+"\n\n")
+                                           for ukl in range(list_tracker,list_tracker+initial_len):
+                                                   if(mod_num_list_index==len(mod_num_list)):
+                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', address, raw_command_list[i]) 
+                                                   else:
+                                                         command_list1[ukl]=command_list1[ukl]+" "+re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}.*', address, raw_command_list[i]) 
+                                           list_tracker=list_tracker+initial_len
+                                           command_tracker=command_tracker+1
+                                   if(optional==None):
+                                          raw_command_list[i]=re.sub(r'{{'+mod_num_list[mod_num_list_index-1]+'}}', "", raw_command_list[i])
+                                                   
+                                           
+                                   #print("after one2many operation \n\n")
+                                   #p#print(command_list1)
+                           
+                   ##one2many has ended here##
+ 
+
    return command_list1
 
 #def Config_Generate_using_template_file(filepath):
@@ -1135,13 +1336,30 @@ def generatecmds_from_modifier_data_and_value(modifier_data,modifier_keys,comman
 #         ##p#print(dict1)
 #         ##p#print(Handles.pas_handle)
 #         data = yaml_reader(filepath)
+#         #print("\ntotal_tragets start\n")
+#         #p#print(total_targets)
+#         #print("\ntotal_targets end\n")
 #         return total_targets
 if  __name__ == "__main__" :
          #filepath = "./example/ipclose.yaml"
+         #print("\nin main namespace\n")
          filepath = sys.argv[1]
-         initialize_config_engine(None,None)
+         #print("\nfilepath=="+filepath+"\n")
+         wrapper_dict={}
+         #wrapper_dict["t_handle"]=PAS_Initialize(sys.argv[2])
+         #print("\nhandle ends here\n")
+         initialize_config_engine(**wrapper_dict)
          data = yaml_reader(filepath)
-		
-		
-		
+         #print("\ntotal_tragets start\n")
+         #p#print(total_targets)
+         #print("\ntotal_targets end\n")
+         #print("\nrouter group dict start\n")
+         #p#print(router_group_dict)
+         #print("\nrouter group dict end\n")
+         devices_list=router_group_dict.keys()
+         #print("join devices_list start")
+         devices_str=','.join(devices_list)
+         #load_config_on_devices(devices_str)
+         #config_commit_on_devices(devices_str)         
+	
 #configsetgenerator('hello-interval as 20 and dead-interval as 80', 'group OSPF_CONFIG protocols ospf area 0.0.0.0')
